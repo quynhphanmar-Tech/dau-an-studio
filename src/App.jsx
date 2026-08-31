@@ -10,7 +10,7 @@ import AuthModal from './components/AuthModal';
 import { syncBrandProfileToSupabase } from './lib/supabaseClient';
 import { BRAND_ARCHETYPES } from './data/brandVibes';
 import { TRANSLATIONS } from './data/translations';
-import { ShieldCheck, Award, X, Copy, Check, FileText, User, LogIn, Edit3, Save, LogOut, Heart, Sparkles, Compass, RefreshCw, Globe } from 'lucide-react';
+import { ShieldCheck, Award, X, Copy, Check, FileText, User, LogIn, Edit3, Save, LogOut, Heart, Sparkles, Compass, RefreshCw, Globe, Menu } from 'lucide-react';
 
 const SESSIONS = [
   { id: 1, label: 'Hiểu thế mạnh', shortLabel: 'Thế mạnh', labelEn: 'Strengths', shortLabelEn: 'Strengths' },
@@ -176,69 +176,69 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-cream">
-      {/* Top Main Header */}
+    <div className="min-h-screen bg-cream overflow-x-hidden">
+      {/* Top Main Responsive Header */}
       <header className="fixed top-0 left-0 right-0 z-40 bg-cream/95 backdrop-blur-md border-b border-silver/60">
-        <div className="max-w-4xl mx-auto px-4 md:px-6 py-3 flex items-center justify-between gap-2">
+        <div className="max-w-4xl mx-auto px-3 sm:px-6 py-2.5 flex items-center justify-between gap-1.5">
           {/* Brand Logo & Main Tab Switcher */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <div 
               onClick={() => setActiveMainTab('studio')}
-              className="flex items-center gap-2 cursor-pointer"
+              className="flex items-center gap-1.5 cursor-pointer shrink-0"
             >
-              <svg width="26" height="26" viewBox="0 0 40 40" fill="none" className="opacity-90">
+              <svg width="24" height="24" viewBox="0 0 40 40" fill="none" className="opacity-90">
                 <circle cx="20" cy="20" r="18" stroke="#111111" strokeWidth="1.5" fill="none"/>
                 <circle cx="20" cy="20" r="13" stroke="#111111" strokeWidth="1.2" fill="none"/>
                 <circle cx="20" cy="20" r="8" stroke="#111111" strokeWidth="1" fill="none"/>
                 <circle cx="20" cy="20" r="3.5" fill="#111111"/>
               </svg>
-              <span className="font-serif text-base md:text-lg font-bold tracking-tight text-ink hidden sm:inline">{t.appTitle}</span>
+              <span className="font-serif text-sm sm:text-base font-bold tracking-tight text-ink hidden xs:inline">{t.appTitle}</span>
             </div>
 
             {/* TAB SWITCHER: Studio vs Hiểu Mình */}
-            <div className="flex items-center bg-white p-1 rounded-full border border-silver text-xs">
+            <div className="flex items-center bg-white p-0.5 sm:p-1 rounded-full border border-silver text-[11px] sm:text-xs">
               <button
                 onClick={() => setActiveMainTab('studio')}
-                className={`px-3 py-1 rounded-full font-bold transition-all flex items-center gap-1 ${
+                className={`px-2.5 sm:px-3 py-1 rounded-full font-bold transition-all flex items-center gap-1 ${
                   activeMainTab === 'studio' ? 'bg-ink text-cream shadow-sm' : 'text-ink/60 hover:text-ink'
                 }`}
               >
-                <Compass className="w-3.5 h-3.5" />
+                <Compass className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 <span>{hasCompletedPositioning ? t.contentStudio : t.studio5Steps}</span>
               </button>
 
               <button
                 onClick={() => setActiveMainTab('self-discovery')}
-                className={`px-3 py-1 rounded-full font-bold transition-all flex items-center gap-1 ${
+                className={`px-2.5 sm:px-3 py-1 rounded-full font-bold transition-all flex items-center gap-1 ${
                   activeMainTab === 'self-discovery' ? 'bg-coral text-white shadow-sm' : 'text-coral hover:bg-coral/10'
                 }`}
               >
-                <Heart className="w-3.5 h-3.5 fill-current" />
+                <Heart className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-current" />
                 <span>{t.selfDiscovery}</span>
               </button>
             </div>
           </div>
 
           {/* Language Switcher, Auth & Profile Action Buttons */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             {/* Bilingual VI / EN Switcher Button */}
             <button
               onClick={toggleLanguage}
-              className="text-xs font-bold text-ink bg-white hover:bg-cream px-2.5 py-1 rounded-full border border-silver shadow-sm flex items-center gap-1"
+              className="text-[10px] sm:text-xs font-bold text-ink bg-white hover:bg-cream px-2 sm:px-2.5 py-1 rounded-full border border-silver shadow-sm flex items-center gap-1"
               title="Change Language"
             >
-              <Globe className="w-3.5 h-3.5 text-accent" />
-              <span>{lang === 'vi' ? '🇻🇳 VI' : '🇬🇧 EN'}</span>
+              <Globe className="w-3 h-3 text-accent" />
+              <span>{lang === 'vi' ? 'VI' : 'EN'}</span>
             </button>
 
             {userAuth ? (
-              <div className="flex items-center gap-1.5 bg-white px-3 py-1 rounded-full border border-silver shadow-sm">
-                <User className="w-3.5 h-3.5 text-emerald-600" />
-                <span className="text-xs font-bold text-ink max-w-[90px] truncate">{userAuth.name}</span>
+              <div className="flex items-center gap-1 bg-white px-2 sm:px-2.5 py-1 rounded-full border border-silver shadow-sm text-[11px] sm:text-xs">
+                <User className="w-3 h-3 text-emerald-600" />
+                <span className="font-bold text-ink max-w-[65px] sm:max-w-[100px] truncate">{userAuth.name}</span>
                 <button
                   onClick={handleLogout}
                   title="Logout"
-                  className="p-1 hover:text-coral text-ink/40 transition-colors ml-0.5"
+                  className="p-0.5 hover:text-coral text-ink/40 transition-colors ml-0.5"
                 >
                   <LogOut className="w-3 h-3" />
                 </button>
@@ -246,32 +246,32 @@ export default function App() {
             ) : (
               <button
                 onClick={() => setShowAuthModal(true)}
-                className="text-xs font-bold text-white bg-ink hover:bg-ink/90 transition-all flex items-center gap-1.5 px-3 py-1.5 rounded-full shadow-sm"
+                className="text-[11px] sm:text-xs font-bold text-white bg-ink hover:bg-ink/90 transition-all flex items-center gap-1 px-2.5 sm:px-3 py-1 rounded-full shadow-sm"
               >
-                <LogIn className="w-3.5 h-3.5 text-cream" />
+                <LogIn className="w-3 h-3 text-cream" />
                 <span>{t.login}</span>
               </button>
             )}
 
             <button
-              className="text-xs font-bold text-ink bg-white hover:bg-cream transition-colors flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-silver shadow-sm"
+              className="text-[11px] sm:text-xs font-bold text-ink bg-white hover:bg-cream transition-colors flex items-center gap-1 px-2.5 sm:px-3 py-1 rounded-full border border-silver shadow-sm"
               onClick={() => setShowProfileDrawer(true)}
             >
-              <FileText className="w-3.5 h-3.5 text-accent" />
-              <span className="hidden sm:inline">{t.profile}</span>
+              <FileText className="w-3 h-3 text-accent" />
+              <span className="hidden xs:inline">{t.profile}</span>
             </button>
           </div>
         </div>
 
         {/* Secondary Bar for Studio Session Navigation */}
         {activeMainTab === 'studio' && (
-          <div className="bg-cream/80 border-t border-silver/40 py-2">
-            <div className="max-w-xl mx-auto px-4 flex items-center justify-between">
+          <div className="bg-cream/80 border-t border-silver/40 py-1.5 overflow-x-auto custom-scrollbar">
+            <div className="max-w-xl mx-auto px-4 flex items-center justify-between min-w-[290px]">
               {SESSIONS.map((s) => (
                 <button
                   key={s.id}
                   onClick={() => goToSession(s.id)}
-                  className={`flex items-center gap-1.5 text-xs transition-all ${
+                  className={`flex items-center gap-1 text-[11px] sm:text-xs transition-all ${
                     currentSession === s.id
                       ? 'font-extrabold text-ink scale-105'
                       : s.id < currentSession
@@ -279,12 +279,12 @@ export default function App() {
                       : 'font-normal text-ink/30'
                   }`}
                 >
-                  <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] ${
+                  <span className={`w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full flex items-center justify-center text-[9px] sm:text-[10px] ${
                     currentSession === s.id ? 'bg-ink text-cream font-mono' : 'bg-silver/60 text-ink/60'
                   }`}>
                     {s.id}
                   </span>
-                  <span className="hidden sm:inline">{lang === 'en' ? s.shortLabelEn : s.shortLabel}</span>
+                  <span className="whitespace-nowrap">{lang === 'en' ? s.shortLabelEn : s.shortLabel}</span>
                 </button>
               ))}
             </div>
@@ -294,19 +294,19 @@ export default function App() {
 
       {/* Returning User Notification Banner */}
       {hasCompletedPositioning && activeMainTab === 'studio' && currentSession === 4 && (
-        <div className="pt-24 pb-0 max-w-3xl mx-auto px-6">
-          <div className="bg-white rounded-2xl border border-silver/80 p-3.5 flex items-center justify-between shadow-sm text-xs">
+        <div className="pt-24 pb-0 max-w-3xl mx-auto px-4 sm:px-6">
+          <div className="bg-white rounded-2xl border border-silver/80 p-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 shadow-sm text-xs">
             <div className="flex items-center gap-2 text-ink/80">
               <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
               <span>
                 {lang === 'en'
-                  ? 'Welcome back! Your brand positioning is securely locked. You are in the Content & Video Studio.'
-                  : 'Chào mừng trở lại! Định vị thương hiệu của bạn đã được khóa an toàn. Bạn đang ở Xưởng Sáng Tạo Nội Dung & Video.'}
+                  ? 'Welcome back! Positioning is locked. You are in the Content & Video Studio.'
+                  : 'Chào mừng trở lại! Định vị thương hiệu đã khóa an toàn. Bạn đang ở Xưởng Content & Video.'}
               </span>
             </div>
             <button
               onClick={handleRestartCoachProcess}
-              className="text-[11px] font-bold text-accent hover:underline flex items-center gap-1 shrink-0 ml-2"
+              className="text-[11px] font-bold text-accent hover:underline flex items-center gap-1 shrink-0"
             >
               <RefreshCw className="w-3 h-3" /> {lang === 'en' ? 'Re-do Coach' : 'Chẩn đoán lại 1:1'}
             </button>
@@ -329,7 +329,7 @@ export default function App() {
       {/* Brand Profile Drawer */}
       {showProfileDrawer && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex justify-end animate-fade-in">
-          <div className="w-full max-w-md bg-cream h-full border-l border-silver p-6 md:p-8 overflow-y-auto space-y-6 flex flex-col justify-between shadow-2xl">
+          <div className="w-full max-w-md bg-cream h-full border-l border-silver p-5 md:p-8 overflow-y-auto space-y-6 flex flex-col justify-between shadow-2xl">
             <div className="space-y-6">
               <div className="flex items-center justify-between border-b border-silver/60 pb-4">
                 <div className="flex items-center gap-2">

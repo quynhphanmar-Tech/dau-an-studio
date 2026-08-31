@@ -34,7 +34,7 @@ const CONTENT_IDEAS = {
   ],
 };
 
-export default function Session4Content({ profile, updateProfile, onNext, onBack }) {
+export default function Session4Content({ profile, updateProfile, onNext, onBack, lang = 'vi' }) {
   const [selectedGoal, setSelectedGoal] = useState(null);
   const [selectedIdea, setSelectedIdea] = useState(null);
   const [showIdeas, setShowIdeas] = useState(false);
@@ -119,35 +119,35 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
   };
 
   return (
-    <div className="max-w-3xl mx-auto px-6 py-10 min-h-[calc(100vh-80px)] flex flex-col justify-between animate-fade-in-up">
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 min-h-[calc(100vh-80px)] flex flex-col justify-between animate-fade-in-up">
       <div className="flex-1 space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
           <p className="text-xs font-medium text-ink/40 uppercase tracking-widest">
-            Biến thành nội dung · Bước 4/5
+            {lang === 'en' ? 'Turn Into Content · Step 4/5' : 'Biến thành nội dung · Bước 4/5'}
           </p>
 
-          {/* Sub-tab Switcher when an idea is selected */}
+          {/* Sub-tab Switcher when an idea is selected - Responsive Scroll */}
           {currentIdea && (
-            <div className="flex items-center gap-1 bg-white p-1 rounded-full border border-silver/80 text-xs">
+            <div className="flex items-center gap-1 bg-white p-1 rounded-full border border-silver/80 text-xs overflow-x-auto max-w-full custom-scrollbar">
               <button
                 onClick={() => setActiveStudioTab('ideas')}
-                className={`px-3 py-1 rounded-full font-medium transition-all ${
+                className={`px-3 py-1 rounded-full font-medium transition-all whitespace-nowrap ${
                   activeStudioTab === 'ideas' ? 'bg-ink text-cream' : 'text-ink/60 hover:text-ink'
                 }`}
               >
-                Ý tưởng
+                {lang === 'en' ? 'Ideas' : 'Ý tưởng'}
               </button>
               <button
                 onClick={() => setActiveStudioTab('text')}
-                className={`px-3 py-1 rounded-full font-medium transition-all ${
+                className={`px-3 py-1 rounded-full font-medium transition-all whitespace-nowrap ${
                   activeStudioTab === 'text' ? 'bg-ink text-cream' : 'text-ink/60 hover:text-ink'
                 }`}
               >
-                ✍️ Bài viết
+                ✍️ {lang === 'en' ? 'Post' : 'Bài viết'}
               </button>
               <button
                 onClick={() => setActiveStudioTab('carousel')}
-                className={`px-3 py-1 rounded-full font-medium transition-all ${
+                className={`px-3 py-1 rounded-full font-medium transition-all whitespace-nowrap ${
                   activeStudioTab === 'carousel' ? 'bg-ink text-cream' : 'text-ink/60 hover:text-ink'
                 }`}
               >
@@ -155,7 +155,7 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
               </button>
               <button
                 onClick={() => setActiveStudioTab('video')}
-                className={`px-3 py-1 rounded-full font-medium transition-all ${
+                className={`px-3 py-1 rounded-full font-medium transition-all whitespace-nowrap ${
                   activeStudioTab === 'video' ? 'bg-ink text-cream' : 'text-ink/60 hover:text-ink'
                 }`}
               >
@@ -165,14 +165,16 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
           )}
         </div>
 
-        <h1 className="font-serif text-3xl md:text-4xl font-semibold text-ink leading-snug">
-          Tuần này bạn muốn <span className="highlight-word">nội dung</span> giúp mình điều gì?
+        <h1 className="font-serif text-2xl sm:text-4xl font-semibold text-ink leading-snug">
+          {lang === 'en' ? 'What do you want content to achieve this week?' : 'Tuần này bạn muốn '}
+          <span className="highlight-word">{lang === 'en' ? '' : 'nội dung'}</span>
+          {lang === 'en' ? '' : ' giúp mình điều gì?'}
         </h1>
 
         {/* Content Goal Selection */}
         {activeStudioTab === 'ideas' && (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {CONTENT_GOALS.map((goal) => {
                 const Icon = goal.icon;
                 const isSelected = selectedGoal === goal.id;
@@ -182,7 +184,7 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
                     onClick={() => handleSelectGoal(goal.id)}
                     className={`p-4 rounded-2xl border text-left transition-all flex items-center gap-3.5 ${
                       isSelected
-                        ? 'bg-ink text-cream border-ink'
+                        ? 'bg-ink text-cream border-ink shadow-sm'
                         : 'bg-white border-silver/80 hover:border-ink/30'
                     }`}
                   >
@@ -194,9 +196,9 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
             </div>
 
             {/* Paste Link Remixer Shortcut */}
-            <div className="bg-white rounded-2xl border border-silver/80 p-4 flex items-center justify-between gap-3">
+            <div className="bg-white rounded-2xl border border-silver/80 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center text-accent">
+                <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center text-accent shrink-0">
                   <Link2 className="w-4 h-4" />
                 </div>
                 <div>
@@ -206,7 +208,7 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
               </div>
               <button
                 onClick={() => setActiveStudioTab('remix')}
-                className="px-3 py-1.5 rounded-full bg-cream border border-silver text-xs font-semibold text-ink hover:bg-ink hover:text-cream transition-all"
+                className="px-4 py-1.5 rounded-full bg-cream border border-silver text-xs font-semibold text-ink hover:bg-ink hover:text-cream transition-all shrink-0"
               >
                 Thử ngay
               </button>
@@ -248,12 +250,12 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
                             <p><strong className="text-ink/40 font-normal">Dành cho:</strong> {idea.audience}</p>
                           </div>
 
-                          <div className="flex items-center justify-between pt-3 border-t border-silver/50">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-3 border-t border-silver/50">
                             <span className="text-[11px] text-emerald-700 font-medium">✓ {idea.result}</span>
                             <div className="flex items-center gap-2">
                               <button
                                 onClick={(e) => { e.stopPropagation(); setSelectedIdea(i); setActiveStudioTab('text'); }}
-                                className="px-3 py-1 rounded-full bg-ink text-cream text-xs font-semibold hover:bg-ink/90 transition-all"
+                                className="px-3.5 py-1 rounded-full bg-ink text-cream text-xs font-semibold hover:bg-ink/90 transition-all"
                               >
                                 Mở Studio Ấn Phẩm
                               </button>
@@ -271,8 +273,8 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
 
         {/* Studio Tab: Full Post Text Generator */}
         {activeStudioTab === 'text' && currentIdea && (
-          <div className="bg-white rounded-2xl border border-silver/80 p-6 space-y-4 animate-fade-in-up">
-            <div className="flex items-center justify-between border-b border-silver/50 pb-3">
+          <div className="bg-white rounded-2xl border border-silver/80 p-5 md:p-6 space-y-4 animate-fade-in-up">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-silver/50 pb-3 gap-2">
               <span className="text-xs font-semibold uppercase tracking-wider text-ink/40">Bài viết chi tiết (Có thể chỉnh sửa)</span>
               
               <div className="flex items-center gap-2">
@@ -298,22 +300,22 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
               type="text"
               value={editablePostTitle}
               onChange={(e) => setEditablePostTitle(e.target.value)}
-              className="w-full font-serif text-xl font-semibold text-ink bg-cream/50 p-2 rounded-lg border border-silver/60 focus:border-ink"
+              className="w-full font-serif text-lg sm:text-xl font-semibold text-ink bg-cream/50 p-2 rounded-lg border border-silver/60 focus:border-ink"
             />
 
             <textarea
               rows={10}
               value={editablePostBody}
               onChange={(e) => setEditablePostBody(e.target.value)}
-              className="w-full text-sm text-ink/80 leading-relaxed font-sans bg-cream/50 p-4 rounded-xl border border-silver/60 focus:border-ink resize-none"
+              className="w-full text-xs sm:text-sm text-ink/80 leading-relaxed font-sans bg-cream/50 p-4 rounded-xl border border-silver/60 focus:border-ink resize-none"
             />
           </div>
         )}
 
         {/* Studio Tab: Notion-Style 5-Slide Carousel */}
         {activeStudioTab === 'carousel' && currentIdea && (
-          <div className="bg-white rounded-2xl border border-silver/80 p-6 space-y-4 animate-fade-in-up">
-            <div className="flex items-center justify-between border-b border-silver/50 pb-3">
+          <div className="bg-white rounded-2xl border border-silver/80 p-5 md:p-6 space-y-4 animate-fade-in-up">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-silver/50 pb-3 gap-2">
               <span className="text-xs font-semibold uppercase tracking-wider text-ink/40">Carousel 5-Slide Notion Style</span>
               
               <div className="flex items-center gap-2">
@@ -335,7 +337,7 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-2.5 pt-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5 pt-2">
               {[
                 { slide: 1, tag: "COVER", title: currentIdea.title, body: `Bởi ${profile.name || 'Chuyên gia'}` },
                 { slide: 2, tag: "PAIN", title: "Sai lầm phổ biến", body: "Làm tư vấn tự do nhưng bán thời gian giá rẻ" },
@@ -356,7 +358,7 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
           </div>
         )}
 
-        {/* Studio Tab: Full Video Studio Engine (Restored with Teleprompter, B-Roll, 4 Modes, AI Auto-Assembly) */}
+        {/* Studio Tab: Full Video Studio Engine */}
         {activeStudioTab === 'video' && (
           <VideoStudioEngine
             ideaTitle={editablePostTitle || currentIdea?.title}
@@ -367,13 +369,13 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
 
         {/* Studio Tab: Viral Remixer */}
         {activeStudioTab === 'remix' && (
-          <div className="bg-white rounded-2xl border border-silver/80 p-6 space-y-4 animate-fade-in-up">
+          <div className="bg-white rounded-2xl border border-silver/80 p-5 md:p-6 space-y-4 animate-fade-in-up">
             <div className="space-y-1">
               <h3 className="font-serif text-lg font-semibold text-ink">Viral Remixer — Tái Cấu Trúc Nội Dung</h3>
               <p className="text-xs text-ink/50">Dán bất kỳ link bài viết hoặc video TikTok/LinkedIn nào để AI tự động chuyển hóa thành góc nhìn của bạn.</p>
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <input
                 type="text"
                 value={remixUrl}
@@ -384,7 +386,7 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
               <button
                 onClick={handleRemixLink}
                 disabled={isRemixing || !remixUrl.trim()}
-                className="px-5 py-2 rounded-xl bg-ink text-cream text-xs font-semibold hover:bg-ink/90 transition-all disabled:opacity-30 flex items-center gap-1.5 shrink-0"
+                className="px-5 py-2.5 rounded-xl bg-ink text-cream text-xs font-semibold hover:bg-ink/90 transition-all disabled:opacity-30 flex items-center justify-center gap-1.5 shrink-0"
               >
                 {isRemixing ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Wand2 className="w-3.5 h-3.5" />}
                 <span>Remix Ngay</span>
@@ -415,7 +417,7 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
       {/* Auto Publish & Schedule Modal */}
       {showScheduleModal && (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
-          <div className="w-full max-w-md bg-cream border border-silver rounded-3xl p-6 space-y-5 shadow-2xl relative">
+          <div className="w-full max-w-md bg-cream border border-silver rounded-3xl p-6 space-y-5 shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => setShowScheduleModal(false)}
               className="absolute right-5 top-5 p-2 rounded-full bg-white border border-silver/80 text-ink/60 hover:text-ink"
@@ -507,14 +509,14 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
       <div className="pt-8 pb-4 flex items-center justify-between">
         <button onClick={onBack} className="inline-flex items-center gap-1.5 text-sm text-ink/50 hover:text-ink transition-colors">
           <ArrowLeft className="w-4 h-4" />
-          Quay lại
+          {lang === 'en' ? 'Back' : 'Quay lại'}
         </button>
 
         <button
           onClick={onNext}
           className="inline-flex items-center gap-2 bg-ink text-cream px-6 py-3 rounded-full text-sm font-semibold hover:bg-ink/90 transition-all active:scale-95"
         >
-          Theo dõi cơ hội
+          {lang === 'en' ? 'Track Opportunities' : 'Theo dõi cơ hội'}
           <ArrowRight className="w-4 h-4" />
         </button>
       </div>
