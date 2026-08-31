@@ -5,10 +5,11 @@ import Session2Positioning from './components/Session2Positioning';
 import Session3Packaging from './components/Session3Packaging';
 import Session4Content from './components/Session4Content';
 import Session5Opportunities from './components/Session5Opportunities';
+import SelfDiscoveryTab from './components/SelfDiscoveryTab';
 import AuthModal from './components/AuthModal';
 import { syncBrandProfileToSupabase } from './lib/supabaseClient';
 import { BRAND_ARCHETYPES } from './data/brandVibes';
-import { ShieldCheck, Award, X, Copy, Check, FileText, User, LogIn, Edit3, Save, LogOut } from 'lucide-react';
+import { ShieldCheck, Award, X, Copy, Check, FileText, User, LogIn, Edit3, Save, LogOut, Heart, Sparkles } from 'lucide-react';
 
 const SESSIONS = [
   { id: 1, label: 'Hiểu thế mạnh', shortLabel: 'Thế mạnh' },
@@ -20,6 +21,7 @@ const SESSIONS = [
 
 export default function App() {
   const [currentSession, setCurrentSession] = useState(1);
+  const [activeMainTab, setActiveMainTab] = useState('studio'); // 'studio' | 'self-discovery'
   const [showProfileDrawer, setShowProfileDrawer] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   
@@ -64,7 +66,6 @@ export default function App() {
     };
   });
 
-  // Save profile to localStorage whenever updated
   const updateProfile = (updates) => {
     setBrandProfile(prev => {
       const newProf = { ...prev, ...updates };
@@ -92,6 +93,7 @@ export default function App() {
   };
 
   const goToSession = (n) => {
+    setActiveMainTab('studio');
     if (n >= 1 && n <= 5) setCurrentSession(n);
   };
 
@@ -102,9 +104,13 @@ export default function App() {
     setTimeout(() => setCopiedProfile(false), 2000);
   };
 
-  const renderSession = () => {
+  const renderContent = () => {
+    if (activeMainTab === 'self-discovery') {
+      return <SelfDiscoveryTab profile={brandProfile} updateProfile={updateProfile} />;
+    }
+
     switch (currentSession) {
-      case 1: return <Session1Strengths profile={brandProfile} updateProfile={updateProfile} onNext={() => goToSession(2)} />;
+      case 1: return <Session1Strengths profile={brandProfile} updateProfile={updateProfile} onNext={() => goToSession(2)} userAuth={userAuth} onLoginSuccess={handleLoginSuccess} />;
       case 2: return <Session2Positioning profile={brandProfile} updateProfile={updateProfile} onNext={() => goToSession(3)} onBack={() => goToSession(1)} />;
       case 3: return <Session3Packaging profile={brandProfile} updateProfile={updateProfile} onNext={() => goToSession(4)} onBack={() => goToSession(2)} />;
       case 4: return <Session4Content profile={brandProfile} updateProfile={updateProfile} onNext={() => goToSession(5)} onBack={() => goToSession(3)} />;
@@ -129,31 +135,48 @@ export default function App() {
             <span className="font-serif text-lg font-semibold tracking-tight text-ink">Dấu Ấn</span>
           </div>
 
-          {/* Session Steps (Dots) */}
-          <div className="flex items-center gap-2">
-            {SESSIONS.map((s) => (
-              <button
-                key={s.id}
-                onClick={() => goToSession(s.id)}
-                className="group relative flex items-center"
-                title={s.label}
-              >
-                <div className={`step-dot ${
-                  currentSession === s.id
-                    ? 'w-7 bg-ink'
-                    : s.id < currentSession
-                    ? 'bg-ink'
-                    : 'bg-silver'
-                }`} />
-                <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] text-ink/60 font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                  {s.shortLabel}
-                </span>
-              </button>
-            ))}
-          </div>
+          {/* Session Steps or Self-Discovery Switcher */}
+          {activeMainTab === 'studio' ? (
+            <div className="flex items-center gap-2">
+              {SESSIONS.map((s) => (
+                <button
+                  key={s.id}
+                  onClick={() => goToSession(s.id)}
+                  className="group relative flex items-center"
+                  title={s.label}
+                >
+                  <div className={`step-dot ${
+                    currentSession === s.id
+                      ? 'w-7 bg-ink'
+                      : s.id < currentSession
+                      ? 'bg-ink'
+                      : 'bg-silver'
+                  }`} />
+                  <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] text-ink/60 font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                    {s.shortLabel}
+                  </span>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <span className="text-xs font-serif italic text-accent font-semibold">Góc Khai Vấn ICF · Hiểu Mình</span>
+          )}
 
-          {/* Auth & Profile Actions (Auto persistent test status) */}
+          {/* Auth, Self-Discovery & Profile Actions */}
           <div className="flex items-center gap-2">
+            {/* Hiểu Mình Tab Toggle Button */}
+            <button
+              onClick={() => setActiveMainTab(activeMainTab === 'studio' ? 'self-discovery' : 'studio')}
+              className={`text-xs font-semibold px-3 py-1.5 rounded-full border transition-all flex items-center gap-1.5 ${
+                activeMainTab === 'self-discovery'
+                  ? 'bg-coral text-white border-coral shadow'
+                  : 'bg-white border-silver/80 text-ink hover:border-ink/40'
+              }`}
+            >
+              <Heart className="w-3.5 h-3.5 fill-current" />
+              <span>{activeMainTab === 'self-discovery' ? 'Vào Studio 5 Bước' : '🌿 Hiểu Mình'}</span>
+            </button>
+
             {userAuth ? (
               <div className="flex items-center gap-1">
                 <span className="text-xs font-semibold text-ink bg-white px-2.5 py-1 rounded-full border border-silver flex items-center gap-1">
@@ -191,7 +214,7 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="pt-20 min-h-screen">
-        {renderSession()}
+        {renderContent()}
       </main>
 
       {/* Auth Modal */}
