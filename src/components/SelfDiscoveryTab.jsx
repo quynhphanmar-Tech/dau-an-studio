@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Sparkles, RefreshCw, Heart, CheckCircle2, ArrowRight, BookOpen, Quote, ShieldCheck, Send } from 'lucide-react';
 import { ICF_COACHING_QUESTIONS, MOTIVATIONAL_QUOTES } from '../data/coachingQuotes';
+import { syncReflectionToSupabase } from '../lib/supabaseClient';
 
 export default function SelfDiscoveryTab({ profile, updateProfile }) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -45,6 +46,9 @@ export default function SelfDiscoveryTab({ profile, updateProfile }) {
     try {
       localStorage.setItem('dauan_reflections', JSON.stringify(updated));
     } catch (e) {}
+
+    // Sync to Supabase Database
+    syncReflectionToSupabase(newEntry);
 
     setShowCoachAcknowledgement(true);
   };

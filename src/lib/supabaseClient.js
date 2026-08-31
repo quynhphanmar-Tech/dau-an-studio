@@ -29,6 +29,9 @@ export async function syncBrandProfileToSupabase(profile) {
           positioning_statement: profile.positioningStatement,
           offer_type: profile.offerType,
           offer_description: profile.offerDescription,
+          archetype_id: profile.archetypeId,
+          archetype_name: profile.archetypeName,
+          brand_vibe: profile.brandVibe,
           updated_at: new Date().toISOString(),
         }
       ]);
@@ -55,9 +58,11 @@ export async function syncOpportunityToSupabase(opportunity) {
       .insert([
         {
           person: opportunity.person,
+          role: opportunity.role,
           message: opportunity.message,
           source: opportunity.source,
           status: opportunity.status || 'new',
+          value: opportunity.value,
           created_at: new Date().toISOString(),
         }
       ]);
@@ -66,6 +71,35 @@ export async function syncOpportunityToSupabase(opportunity) {
     return { success: true, data };
   } catch (err) {
     console.error('Supabase Opportunity Sync Error:', err);
+    return { success: false, error: err.message };
+  }
+}
+
+/**
+ * Helper to sync ICF Reflections & Commitments to Supabase database
+ */
+export async function syncReflectionToSupabase(reflection) {
+  try {
+    if (!import.meta.env.VITE_SUPABASE_URL) {
+      return { success: false, error: 'Missing VITE_SUPABASE_URL' };
+    }
+
+    const { data, error } = await supabase
+      .from('reflections')
+      .insert([
+        {
+          category: reflection.category,
+          question: reflection.question,
+          reflection_text: reflection.reflection,
+          action_commitment: reflection.commitment,
+          created_at: new Date().toISOString(),
+        }
+      ]);
+
+    if (error) throw error;
+    return { success: true, data };
+  } catch (err) {
+    console.error('Supabase Reflection Sync Error:', err);
     return { success: false, error: err.message };
   }
 }
