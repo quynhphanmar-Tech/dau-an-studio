@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowRight, ArrowLeft, Target, Heart, MessageCircle, Handshake, FileText, Video, LayoutGrid, Sparkles, Film, Music, Download, Play, Pause, Copy, Check, Link2, Wand2, RefreshCw, Eye, MoveVertical, Send, Calendar, Clock, Globe, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import { synthesizeServerAudio } from '../lib/audioServerEngine';
 import { SOCIAL_PLATFORMS } from '../data/brandVibes';
+import VideoStudioEngine from './VideoStudioEngine';
 
 const CONTENT_GOALS = [
   { id: 'awareness', icon: Target, label: 'Để đúng khách hàng biết đến tôi', color: 'text-accent' },
@@ -58,9 +59,6 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
   const [remixUrl, setRemixUrl] = useState('');
   const [isRemixing, setIsRemixing] = useState(false);
   const [remixedResult, setRemixedResult] = useState(null);
-
-  // Video Studio State
-  const [isPlayingVideo, setIsPlayingVideo] = useState(false);
 
   const ideas = selectedGoal ? CONTENT_IDEAS[selectedGoal] : [];
   const currentIdea = selectedIdea !== null ? ideas[selectedIdea] : null;
@@ -120,36 +118,6 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
     }, 1500);
   };
 
-  // Speech playback
-  const togglePlayVideo = () => {
-    if (!isPlayingVideo) {
-      setIsPlayingVideo(true);
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-        const text = currentIdea ? currentIdea.title + ". " + currentIdea.why : "Nội dung thương hiệu chuyên gia chất lượng cao.";
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'vi-VN';
-        utterance.rate = 0.93;
-        utterance.pitch = 0.95;
-        utterance.onend = () => setIsPlayingVideo(false);
-        window.speechSynthesis.speak(utterance);
-      }
-    } else {
-      setIsPlayingVideo(false);
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-      }
-    }
-  };
-
-  useEffect(() => {
-    return () => {
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-      }
-    };
-  }, []);
-
   return (
     <div className="max-w-3xl mx-auto px-6 py-10 min-h-[calc(100vh-80px)] flex flex-col justify-between animate-fade-in-up">
       <div className="flex-1 space-y-6">
@@ -191,7 +159,7 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
                   activeStudioTab === 'video' ? 'bg-ink text-cream' : 'text-ink/60 hover:text-ink'
                 }`}
               >
-                🎬 Video 9:16
+                🎬 Video 9:16 & Teleprompter
               </button>
             </div>
           )}
@@ -301,7 +269,7 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
           </div>
         )}
 
-        {/* Studio Tab: Full Post Text Generator with Full Editing & Auto Publish */}
+        {/* Studio Tab: Full Post Text Generator */}
         {activeStudioTab === 'text' && currentIdea && (
           <div className="bg-white rounded-2xl border border-silver/80 p-6 space-y-4 animate-fade-in-up">
             <div className="flex items-center justify-between border-b border-silver/50 pb-3">
@@ -388,56 +356,13 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
           </div>
         )}
 
-        {/* Studio Tab: 9:16 Vertical Video Studio */}
-        {activeStudioTab === 'video' && currentIdea && (
-          <div className="bg-white rounded-2xl border border-silver/80 p-6 space-y-4 animate-fade-in-up">
-            <div className="flex items-center justify-between border-b border-silver/50 pb-3">
-              <span className="text-xs font-semibold uppercase tracking-wider text-ink/40">Studio Video Dọc 9:16 Chuẩn Safe Zone</span>
-              
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setShowScheduleModal(true)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-accent text-white text-xs font-semibold hover:bg-accent/90 transition-all shadow-sm"
-                >
-                  <Send className="w-3.5 h-3.5" />
-                  <span>Đăng Video</span>
-                </button>
-
-                <button
-                  onClick={togglePlayVideo}
-                  className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-ink text-cream text-xs font-semibold hover:bg-ink/90 transition-all"
-                >
-                  {isPlayingVideo ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 fill-current" />}
-                  <span>{isPlayingVideo ? 'Dừng' : 'Phát'}</span>
-                </button>
-              </div>
-            </div>
-
-            <div className="flex flex-col items-center pt-2">
-              <div className="w-full max-w-[280px] aspect-[9/16] bg-ink rounded-[32px] border-4 border-silver/80 relative overflow-hidden flex flex-col justify-between p-4 shadow-xl">
-                <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80 pointer-events-none" />
-
-                <div className="relative z-10 flex items-center justify-between text-white pt-1">
-                  <span className="text-[9px] font-bold bg-white/20 backdrop-blur px-2 py-0.5 rounded-full">9:16 TikTok / Reels</span>
-                  <span className="text-[9px] text-amber-300 font-bold">CapCut SFX On</span>
-                </div>
-
-                <div className="relative z-10 my-auto text-center px-2 space-y-1.5">
-                  <div className="inline-block bg-amber-400 text-slate-950 font-black text-xs px-2.5 py-0.5 rounded-lg uppercase tracking-tight shadow">
-                    {editablePostTitle.slice(0, 25)}...
-                  </div>
-                  <p className="text-[11px] text-white font-semibold bg-black/60 backdrop-blur p-2 rounded-xl border border-white/20 leading-snug">
-                    "{currentIdea.why}"
-                  </p>
-                </div>
-
-                <div className="relative z-10 text-left text-white text-[10px] pb-1">
-                  <p className="font-bold">{profile.name || 'Chuyên gia'}</p>
-                  <p className="text-white/60 text-[9px]">Dấu Ấn Studio Verified</p>
-                </div>
-              </div>
-            </div>
-          </div>
+        {/* Studio Tab: Full Video Studio Engine (Restored with Teleprompter, B-Roll, 4 Modes, AI Auto-Assembly) */}
+        {activeStudioTab === 'video' && (
+          <VideoStudioEngine
+            ideaTitle={editablePostTitle || currentIdea?.title}
+            ideaWhy={currentIdea?.why}
+            profile={profile}
+          />
         )}
 
         {/* Studio Tab: Viral Remixer */}
