@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowRight, ArrowLeft, Target, Heart, MessageCircle, Handshake, FileText, Video, LayoutGrid, Sparkles, Film, Music, Download, Play, Pause, Copy, Check, Link2, Wand2, RefreshCw, Eye, MoveVertical, Send, Calendar, Clock, Globe, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Target, Heart, MessageCircle, Handshake, FileText, Video, LayoutGrid, Sparkles, Film, Music, Download, Play, Pause, Copy, Check, Link2, Wand2, RefreshCw, Eye, MoveVertical, Send, Calendar, Clock, Globe, ShieldCheck, CheckCircle2, Lightbulb } from 'lucide-react';
 import { synthesizeServerAudio } from '../lib/audioServerEngine';
 import { SOCIAL_PLATFORMS } from '../data/brandVibes';
 import VideoStudioEngine from './VideoStudioEngine';
@@ -35,9 +35,9 @@ const CONTENT_IDEAS = {
 };
 
 export default function Session4Content({ profile, updateProfile, onNext, onBack, lang = 'vi' }) {
-  const [selectedGoal, setSelectedGoal] = useState(null);
-  const [selectedIdea, setSelectedIdea] = useState(null);
-  const [showIdeas, setShowIdeas] = useState(false);
+  const [selectedGoal, setSelectedGoal] = useState('awareness');
+  const [selectedIdea, setSelectedIdea] = useState(0);
+  const [showIdeas, setShowIdeas] = useState(true);
   
   // Output Asset Studio Mode: 'ideas' | 'text' | 'carousel' | 'video' | 'remix'
   const [activeStudioTab, setActiveStudioTab] = useState('ideas');
@@ -52,16 +52,16 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
   const [isPublishing, setIsPublishing] = useState(false);
 
   // Editable post content
-  const [editablePostTitle, setEditablePostTitle] = useState('');
-  const [editablePostBody, setEditablePostBody] = useState('');
+  const [editablePostTitle, setEditablePostTitle] = useState('Sai lầm #1 khi chuyển sang làm tự do');
+  const [editablePostBody, setEditablePostBody] = useState(`Nhiều người nghĩ rằng có ${profile.yearsExperience || '10+ năm'} kinh nghiệm thì cứ ra làm tự do là có khách. Nhưng sự thật là: Chuyên môn giỏi mà không có định vị đúng thì bạn vẫn mãi kiệt sức với giá thấp.\n\n3 nguyên tắc thực chiến:\n1. Chọn 1 WHO chuẩn xác: Tập trung vào nhóm khách hàng ${profile.whoHelp || 'chuyển đổi'}.\n2. Chuẩn bị Quỹ Sinh Tồn 12 tháng.\n3. Đóng gói Signature Offer: Buổi chẩn đoán 1:1 giải quyết 1 nỗi đau duy nhất.\n\nNếu bạn đang chuẩn bị chuyển đổi, hãy nhắn cho tôi để nhận buổi chẩn đoán 1:1 đầu tiên.`);
 
   // Link Remix State
   const [remixUrl, setRemixUrl] = useState('');
   const [isRemixing, setIsRemixing] = useState(false);
   const [remixedResult, setRemixedResult] = useState(null);
 
-  const ideas = selectedGoal ? CONTENT_IDEAS[selectedGoal] : [];
-  const currentIdea = selectedIdea !== null ? ideas[selectedIdea] : null;
+  const ideas = selectedGoal ? CONTENT_IDEAS[selectedGoal] : CONTENT_IDEAS.awareness;
+  const currentIdea = selectedIdea !== null ? ideas[selectedIdea] : ideas[0];
 
   useEffect(() => {
     if (currentIdea) {
@@ -72,10 +72,9 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
 
   const handleSelectGoal = (goalId) => {
     setSelectedGoal(goalId);
-    setSelectedIdea(null);
+    setSelectedIdea(0);
     setShowIdeas(false);
-    setActiveStudioTab('ideas');
-    setTimeout(() => setShowIdeas(true), 600);
+    setTimeout(() => setShowIdeas(true), 300);
   };
 
   const handleCopyText = (text) => {
@@ -121,48 +120,63 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 min-h-[calc(100vh-80px)] flex flex-col justify-between animate-fade-in-up">
       <div className="flex-1 space-y-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-          <p className="text-xs font-medium text-ink/40 uppercase tracking-widest">
-            {lang === 'en' ? 'Turn Into Content · Step 4/5' : 'Biến thành nội dung · Bước 4/5'}
-          </p>
-
-          {/* Sub-tab Switcher when an idea is selected - Responsive Scroll */}
-          {currentIdea && (
-            <div className="flex items-center gap-1 bg-white p-1 rounded-full border border-silver/80 text-xs overflow-x-auto max-w-full custom-scrollbar">
+        {/* ALWAYS VISIBLE SUB-TAB SWITCHER BAR AT THE VERY TOP OF SESSION 4 */}
+        <div className="bg-white p-2 rounded-2xl border border-silver/80 shadow-sm space-y-2">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-silver/50 pb-2">
+            <span className="text-xs font-bold text-ink flex items-center gap-1.5 uppercase tracking-wider">
+              <Sparkles className="w-4 h-4 text-accent" />
+              Xưởng Sản Xuất Ấn Phẩm Nội Dung:
+            </span>
+            
+            {/* Always visible sub-tabs */}
+            <div className="flex items-center gap-1 bg-cream p-1 rounded-full border border-silver text-xs overflow-x-auto max-w-full custom-scrollbar">
               <button
                 onClick={() => setActiveStudioTab('ideas')}
-                className={`px-3 py-1 rounded-full font-medium transition-all whitespace-nowrap ${
-                  activeStudioTab === 'ideas' ? 'bg-ink text-cream' : 'text-ink/60 hover:text-ink'
+                className={`px-3 py-1.5 rounded-full font-bold transition-all whitespace-nowrap ${
+                  activeStudioTab === 'ideas' ? 'bg-ink text-cream shadow-sm' : 'text-ink/60 hover:text-ink'
                 }`}
               >
-                {lang === 'en' ? 'Ideas' : 'Ý tưởng'}
+                <Lightbulb className="w-3.5 h-3.5 inline mr-1" />
+                {lang === 'en' ? 'Ideas & Goals' : 'Ý Tưởng & Trụ Cột'}
               </button>
+
               <button
                 onClick={() => setActiveStudioTab('text')}
-                className={`px-3 py-1 rounded-full font-medium transition-all whitespace-nowrap ${
-                  activeStudioTab === 'text' ? 'bg-ink text-cream' : 'text-ink/60 hover:text-ink'
+                className={`px-3 py-1.5 rounded-full font-bold transition-all whitespace-nowrap ${
+                  activeStudioTab === 'text' ? 'bg-ink text-cream shadow-sm' : 'text-ink/60 hover:text-ink'
                 }`}
               >
-                ✍️ {lang === 'en' ? 'Post' : 'Bài viết'}
+                ✍️ {lang === 'en' ? 'Full Post' : 'Bài Viết Chi Tiết'}
               </button>
+
               <button
                 onClick={() => setActiveStudioTab('carousel')}
-                className={`px-3 py-1 rounded-full font-medium transition-all whitespace-nowrap ${
-                  activeStudioTab === 'carousel' ? 'bg-ink text-cream' : 'text-ink/60 hover:text-ink'
+                className={`px-3 py-1.5 rounded-full font-bold transition-all whitespace-nowrap ${
+                  activeStudioTab === 'carousel' ? 'bg-ink text-cream shadow-sm' : 'text-ink/60 hover:text-ink'
                 }`}
               >
                 🎨 Carousel 5-Slide
               </button>
+
               <button
                 onClick={() => setActiveStudioTab('video')}
-                className={`px-3 py-1 rounded-full font-medium transition-all whitespace-nowrap ${
-                  activeStudioTab === 'video' ? 'bg-ink text-cream' : 'text-ink/60 hover:text-ink'
+                className={`px-3 py-1.5 rounded-full font-bold transition-all whitespace-nowrap ${
+                  activeStudioTab === 'video' ? 'bg-ink text-cream shadow-sm' : 'text-ink/60 hover:text-ink'
                 }`}
               >
                 🎬 Video 9:16 & Teleprompter
               </button>
+
+              <button
+                onClick={() => setActiveStudioTab('remix')}
+                className={`px-3 py-1.5 rounded-full font-bold transition-all whitespace-nowrap ${
+                  activeStudioTab === 'remix' ? 'bg-ink text-cream shadow-sm' : 'text-ink/60 hover:text-ink'
+                }`}
+              >
+                🔗 Viral Remixer
+              </button>
             </div>
-          )}
+          </div>
         </div>
 
         <h1 className="font-serif text-2xl sm:text-4xl font-semibold text-ink leading-snug">
@@ -171,7 +185,7 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
           {lang === 'en' ? '' : ' giúp mình điều gì?'}
         </h1>
 
-        {/* Content Goal Selection */}
+        {/* Content Goal Selection & Idea List */}
         {activeStudioTab === 'ideas' && (
           <div className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -195,25 +209,6 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
               })}
             </div>
 
-            {/* Paste Link Remixer Shortcut */}
-            <div className="bg-white rounded-2xl border border-silver/80 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center text-accent shrink-0">
-                  <Link2 className="w-4 h-4" />
-                </div>
-                <div>
-                  <p className="text-xs font-semibold text-ink">Remix từ Link TikTok / LinkedIn thành công</p>
-                  <p className="text-[11px] text-ink/40">Dán link bất kỳ để tái cấu trúc theo góc nhìn chuyên gia của bạn</p>
-                </div>
-              </div>
-              <button
-                onClick={() => setActiveStudioTab('remix')}
-                className="px-4 py-1.5 rounded-full bg-cream border border-silver text-xs font-semibold text-ink hover:bg-ink hover:text-cream transition-all shrink-0"
-              >
-                Thử ngay
-              </button>
-            </div>
-
             {/* AI Generated Content Ideas */}
             {selectedGoal && (
               <div className="space-y-4">
@@ -225,7 +220,7 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
                 ) : (
                   <>
                     <p className="text-xs font-medium text-ink/40 uppercase tracking-widest">
-                      3 ý tưởng gợi ý riêng cho bạn
+                      3 ý tưởng gợi ý riêng cho bạn (Bấm chọn để sản xuất ấn phẩm):
                     </p>
 
                     {ideas.map((idea, i) => {
@@ -255,9 +250,15 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
                             <div className="flex items-center gap-2">
                               <button
                                 onClick={(e) => { e.stopPropagation(); setSelectedIdea(i); setActiveStudioTab('text'); }}
-                                className="px-3.5 py-1 rounded-full bg-ink text-cream text-xs font-semibold hover:bg-ink/90 transition-all"
+                                className="px-3.5 py-1.5 rounded-full bg-ink text-cream text-xs font-bold hover:bg-ink/90 transition-all"
                               >
-                                Mở Studio Ấn Phẩm
+                                ✍️ Viết Bài
+                              </button>
+                              <button
+                                onClick={(e) => { e.stopPropagation(); setSelectedIdea(i); setActiveStudioTab('video'); }}
+                                className="px-3.5 py-1.5 rounded-full bg-accent text-white text-xs font-bold hover:bg-accent/90 transition-all"
+                              >
+                                🎬 Dựng Video 9:16
                               </button>
                             </div>
                           </div>
@@ -272,7 +273,7 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
         )}
 
         {/* Studio Tab: Full Post Text Generator */}
-        {activeStudioTab === 'text' && currentIdea && (
+        {activeStudioTab === 'text' && (
           <div className="bg-white rounded-2xl border border-silver/80 p-5 md:p-6 space-y-4 animate-fade-in-up">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-silver/50 pb-3 gap-2">
               <span className="text-xs font-semibold uppercase tracking-wider text-ink/40">Bài viết chi tiết (Có thể chỉnh sửa)</span>
@@ -313,7 +314,7 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
         )}
 
         {/* Studio Tab: Notion-Style 5-Slide Carousel */}
-        {activeStudioTab === 'carousel' && currentIdea && (
+        {activeStudioTab === 'carousel' && (
           <div className="bg-white rounded-2xl border border-silver/80 p-5 md:p-6 space-y-4 animate-fade-in-up">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-silver/50 pb-3 gap-2">
               <span className="text-xs font-semibold uppercase tracking-wider text-ink/40">Carousel 5-Slide Notion Style</span>
@@ -339,7 +340,7 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
 
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5 pt-2">
               {[
-                { slide: 1, tag: "COVER", title: currentIdea.title, body: `Bởi ${profile.name || 'Chuyên gia'}` },
+                { slide: 1, tag: "COVER", title: editablePostTitle || currentIdea?.title, body: `Bởi ${profile.name || 'Chuyên gia'}` },
                 { slide: 2, tag: "PAIN", title: "Sai lầm phổ biến", body: "Làm tư vấn tự do nhưng bán thời gian giá rẻ" },
                 { slide: 3, tag: "INSIGHT", title: "3 Nguyên tắc", body: "Quỹ 12 tháng + 1 WHO + 1 Offer" },
                 { slide: 4, tag: "ACTION", title: "Bước đầu tiên", body: "Đóng gói buổi chẩn đoán 1:1 chuyển đổi" },
