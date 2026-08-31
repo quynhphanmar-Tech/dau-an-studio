@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowRight, ArrowLeft, Target, Heart, MessageCircle, Handshake, FileText, Video, LayoutGrid, Sparkles, Film, Music, Download, Play, Pause, Copy, Check, Link2, Wand2, RefreshCw, Eye, MoveVertical } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Target, Heart, MessageCircle, Handshake, FileText, Video, LayoutGrid, Sparkles, Film, Music, Download, Play, Pause, Copy, Check, Link2, Wand2, RefreshCw, Eye, MoveVertical, Send, Calendar, Clock, Globe, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import { synthesizeServerAudio } from '../lib/audioServerEngine';
+import { SOCIAL_PLATFORMS } from '../data/brandVibes';
 
 const CONTENT_GOALS = [
   { id: 'awareness', icon: Target, label: 'Để đúng khách hàng biết đến tôi', color: 'text-accent' },
@@ -41,6 +42,18 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
   const [activeStudioTab, setActiveStudioTab] = useState('ideas');
   const [copied, setCopied] = useState(false);
 
+  // Auto Publish & Schedule State
+  const [showScheduleModal, setShowScheduleModal] = useState(false);
+  const [selectedPlatforms, setSelectedPlatforms] = useState(['linkedin', 'facebook']);
+  const [scheduledDate, setScheduledDate] = useState('2026-09-02');
+  const [scheduledTime, setScheduledTime] = useState('09:00');
+  const [publishSuccess, setPublishSuccess] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
+
+  // Editable post content
+  const [editablePostTitle, setEditablePostTitle] = useState('');
+  const [editablePostBody, setEditablePostBody] = useState('');
+
   // Link Remix State
   const [remixUrl, setRemixUrl] = useState('');
   const [isRemixing, setIsRemixing] = useState(false);
@@ -51,6 +64,13 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
 
   const ideas = selectedGoal ? CONTENT_IDEAS[selectedGoal] : [];
   const currentIdea = selectedIdea !== null ? ideas[selectedIdea] : null;
+
+  useEffect(() => {
+    if (currentIdea) {
+      setEditablePostTitle(currentIdea.title);
+      setEditablePostBody(`Nhiều người nghĩ rằng có ${profile.yearsExperience || '10+ năm'} kinh nghiệm thì cứ ra làm tự do là có khách. Nhưng sự thật là: Chuyên môn giỏi mà không có định vị đúng thì bạn vẫn mãi kiệt sức với giá thấp.\n\n3 nguyên tắc thực chiến:\n1. Chọn 1 WHO chuẩn xác: Tập trung vào nhóm khách hàng ${profile.whoHelp || 'chuyển đổi'}.\n2. Chuẩn bị Quỹ Sinh Tồn 12 tháng.\n3. Đóng gói Signature Offer: Buổi chẩn đoán 1:1 giải quyết 1 nỗi đau duy nhất.\n\nNếu bạn đang chuẩn bị chuyển đổi, hãy nhắn cho tôi để nhận buổi chẩn đoán 1:1 đầu tiên.`);
+    }
+  }, [selectedIdea, currentIdea, profile]);
 
   const handleSelectGoal = (goalId) => {
     setSelectedGoal(goalId);
@@ -64,6 +84,26 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const togglePlatform = (id) => {
+    if (selectedPlatforms.includes(id)) {
+      setSelectedPlatforms(selectedPlatforms.filter(p => p !== id));
+    } else {
+      setSelectedPlatforms([...selectedPlatforms, id]);
+    }
+  };
+
+  const handlePublishNow = () => {
+    setIsPublishing(true);
+    setTimeout(() => {
+      setIsPublishing(false);
+      setPublishSuccess(true);
+      setTimeout(() => {
+        setPublishSuccess(false);
+        setShowScheduleModal(false);
+      }, 2500);
+    }, 1200);
   };
 
   // Remix Link Action
@@ -80,7 +120,7 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
     }, 1500);
   };
 
-  // Speech playback via browser speech API
+  // Speech playback
   const togglePlayVideo = () => {
     if (!isPlayingVideo) {
       setIsPlayingVideo(true);
@@ -261,34 +301,44 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
           </div>
         )}
 
-        {/* Studio Tab: Full Post Text Generator */}
+        {/* Studio Tab: Full Post Text Generator with Full Editing & Auto Publish */}
         {activeStudioTab === 'text' && currentIdea && (
           <div className="bg-white rounded-2xl border border-silver/80 p-6 space-y-4 animate-fade-in-up">
             <div className="flex items-center justify-between border-b border-silver/50 pb-3">
-              <span className="text-xs font-semibold uppercase tracking-wider text-ink/40">Bài viết chi tiết (LinkedIn / Facebook)</span>
-              <button
-                onClick={() => handleCopyText(`HÒAN THÀNH BÀI VIẾT:\n\n${currentIdea.title}\n\nNhiều người nghĩ rằng làm tư vấn hay xây thương hiệu cá nhân là phải tạo nội dung mỗi ngày. Nhưng sự thật là: Nếu bạn đóng gói đúng 1 WHO + 1 OFFER, bạn chỉ cần xuất hiện đúng lúc...\n\n3 nguyên tắc thực chiến:\n1. Chọn 1 tệp khách hàng duy nhất có khả năng chi trả.\n2. Chuẩn bị quỹ sinh tồn 12 tháng.\n3. Đóng gói dịch vụ thành giải pháp chuyển đổi rõ ràng.`)}
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-silver text-xs font-medium text-ink hover:bg-cream transition-all"
-              >
-                {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                <span>{copied ? 'Đã sao chép' : 'Sao chép bài viết'}</span>
-              </button>
-            </div>
-
-            <h2 className="font-serif text-xl font-semibold text-ink">"{currentIdea.title}"</h2>
-
-            <div className="text-sm text-ink/80 leading-relaxed space-y-3 font-sans bg-cream/50 p-4 rounded-xl border border-silver/50">
-              <p className="font-bold text-ink">HOOK GÂY CHÚ Ý:</p>
-              <p>Nhiều người nghĩ rằng có {profile.yearsExperience || '10+ năm'} kinh nghiệm thì cứ ra làm tự do là có khách. Nhưng sự thật là: Chuyên môn giỏi mà không có định vị đúng thì bạn vẫn mãi kiệt sức với giá thấp.</p>
+              <span className="text-xs font-semibold uppercase tracking-wider text-ink/40">Bài viết chi tiết (Có thể chỉnh sửa)</span>
               
-              <p className="font-bold text-ink pt-2">NỘI DUNG CHÍNH (3 NGUYÊN TẮC):</p>
-              <p>1. <strong>Chọn 1 WHO chuẩn xác:</strong> Tập trung vào nhóm khách hàng {profile.whoHelp || 'chuyển đổi'} thực sự cần giải pháp của bạn.</p>
-              <p>2. <strong>Chuẩn bị Quỹ Sinh Tồn:</strong> Giữ tâm thế bình thản bằng quỹ an toàn 12 tháng trước khi nghỉ việc.</p>
-              <p>3. <strong>Đóng gói Signature Offer:</strong> Thay vì bán giờ tư vấn lẻ, hãy đóng gói thành buổi chẩn đoán 1:1 rõ giá trị.</p>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setShowScheduleModal(true)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-accent text-white text-xs font-semibold hover:bg-accent/90 transition-all shadow-sm"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  <span>Đăng ngay / Hẹn giờ</span>
+                </button>
 
-              <p className="font-bold text-ink pt-2">LỜI KÊU GỌI (CTA):</p>
-              <p>Nếu bạn đang chuẩn bị chuyển đổi, hãy nhắn cho tôi để nhận buổi chẩn đoán 1:1 đầu tiên.</p>
+                <button
+                  onClick={() => handleCopyText(`HÒAN THÀNH BÀI VIẾT:\n\n${editablePostTitle}\n\n${editablePostBody}`)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-silver text-xs font-medium text-ink hover:bg-cream transition-all"
+                >
+                  {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span>{copied ? 'Đã chép' : 'Sao chép'}</span>
+                </button>
+              </div>
             </div>
+
+            <input
+              type="text"
+              value={editablePostTitle}
+              onChange={(e) => setEditablePostTitle(e.target.value)}
+              className="w-full font-serif text-xl font-semibold text-ink bg-cream/50 p-2 rounded-lg border border-silver/60 focus:border-ink"
+            />
+
+            <textarea
+              rows={10}
+              value={editablePostBody}
+              onChange={(e) => setEditablePostBody(e.target.value)}
+              className="w-full text-sm text-ink/80 leading-relaxed font-sans bg-cream/50 p-4 rounded-xl border border-silver/60 focus:border-ink resize-none"
+            />
           </div>
         )}
 
@@ -297,13 +347,24 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
           <div className="bg-white rounded-2xl border border-silver/80 p-6 space-y-4 animate-fade-in-up">
             <div className="flex items-center justify-between border-b border-silver/50 pb-3">
               <span className="text-xs font-semibold uppercase tracking-wider text-ink/40">Carousel 5-Slide Notion Style</span>
-              <button
-                onClick={() => alert("Đang xuất bộ 5 slide Notion Carousel định dạng PNG HD!")}
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-silver text-xs font-medium text-ink hover:bg-cream transition-all"
-              >
-                <Download className="w-3.5 h-3.5 text-accent" />
-                <span>Tải trọn bộ Slide (PNG)</span>
-              </button>
+              
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setShowScheduleModal(true)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-accent text-white text-xs font-semibold hover:bg-accent/90 transition-all shadow-sm"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  <span>Đăng ngay / Hẹn giờ</span>
+                </button>
+
+                <button
+                  onClick={() => alert("Đang xuất bộ 5 slide Notion Carousel định dạng PNG HD!")}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-silver text-xs font-medium text-ink hover:bg-cream transition-all"
+                >
+                  <Download className="w-3.5 h-3.5 text-accent" />
+                  <span>Tải PNG</span>
+                </button>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-5 gap-2.5 pt-2">
@@ -327,18 +388,29 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
           </div>
         )}
 
-        {/* Studio Tab: 9:16 Vertical Video Studio (Safe Zone & CapCut SFX) */}
+        {/* Studio Tab: 9:16 Vertical Video Studio */}
         {activeStudioTab === 'video' && currentIdea && (
           <div className="bg-white rounded-2xl border border-silver/80 p-6 space-y-4 animate-fade-in-up">
             <div className="flex items-center justify-between border-b border-silver/50 pb-3">
               <span className="text-xs font-semibold uppercase tracking-wider text-ink/40">Studio Video Dọc 9:16 Chuẩn Safe Zone</span>
-              <button
-                onClick={togglePlayVideo}
-                className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-ink text-cream text-xs font-semibold hover:bg-ink/90 transition-all"
-              >
-                {isPlayingVideo ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 fill-current" />}
-                <span>{isPlayingVideo ? 'Tạm dừng' : 'Phát Video Có Tiếng'}</span>
-              </button>
+              
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setShowScheduleModal(true)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-accent text-white text-xs font-semibold hover:bg-accent/90 transition-all shadow-sm"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  <span>Đăng Video</span>
+                </button>
+
+                <button
+                  onClick={togglePlayVideo}
+                  className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-ink text-cream text-xs font-semibold hover:bg-ink/90 transition-all"
+                >
+                  {isPlayingVideo ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 fill-current" />}
+                  <span>{isPlayingVideo ? 'Dừng' : 'Phát'}</span>
+                </button>
+              </div>
             </div>
 
             <div className="flex flex-col items-center pt-2">
@@ -350,10 +422,9 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
                   <span className="text-[9px] text-amber-300 font-bold">CapCut SFX On</span>
                 </div>
 
-                {/* Video Caption strictly placed below chin / upper chest */}
                 <div className="relative z-10 my-auto text-center px-2 space-y-1.5">
                   <div className="inline-block bg-amber-400 text-slate-950 font-black text-xs px-2.5 py-0.5 rounded-lg uppercase tracking-tight shadow">
-                    {currentIdea.title.slice(0, 25)}...
+                    {editablePostTitle.slice(0, 25)}...
                   </div>
                   <p className="text-[11px] text-white font-semibold bg-black/60 backdrop-blur p-2 rounded-xl border border-white/20 leading-snug">
                     "{currentIdea.why}"
@@ -415,6 +486,97 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
           </div>
         )}
       </div>
+
+      {/* Auto Publish & Schedule Modal */}
+      {showScheduleModal && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+          <div className="w-full max-w-md bg-cream border border-silver rounded-3xl p-6 space-y-5 shadow-2xl relative">
+            <button
+              onClick={() => setShowScheduleModal(false)}
+              className="absolute right-5 top-5 p-2 rounded-full bg-white border border-silver/80 text-ink/60 hover:text-ink"
+            >
+              ✕
+            </button>
+
+            <div className="space-y-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-accent bg-accent/10 px-2.5 py-0.5 rounded-full">
+                Auto Publish & Scheduler
+              </span>
+              <h3 className="font-serif text-xl font-bold text-ink">Đăng Ngay Hoặc Cài Giờ Đăng</h3>
+            </div>
+
+            {/* Platform Selection */}
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-ink/70 block">Chọn nền tảng đẩy bài:</label>
+              <div className="grid grid-cols-2 gap-2">
+                {SOCIAL_PLATFORMS.map((p) => {
+                  const isChecked = selectedPlatforms.includes(p.id);
+                  return (
+                    <button
+                      key={p.id}
+                      onClick={() => togglePlatform(p.id)}
+                      className={`p-3 rounded-xl border text-xs font-semibold flex items-center justify-between transition-all ${
+                        isChecked ? 'bg-white border-ink shadow-sm text-ink' : 'bg-cream border-silver/80 text-ink/50'
+                      }`}
+                    >
+                      <span>{p.name}</span>
+                      {isChecked && <CheckCircle2 className="w-4 h-4 text-emerald-600" />}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Schedule Date & Time */}
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div>
+                <label className="text-[11px] font-medium text-ink/60 block mb-1">Ngày đăng:</label>
+                <input
+                  type="date"
+                  value={scheduledDate}
+                  onChange={(e) => setScheduledDate(e.target.value)}
+                  className="w-full bg-white border border-silver rounded-xl p-2.5 text-ink"
+                />
+              </div>
+              <div>
+                <label className="text-[11px] font-medium text-ink/60 block mb-1">Giờ đăng:</label>
+                <input
+                  type="time"
+                  value={scheduledTime}
+                  onChange={(e) => setScheduledTime(e.target.value)}
+                  className="w-full bg-white border border-silver rounded-xl p-2.5 text-ink"
+                />
+              </div>
+            </div>
+
+            {publishSuccess ? (
+              <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 text-center font-bold animate-fade-in">
+                ✓ Đã lên lịch đăng bài thành công lên {selectedPlatforms.length} nền tảng!
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 pt-2">
+                <button
+                  onClick={handlePublishNow}
+                  disabled={isPublishing || selectedPlatforms.length === 0}
+                  className="flex-1 py-3 rounded-full bg-ink text-cream text-xs font-bold hover:bg-ink/90 transition-all shadow flex items-center justify-center gap-1.5"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  <span>{isPublishing ? 'Đang đẩy bài...' : '🚀 Đăng Ngay'}</span>
+                </button>
+
+                <button
+                  onClick={handlePublishNow}
+                  disabled={isPublishing || selectedPlatforms.length === 0}
+                  className="flex-1 py-3 rounded-full bg-accent text-white text-xs font-bold hover:bg-accent/90 transition-all shadow flex items-center justify-center gap-1.5"
+                >
+                  <Calendar className="w-3.5 h-3.5" />
+                  <span>⏰ Cài Giờ Tự Động</span>
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Bottom Navigation */}
       <div className="pt-8 pb-4 flex items-center justify-between">
