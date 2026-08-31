@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Lock, Mail, User, ArrowRight, ShieldCheck, Check } from 'lucide-react';
+import { X, Lock, Mail, User, ArrowRight, ShieldCheck, Check, Zap } from 'lucide-react';
 
 export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -21,7 +21,16 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
         token: 'auth-token-user-verified'
       });
       onClose();
-    }, 800);
+    }, 500);
+  };
+
+  const handleQuickDemoLogin = () => {
+    onLoginSuccess({
+      email: 'minhtran.demo@dauan.studio',
+      name: 'Minh Trần (Demo Expert)',
+      token: 'demo-auto-test-token'
+    });
+    onClose();
   };
 
   return (
@@ -42,8 +51,24 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
             {isSignUp ? 'Tạo tài khoản Studio mới' : 'Đăng nhập Dấu Ấn Studio'}
           </h3>
           <p className="text-xs text-ink/50 leading-relaxed">
-            Lưu trữ không giới hạn Hồ sơ thương hiệu & Đồng bộ đa thiết bị.
+            Lưu trữ không giới hạn Hồ sơ thương hiệu & Tự động ghi nhớ phiên đăng nhập.
           </p>
+        </div>
+
+        {/* 1-Click Quick Demo Test Login Button */}
+        <button
+          onClick={handleQuickDemoLogin}
+          className="w-full p-3 rounded-2xl bg-emerald-50 border border-emerald-300 text-emerald-900 text-xs font-bold hover:bg-emerald-100 transition-all flex items-center justify-center gap-2 shadow-sm"
+        >
+          <Zap className="w-4 h-4 text-emerald-600 fill-current" />
+          <span>⚡ Đăng Nhập Test Nhanh 1-Click (Không cần nhập pass)</span>
+        </button>
+
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-silver/60" /></div>
+          <div className="relative flex justify-center">
+            <span className="bg-cream px-3 text-[11px] text-ink/40 font-medium">hoặc đăng nhập tài khoản riêng</span>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">

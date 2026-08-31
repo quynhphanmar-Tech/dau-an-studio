@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './index.css';
 import Session1Strengths from './components/Session1Strengths';
 import Session2Positioning from './components/Session2Positioning';
@@ -8,7 +8,7 @@ import Session5Opportunities from './components/Session5Opportunities';
 import AuthModal from './components/AuthModal';
 import { syncBrandProfileToSupabase } from './lib/supabaseClient';
 import { BRAND_ARCHETYPES } from './data/brandVibes';
-import { ShieldCheck, Award, X, Copy, Check, FileText, User, LogIn, Edit3, Save, Sparkles, Image, Palette } from 'lucide-react';
+import { ShieldCheck, Award, X, Copy, Check, FileText, User, LogIn, Edit3, Save, LogOut } from 'lucide-react';
 
 const SESSIONS = [
   { id: 1, label: 'Hiểu thế mạnh', shortLabel: 'Thế mạnh' },
@@ -22,39 +22,73 @@ export default function App() {
   const [currentSession, setCurrentSession] = useState(1);
   const [showProfileDrawer, setShowProfileDrawer] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [userAuth, setUserAuth] = useState(null);
+  
+  // Persistent Auth State (Auto Login from LocalStorage)
+  const [userAuth, setUserAuth] = useState(() => {
+    try {
+      const saved = localStorage.getItem('dauan_user_session');
+      return saved ? JSON.parse(saved) : { name: 'Minh Trần (Demo Expert)', email: 'demo@dauan.studio', isDemo: true };
+    } catch (e) {
+      return { name: 'Minh Trần (Demo Expert)', email: 'demo@dauan.studio', isDemo: true };
+    }
+  });
+
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [copiedProfile, setCopiedProfile] = useState(false);
 
-  const [brandProfile, setBrandProfile] = useState({
-    name: 'Minh Trần',
-    yearsExperience: '10 năm',
-    biggestWin: 'Giúp 60+ startup gọi vốn thành công',
-    strengthSummary: 'Nhìn thấu bản chất vấn đề, kinh nghiệm thực chiến đo lường được, và phong cách truyền đạt tạo niềm tin ngay lần đầu.',
-    whoHelp: 'chuyên gia 30-45 tuổi đang chuyển đổi sang làm tự do',
-    whatChange: 'xây quỹ an toàn 12 tháng & có 3 khách hàng đầu tiên',
-    whyTrust: '10+ năm kinh nghiệm thực chiến đồng hành cùng 60+ chuyên gia',
-    positioningStatement: 'Bạn giúp chuyên gia đang chuyển sang làm tự do xây quỹ an toàn 12 tháng trước khi rời công việc.',
-    firstOffer: 'Buổi chẩn đoán 1:1: Rà soát 3 điểm nghẽn chiến lược trong 60 phút',
-    offerType: 'Buổi chẩn đoán 1:1',
-    offerDescription: 'Rà soát 3 điểm nghẽn chiến lược trong 60 phút',
-    archetypeId: 'sage-mentor',
-    archetypeName: 'The Sage & Mentor (Người Cố Vấn Tri Thức)',
-    brandVibe: 'Editorial Luxury / Apple Minimalist',
-    brandColors: ['#F7F7F5', '#111111', '#315CFF', '#D9DADC'],
-    pinterestTag: 'Editorial Confidence, Minimalist Studio, Warm Light Serif',
-    contentGoal: 'Để đúng khách hàng biết đến tôi',
-    contentIdeas: [],
-    opportunities: [],
+  const [brandProfile, setBrandProfile] = useState(() => {
+    try {
+      const savedProf = localStorage.getItem('dauan_brand_profile');
+      if (savedProf) return JSON.parse(savedProf);
+    } catch (e) {}
+    return {
+      name: 'Minh Trần',
+      yearsExperience: '10 năm',
+      biggestWin: 'Giúp 60+ startup gọi vốn thành công',
+      strengthSummary: 'Nhìn thấu bản chất vấn đề, kinh nghiệm thực chiến đo lường được, và phong cách truyền đạt tạo niềm tin ngay lần đầu.',
+      whoHelp: 'chuyên gia 30-45 tuổi đang chuyển đổi sang làm tự do',
+      whatChange: 'xây quỹ an toàn 12 tháng & có 3 khách hàng đầu tiên',
+      whyTrust: '10+ năm kinh nghiệm thực chiến đồng hành cùng 60+ chuyên gia',
+      positioningStatement: 'Bạn giúp chuyên gia đang chuyển sang làm tự do xây quỹ an toàn 12 tháng trước khi rời công việc.',
+      firstOffer: 'Buổi chẩn đoán 1:1: Rà soát 3 điểm nghẽn chiến lược trong 60 phút',
+      offerType: 'Buổi chẩn đoán 1:1',
+      offerDescription: 'Rà soát 3 điểm nghẽn chiến lược trong 60 phút',
+      archetypeId: 'sage-mentor',
+      archetypeName: 'The Sage & Mentor (Người Cố Vấn Tri Thức)',
+      brandVibe: 'Editorial Luxury / Apple Minimalist',
+      brandColors: ['#F7F7F5', '#111111', '#315CFF', '#D9DADC'],
+      pinterestTag: 'Editorial Confidence, Minimalist Studio, Warm Light Serif',
+      contentGoal: 'Để đúng khách hàng biết đến tôi',
+      contentIdeas: [],
+      opportunities: [],
+    };
   });
 
+  // Save profile to localStorage whenever updated
   const updateProfile = (updates) => {
     setBrandProfile(prev => {
       const newProf = { ...prev, ...updates };
-      // Sync in background to Supabase
+      try {
+        localStorage.setItem('dauan_brand_profile', JSON.stringify(newProf));
+      } catch (e) {}
       syncBrandProfileToSupabase(newProf);
       return newProf;
     });
+  };
+
+  const handleLoginSuccess = (user) => {
+    setUserAuth(user);
+    try {
+      localStorage.setItem('dauan_user_session', JSON.stringify(user));
+    } catch (e) {}
+    updateProfile({ name: user.name });
+  };
+
+  const handleLogout = () => {
+    setUserAuth(null);
+    try {
+      localStorage.removeItem('dauan_user_session');
+    } catch (e) {}
   };
 
   const goToSession = (n) => {
@@ -118,13 +152,22 @@ export default function App() {
             ))}
           </div>
 
-          {/* Auth & Profile Actions */}
+          {/* Auth & Profile Actions (Auto persistent test status) */}
           <div className="flex items-center gap-2">
             {userAuth ? (
-              <span className="text-xs font-semibold text-ink bg-white px-2.5 py-1 rounded-full border border-silver flex items-center gap-1">
-                <User className="w-3 h-3 text-emerald-600" />
-                {userAuth.name}
-              </span>
+              <div className="flex items-center gap-1">
+                <span className="text-xs font-semibold text-ink bg-white px-2.5 py-1 rounded-full border border-silver flex items-center gap-1">
+                  <User className="w-3 h-3 text-emerald-600" />
+                  {userAuth.name}
+                </span>
+                <button
+                  onClick={handleLogout}
+                  title="Đăng xuất"
+                  className="p-1 rounded-full hover:bg-silver/40 text-ink/40 hover:text-ink"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                </button>
+              </div>
             ) : (
               <button
                 onClick={() => setShowAuthModal(true)}
@@ -155,13 +198,10 @@ export default function App() {
       <AuthModal
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
-        onLoginSuccess={(user) => {
-          setUserAuth(user);
-          updateProfile({ name: user.name });
-        }}
+        onLoginSuccess={handleLoginSuccess}
       />
 
-      {/* Brand Profile Drawer (Full Editable Central Memory Store) */}
+      {/* Brand Profile Drawer */}
       {showProfileDrawer && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex justify-end animate-fade-in">
           <div className="w-full max-w-md bg-cream h-full border-l border-silver p-6 md:p-8 overflow-y-auto space-y-6 flex flex-col justify-between shadow-2xl">
@@ -190,7 +230,7 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Profile Fields (Editable View) */}
+              {/* Profile Fields */}
               <div className="space-y-4 text-xs">
                 <div className="bg-white p-4 rounded-xl border border-silver/80 space-y-2">
                   <span className="text-[10px] text-ink/40 font-bold uppercase tracking-wider block">Chuyên gia & Kinh nghiệm</span>
