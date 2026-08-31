@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { ArrowRight, ArrowLeft, Check, Sparkles, Image, Palette, Type, Edit3, HelpCircle } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Check, Sparkles, Image, Palette, Type, Edit3, HelpCircle, Eye } from 'lucide-react';
 import { BRAND_ARCHETYPES } from '../data/brandVibes';
 
-export default function Session2Positioning({ profile, updateProfile, onNext, onBack }) {
-  const [subStep, setSubStep] = useState(0); // 0: Archetype & Pinterest Moodboard, 1: 3 Pillar Cards
+export default function Session2Positioning({ profile, updateProfile, onNext, onBack, lang = 'vi' }) {
+  const [subStep, setSubStep] = useState(0); // 0: Archetype & Pinterest Visual Moodboard, 1: 3 Pillar Cards
   const [selectedArchetypeId, setSelectedArchetypeId] = useState(profile.archetypeId || BRAND_ARCHETYPES[0].id);
+  const [previewImage, setPreviewImage] = useState(null);
 
   // Card states: 'pending' | 'correct' | 'needs-help'
   const [cardStates, setCardStates] = useState({
@@ -21,25 +22,25 @@ export default function Session2Positioning({ profile, updateProfile, onNext, on
   // Generate positioning statement from profile
   const defaultStatement = profile.name
     ? `Bạn giúp ${profile.whoHelp || 'chuyên gia đang chuyển sang làm tự do'} ${profile.whatChange || 'xây quỹ an toàn 12 tháng trước khi rời công việc'}.`
-    : 'Bạn giúp phụ nữ đang chuyển sang làm tự do xây quỹ an toàn trước khi rời công việc.';
+    : 'Bạn giúp phụ nữ đang chuyển sang làm tự do xây quỹ an toàn 12 tháng trước khi rời công việc.';
 
   const cards = [
     {
       key: 'who',
-      question: 'Bạn đang giúp ai?',
-      answer: profile.whoHelp || 'Chuyên gia 30-45 tuổi đang chuyển từ công việc toàn thời gian sang tự do / tư vấn độc lập',
+      question: lang === 'en' ? 'Who do you help?' : 'Bạn đang giúp ai?',
+      answer: profile.whoHelp || (lang === 'en' ? 'Consultants 30-45 transitioning to independent practice' : 'Chuyên gia 30-45 tuổi đang chuyển từ công việc toàn thời gian sang tự do / tư vấn độc lập'),
       field: 'whoHelp',
     },
     {
       key: 'what',
-      question: 'Bạn giúp họ thay đổi điều gì?',
-      answer: profile.whatChange || 'Xây dựng nền tảng tài chính và định vị rõ ràng để có khách hàng đầu tiên trong 90 ngày',
+      question: lang === 'en' ? 'What transformation do you create?' : 'Bạn giúp họ thay đổi điều gì?',
+      answer: profile.whatChange || (lang === 'en' ? 'Build 12-month runway & land first 3 high-ticket clients' : 'Xây dựng nền tảng tài chính và định vị rõ ràng để có khách hàng đầu tiên trong 90 ngày'),
       field: 'whatChange',
     },
     {
       key: 'why',
-      question: 'Vì sao họ nên tin bạn?',
-      answer: profile.whyTrust || `${profile.yearsExperience || '10+ năm'} kinh nghiệm thực chiến, đã đồng hành cùng 60+ chuyên gia chuyển đổi thành công`,
+      question: lang === 'en' ? 'Why should they trust you?' : 'Vì sao họ nên tin bạn?',
+      answer: profile.whyTrust || `${profile.yearsExperience || '10+ năm'} ${lang === 'en' ? 'hands-on experience' : 'kinh nghiệm thực chiến, đồng hành cùng 60+ chuyên gia'}`,
       field: 'whyTrust',
     },
   ];
@@ -50,7 +51,7 @@ export default function Session2Positioning({ profile, updateProfile, onNext, on
     setSelectedArchetypeId(arch.id);
     updateProfile({
       archetypeId: arch.id,
-      archetypeName: arch.name,
+      archetypeName: lang === 'en' ? arch.nameEn : arch.name,
       brandVibe: arch.vibe,
       brandColors: arch.colors,
       brandFonts: arch.fonts,
@@ -84,17 +85,20 @@ export default function Session2Positioning({ profile, updateProfile, onNext, on
       {/* Main Area */}
       <div className="flex-1 flex flex-col justify-center">
         <p className="text-xs font-medium text-ink/40 uppercase tracking-widest mb-4">
-          Chọn hướng xuất hiện · Bước 2/5
+          {lang === 'en' ? 'Positioning & Visual Vibe · Step 2/5' : 'Chọn hướng xuất hiện · Bước 2/5'}
         </p>
 
-        {/* Sub-step 0: Archetype & Pinterest Moodboard Selector */}
+        {/* Sub-step 0: Archetype & Pinterest Visual Image Moodboard */}
         {subStep === 0 && (
           <div className="space-y-6 animate-fade-in-up">
             <h1 className="font-serif text-3xl md:text-4xl font-semibold text-ink leading-snug">
-              Hình mẫu & <span className="highlight-word">phong cách visual</span> của bạn là gì?
+              {lang === 'en' ? 'Brand Archetype & ' : 'Hình mẫu & '}
+              <span className="highlight-word">{lang === 'en' ? 'Visual Moodboard' : 'phong cách visual'}</span>
             </h1>
             <p className="text-sm text-ink/50">
-              Chọn hình mẫu thương hiệu để tự động định hình màu sắc, phông chữ và văn phong Pinterest phù hợp.
+              {lang === 'en'
+                ? 'Select a brand archetype to view curated Pinterest visual benchmark imagery, color palettes, and typography.'
+                : 'Chọn hình mẫu thương hiệu để xem ảnh minh họa Pinterest thực tế, bảng màu sắc và phông chữ.'}
             </p>
 
             {/* Archetype Cards */}
@@ -112,17 +116,35 @@ export default function Session2Positioning({ profile, updateProfile, onNext, on
                     }`}
                   >
                     <div className="flex items-start justify-between gap-2 mb-1.5">
-                      <h3 className="font-serif text-base font-semibold text-ink">{arch.name}</h3>
-                      {isSelected && <span className="text-xs font-bold text-accent bg-accent/10 px-2 py-0.5 rounded-full">Đang chọn</span>}
+                      <h3 className="font-serif text-base font-semibold text-ink">
+                        {lang === 'en' ? arch.nameEn : arch.name}
+                      </h3>
+                      {isSelected && <span className="text-xs font-bold text-accent bg-accent/10 px-2.5 py-0.5 rounded-full">{lang === 'en' ? 'Active' : 'Đang chọn'}</span>}
                     </div>
 
-                    <p className="text-xs text-ink/70 mb-3">{arch.tagline}</p>
+                    <p className="text-xs text-ink/70 mb-3">{lang === 'en' ? arch.taglineEn : arch.tagline}</p>
 
-                    {/* Pinterest Visual Palette Bar */}
-                    <div className="flex items-center justify-between pt-2.5 border-t border-silver/50 text-[11px]">
+                    {/* Pinterest Visual Image Benchmark Grid */}
+                    <div className="grid grid-cols-3 gap-2 mb-3">
+                      {arch.sampleImages.map((imgUrl, idx) => (
+                        <div
+                          key={idx}
+                          onClick={(e) => { e.stopPropagation(); setPreviewImage(imgUrl); }}
+                          className="aspect-[4/3] rounded-xl overflow-hidden border border-silver/60 bg-cream relative group shadow-sm"
+                        >
+                          <img src={imgUrl} alt="Pinterest Benchmark" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                          <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] font-bold">
+                            <Eye className="w-3.5 h-3.5" />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Palette & Typography Info */}
+                    <div className="flex items-center justify-between pt-2 border-t border-silver/50 text-[11px]">
                       <div className="flex items-center gap-1.5">
                         {arch.colors.map((c, i) => (
-                          <div key={i} className="w-4 h-4 rounded-full border border-silver/60" style={{ backgroundColor: c }} />
+                          <div key={i} className="w-3.5 h-3.5 rounded-full border border-silver/60" style={{ backgroundColor: c }} />
                         ))}
                         <span className="text-ink/40 text-[10px] ml-1">{arch.vibe}</span>
                       </div>
@@ -133,54 +155,25 @@ export default function Session2Positioning({ profile, updateProfile, onNext, on
               })}
             </div>
 
-            {/* Pinterest Moodboard Benchmark Card */}
-            <div className="bg-white rounded-2xl border border-silver/80 p-5 space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-ink flex items-center gap-1.5">
-                  <Image className="w-4 h-4 text-accent" />
-                  Pinterest Visual Moodboard Benchmark:
-                </span>
-                <span className="text-[10px] font-mono text-ink/40 bg-cream px-2 py-0.5 rounded border border-silver">
-                  {currentArchetype.pinterestTag}
-                </span>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2 text-xs">
-                <div className="p-3 bg-cream rounded-xl border border-silver/60 space-y-1">
-                  <span className="text-[10px] text-ink/40 font-bold uppercase flex items-center gap-1">
-                    <Type className="w-3 h-3 text-ink" /> Typography System
-                  </span>
-                  <p className="font-serif font-bold text-ink text-xs">{currentArchetype.fonts.display}</p>
-                  <p className="text-ink/50 text-[10px]">{currentArchetype.fonts.body}</p>
-                </div>
-
-                <div className="p-3 bg-cream rounded-xl border border-silver/60 space-y-1">
-                  <span className="text-[10px] text-ink/40 font-bold uppercase flex items-center gap-1">
-                    <Palette className="w-3 h-3 text-accent" /> Palette Màu Nhận Diện
-                  </span>
-                  <p className="text-ink/80 text-[11px] font-medium">{currentArchetype.colorNames}</p>
-                </div>
-              </div>
-            </div>
-
             <button
               onClick={() => setSubStep(1)}
-              className="inline-flex items-center gap-2 bg-ink text-cream px-7 py-3.5 rounded-full text-sm font-semibold hover:bg-ink/90 transition-all active:scale-95"
+              className="inline-flex items-center gap-2 bg-ink text-cream px-7 py-3.5 rounded-full text-sm font-semibold hover:bg-ink/90 transition-all active:scale-95 shadow-md"
             >
-              Tiếp tục chốt 3 trụ cột
+              {lang === 'en' ? 'Continue to Confirm 3 Pillars' : 'Tiếp tục chốt 3 trụ cột'}
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
         )}
 
-        {/* Sub-step 1: 3 Confirmation Cards with Full Editing */}
+        {/* Sub-step 1: 3 Confirmation Cards */}
         {subStep === 1 && (
           <div className="space-y-6 animate-fade-in-up">
             <h1 className="font-serif text-3xl font-semibold text-ink leading-snug mb-2">
-              Xác nhận <span className="highlight-word">3 trụ cột</span> định vị.
+              {lang === 'en' ? 'Confirm Your ' : 'Xác nhận '}
+              <span className="highlight-word">{lang === 'en' ? '3 Brand Pillars' : '3 trụ cột'}</span>
             </h1>
             <p className="text-sm text-ink/50 mb-4">
-              Mỗi thẻ bên dưới đúng chưa? Bạn có thể chỉnh sửa tự do hoặc để AI gọi tên giúp.
+              {lang === 'en' ? 'Confirm or edit each positioning pillar below:' : 'Mỗi thẻ bên dưới đúng chưa? Bạn có thể chỉnh sửa tự do:'}
             </p>
 
             <div className="space-y-4">
@@ -212,13 +205,13 @@ export default function Session2Positioning({ profile, updateProfile, onNext, on
                           onClick={() => handleSaveEdit(card.key)}
                           className="px-4 py-1.5 bg-ink text-cream text-xs font-semibold rounded-full hover:bg-ink/90"
                         >
-                          Lưu cập nhật
+                          {lang === 'en' ? 'Save' : 'Lưu cập nhật'}
                         </button>
                         <button
                           onClick={() => setEditingCard(null)}
                           className="text-xs text-ink/40 hover:text-ink"
                         >
-                          Hủy
+                          {lang === 'en' ? 'Cancel' : 'Hủy'}
                         </button>
                       </div>
                     </div>
@@ -234,26 +227,26 @@ export default function Session2Positioning({ profile, updateProfile, onNext, on
                             onClick={() => handleCardAction(card.key, 'correct')}
                             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-ink text-xs font-semibold text-ink hover:bg-ink hover:text-cream transition-all"
                           >
-                            Đúng
+                            {lang === 'en' ? 'Confirm' : 'Đúng'}
                           </button>
                           <span className="text-ink/20">·</span>
                           <button
                             onClick={() => handleCardAction(card.key, 'needs-help')}
                             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-silver text-xs font-medium text-ink/60 hover:border-ink/40 transition-all"
                           >
-                            <Edit3 className="w-3 h-3" /> Chỉnh sửa / Bổ sung
+                            <Edit3 className="w-3 h-3" /> {lang === 'en' ? 'Edit' : 'Chỉnh sửa'}
                           </button>
                         </div>
                       ) : (
                         <div className="flex items-center justify-between text-xs text-ink/50">
                           <span className="flex items-center gap-1 text-emerald-600 font-semibold">
-                            <Check className="w-3.5 h-3.5" /> Đã xác nhận
+                            <Check className="w-3.5 h-3.5" /> {lang === 'en' ? 'Confirmed' : 'Đã xác nhận'}
                           </span>
                           <button
                             onClick={() => { setEditingCard(card.key); setEditValue(card.answer); }}
                             className="text-accent text-[11px] font-semibold hover:underline"
                           >
-                            Sửa lại
+                            {lang === 'en' ? 'Edit' : 'Sửa lại'}
                           </button>
                         </div>
                       )}
@@ -269,13 +262,23 @@ export default function Session2Positioning({ profile, updateProfile, onNext, on
                   "{defaultStatement}"
                 </p>
                 <p className="text-xs text-ink/60 italic">
-                  "Tuyệt vời. 3 trụ cột và hình mẫu [{currentArchetype.name}] đã sẵn sàng."
+                  "{lang === 'en' ? 'All 3 pillars confirmed. Ready to package your offer!' : 'Tuyệt vời. 3 trụ cột và hình mẫu đã sẵn sàng.'}"
                 </p>
               </div>
             )}
           </div>
         )}
       </div>
+
+      {/* Image Zoom Modal */}
+      {previewImage && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in" onClick={() => setPreviewImage(null)}>
+          <div className="relative max-w-xl max-h-[85vh] bg-white rounded-3xl overflow-hidden shadow-2xl p-2">
+            <img src={previewImage} alt="Pinterest Moodboard Zoom" className="w-full h-auto max-h-[80vh] object-contain rounded-2xl" />
+            <p className="text-center text-xs font-serif italic text-ink/60 py-2">Pinterest Visual Benchmark Image</p>
+          </div>
+        </div>
+      )}
 
       {/* Bottom Navigation */}
       <div className="pt-8 pb-4 flex items-center justify-between">
@@ -284,7 +287,7 @@ export default function Session2Positioning({ profile, updateProfile, onNext, on
           className="inline-flex items-center gap-1.5 text-sm text-ink/50 hover:text-ink transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          Quay lại
+          {lang === 'en' ? 'Back' : 'Quay lại'}
         </button>
 
         {subStep === 1 && allConfirmed && (
@@ -298,7 +301,7 @@ export default function Session2Positioning({ profile, updateProfile, onNext, on
             }}
             className="inline-flex items-center gap-2 bg-ink text-cream px-6 py-3 rounded-full text-sm font-semibold hover:bg-ink/90 transition-all active:scale-95"
           >
-            Đóng gói giá trị
+            {lang === 'en' ? 'Package Value' : 'Đóng gói giá trị'}
             <ArrowRight className="w-4 h-4" />
           </button>
         )}
