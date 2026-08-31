@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Plus, MessageSquare, Mail, Linkedin, Globe, X, TrendingUp } from 'lucide-react';
+import { ArrowLeft, Plus, MessageSquare, Mail, Linkedin, Globe, X, TrendingUp, ShieldCheck, Sparkles, Award } from 'lucide-react';
 
 const SAMPLE_OPPORTUNITIES = [
   {
@@ -69,11 +69,10 @@ export default function Session5Opportunities({ profile, updateProfile, onBack }
 
   const totalNew = opportunities.filter(o => o.status === 'new').length;
   const totalConverted = opportunities.filter(o => o.status === 'converted').length;
-  const topChannel = 'LinkedIn';
 
   return (
     <div className="max-w-xl mx-auto px-6 py-12 min-h-[calc(100vh-80px)] flex flex-col animate-fade-in-up">
-      <p className="text-xs font-medium text-ink/40 uppercase tracking-widest mb-6">
+      <p className="text-xs font-medium text-ink/40 uppercase tracking-widest mb-4">
         Theo dõi cơ hội · Bước 5/5
       </p>
 
@@ -81,12 +80,28 @@ export default function Session5Opportunities({ profile, updateProfile, onBack }
         Nội dung nào đang mở ra <span className="highlight-word">cơ hội</span> cho bạn?
       </h1>
 
-      <p className="text-sm text-ink/50 mb-8">
+      <p className="text-sm text-ink/50 mb-6">
         Theo dõi những cuộc trò chuyện, lời mời hợp tác và khách hàng đến từ nội dung bạn tạo ra.
       </p>
 
+      {/* Mode & Anti-Loophole Guarantee Banner */}
+      <div className="bg-white rounded-2xl border border-silver/80 p-4 mb-6 space-y-2">
+        <div className="flex items-center justify-between">
+          <span className="inline-flex items-center gap-1.5 text-xs font-bold text-ink">
+            <Award className="w-4 h-4 text-amber-500" />
+            Studio Độc Lập (Single-Player Mode Active)
+          </span>
+          <span className="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded font-medium border border-emerald-200">
+            ✓ Trực tiếp 100% · Không trung gian
+          </span>
+        </div>
+        <p className="text-xs text-ink/60 leading-relaxed">
+          Tất cả cơ hội và khách hàng là của riêng bạn. App không thu bất kỳ khoản phí hoa hồng giao dịch nào.
+        </p>
+      </div>
+
       {/* Quick Stats */}
-      <div className="grid grid-cols-3 gap-3 mb-8">
+      <div className="grid grid-cols-3 gap-3 mb-6">
         <div className="bg-white rounded-2xl border border-silver/80 p-4 text-center">
           <p className="font-serif text-2xl font-bold text-ink">{opportunities.length}</p>
           <p className="text-xs text-ink/40 mt-1">Tổng cơ hội</p>
