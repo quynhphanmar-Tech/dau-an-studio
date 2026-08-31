@@ -9,7 +9,7 @@ import SelfDiscoveryTab from './components/SelfDiscoveryTab';
 import AuthModal from './components/AuthModal';
 import { syncBrandProfileToSupabase } from './lib/supabaseClient';
 import { BRAND_ARCHETYPES } from './data/brandVibes';
-import { ShieldCheck, Award, X, Copy, Check, FileText, User, LogIn, Edit3, Save, LogOut, Heart, Sparkles, Compass } from 'lucide-react';
+import { ShieldCheck, Award, X, Copy, Check, FileText, User, LogIn, Edit3, Save, LogOut, Heart, Sparkles, Compass, RefreshCw, Lock } from 'lucide-react';
 
 const SESSIONS = [
   { id: 1, label: 'Hiểu thế mạnh', shortLabel: 'Thế mạnh' },
@@ -20,7 +20,25 @@ const SESSIONS = [
 ];
 
 export default function App() {
-  const [currentSession, setCurrentSession] = useState(1);
+  // Check if positioning has been completed before
+  const [hasCompletedPositioning, setHasCompletedPositioning] = useState(() => {
+    try {
+      return localStorage.getItem('dauan_positioning_completed') === 'true';
+    } catch (e) {
+      return false;
+    }
+  });
+
+  // Default session logic: If user completed positioning before -> Land directly in Session 4 (Content Studio)!
+  const [currentSession, setCurrentSession] = useState(() => {
+    try {
+      const isDone = localStorage.getItem('dauan_positioning_completed') === 'true';
+      return isDone ? 4 : 1;
+    } catch (e) {
+      return 1;
+    }
+  });
+
   const [activeMainTab, setActiveMainTab] = useState('studio'); // 'studio' | 'self-discovery'
   const [showProfileDrawer, setShowProfileDrawer] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -29,9 +47,9 @@ export default function App() {
   const [userAuth, setUserAuth] = useState(() => {
     try {
       const saved = localStorage.getItem('dauan_user_session');
-      return saved ? JSON.parse(saved) : null;
+      return saved ? JSON.parse(saved) : { name: 'Minh Trần (Demo Expert)', email: 'demo@dauan.studio', isDemo: true };
     } catch (e) {
-      return null;
+      return { name: 'Minh Trần (Demo Expert)', email: 'demo@dauan.studio', isDemo: true };
     }
   });
 
@@ -77,6 +95,25 @@ export default function App() {
     });
   };
 
+  // Mark positioning as completed when reaching Session 4
+  const markPositioningComplete = () => {
+    setHasCompletedPositioning(true);
+    try {
+      localStorage.setItem('dauan_positioning_completed', 'true');
+    } catch (e) {}
+  };
+
+  const handleRestartCoachProcess = () => {
+    if (confirm("Bạn có muốn thực hiện lại buổi Coach định vị 1:1 từ Bước 1 không?")) {
+      setHasCompletedPositioning(false);
+      try {
+        localStorage.setItem('dauan_positioning_completed', 'false');
+      } catch (e) {}
+      setCurrentSession(1);
+      setShowProfileDrawer(false);
+    }
+  };
+
   const handleLoginSuccess = (user) => {
     setUserAuth(user);
     try {
@@ -98,7 +135,7 @@ export default function App() {
   };
 
   const handleCopyProfile = () => {
-    const text = `HỒ SƠ THƯƠNG HIỆU CÁ NHÂN (BRAND BLUEPRINT)\n\nChuyên gia: ${brandProfile.name}\nKinh nghiệm: ${brandProfile.yearsExperience}\nHình mẫu thương hiệu: ${brandProfile.archetypeName}\nVisual Style: ${brandProfile.brandVibe}\n\nĐỊNH VỊ THƯƠNG HIỆU:\n"${brandProfile.positioningStatement}"\n\nSẢN PHẢM KHỞI ĐẦU:\n${brandProfile.firstOffer}`;
+    const text = `HỒ SƠ THƯƠNG HIỆU CÁ NHÂN (BRAND BLUEPRINT)\n\nChuyên gia: ${brandProfile.name}\nKinh nghiệm: ${brandProfile.yearsExperience}\nHình mẫu thương hiệu: ${brandProfile.archetypeName}\nVisual Style: ${brandProfile.brandVibe}\n\nĐỊNH VỊ THƯƠNG HIỆU:\n"${brandProfile.positioningStatement}"\n\nSẢN PHẨM KHỞI ĐẦU:\n${brandProfile.firstOffer}`;
     navigator.clipboard.writeText(text);
     setCopiedProfile(true);
     setTimeout(() => setCopiedProfile(false), 2000);
@@ -112,7 +149,7 @@ export default function App() {
     switch (currentSession) {
       case 1: return <Session1Strengths profile={brandProfile} updateProfile={updateProfile} onNext={() => goToSession(2)} userAuth={userAuth} onLoginSuccess={handleLoginSuccess} />;
       case 2: return <Session2Positioning profile={brandProfile} updateProfile={updateProfile} onNext={() => goToSession(3)} onBack={() => goToSession(1)} />;
-      case 3: return <Session3Packaging profile={brandProfile} updateProfile={updateProfile} onNext={() => goToSession(4)} onBack={() => goToSession(2)} />;
+      case 3: return <Session3Packaging profile={brandProfile} updateProfile={updateProfile} onNext={() => { markPositioningComplete(); goToSession(4); }} onBack={() => goToSession(2)} />;
       case 4: return <Session4Content profile={brandProfile} updateProfile={updateProfile} onNext={() => goToSession(5)} onBack={() => goToSession(3)} />;
       case 5: return <Session5Opportunities profile={brandProfile} updateProfile={updateProfile} onBack={() => goToSession(4)} />;
       default: return null;
@@ -124,7 +161,7 @@ export default function App() {
       {/* Top Main Header */}
       <header className="fixed top-0 left-0 right-0 z-40 bg-cream/95 backdrop-blur-md border-b border-silver/60">
         <div className="max-w-4xl mx-auto px-4 md:px-6 py-3 flex items-center justify-between gap-2">
-          {/* Brand Logo & Main Tab Switcher */}
+          {/* Brand Logo & Status Banner */}
           <div className="flex items-center gap-3">
             <div 
               onClick={() => setActiveMainTab('studio')}
@@ -148,7 +185,7 @@ export default function App() {
                 }`}
               >
                 <Compass className="w-3.5 h-3.5" />
-                <span>Studio 5 Bước</span>
+                <span>{hasCompletedPositioning ? 'Xưởng Sáng Tạo' : 'Studio 5 Bước'}</span>
               </button>
 
               <button
@@ -197,7 +234,7 @@ export default function App() {
           </div>
         </div>
 
-        {/* Secondary Navigation Bar for Studio 5 Session Steps */}
+        {/* Secondary Bar for Studio Session Navigation */}
         {activeMainTab === 'studio' && (
           <div className="bg-cream/80 border-t border-silver/40 py-2">
             <div className="max-w-xl mx-auto px-4 flex items-center justify-between">
@@ -226,8 +263,26 @@ export default function App() {
         )}
       </header>
 
+      {/* Returning User Notification Banner (Directly entering Content Studio) */}
+      {hasCompletedPositioning && activeMainTab === 'studio' && currentSession === 4 && (
+        <div className="pt-24 pb-0 max-w-3xl mx-auto px-6">
+          <div className="bg-white rounded-2xl border border-silver/80 p-3.5 flex items-center justify-between shadow-sm text-xs">
+            <div className="flex items-center gap-2 text-ink/80">
+              <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span>Chào mừng trở lại! Định vị thương hiệu của bạn đã được khóa an toàn. Bạn đang ở <strong>Xưởng Sáng Tạo Nội Dung & Video</strong>.</span>
+            </div>
+            <button
+              onClick={handleRestartCoachProcess}
+              className="text-[11px] font-bold text-accent hover:underline flex items-center gap-1 shrink-0 ml-2"
+            >
+              <RefreshCw className="w-3 h-3" /> Chẩn đoán lại 1:1
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Main Content Area */}
-      <main className="pt-28 min-h-screen">
+      <main className={`${hasCompletedPositioning && activeMainTab === 'studio' && currentSession === 4 ? 'pt-4' : 'pt-28'} min-h-screen`}>
         {renderContent()}
       </main>
 
@@ -265,6 +320,17 @@ export default function App() {
                     <X className="w-4 h-4" />
                   </button>
                 </div>
+              </div>
+
+              {/* Returning User Option to Restart 1:1 Coach */}
+              <div className="p-3 bg-white rounded-xl border border-silver/80 text-xs text-ink/70 flex items-center justify-between">
+                <span>Trạng thái định vị: <strong className="text-emerald-700">Đã hoàn thành</strong></span>
+                <button
+                  onClick={handleRestartCoachProcess}
+                  className="text-accent font-bold text-[11px] hover:underline flex items-center gap-1"
+                >
+                  <RefreshCw className="w-3 h-3" /> Coach lại 1:1
+                </button>
               </div>
 
               {/* Profile Fields */}
