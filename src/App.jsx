@@ -9,7 +9,7 @@ import SelfDiscoveryTab from './components/SelfDiscoveryTab';
 import AuthModal from './components/AuthModal';
 import { syncBrandProfileToSupabase } from './lib/supabaseClient';
 import { BRAND_ARCHETYPES } from './data/brandVibes';
-import { ShieldCheck, Award, X, Copy, Check, FileText, User, LogIn, Edit3, Save, LogOut, Heart, Sparkles } from 'lucide-react';
+import { ShieldCheck, Award, X, Copy, Check, FileText, User, LogIn, Edit3, Save, LogOut, Heart, Sparkles, Compass } from 'lucide-react';
 
 const SESSIONS = [
   { id: 1, label: 'Hiểu thế mạnh', shortLabel: 'Thế mạnh' },
@@ -25,13 +25,13 @@ export default function App() {
   const [showProfileDrawer, setShowProfileDrawer] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   
-  // Persistent Auth State (Auto Login from LocalStorage)
+  // Persistent Auth State
   const [userAuth, setUserAuth] = useState(() => {
     try {
       const saved = localStorage.getItem('dauan_user_session');
-      return saved ? JSON.parse(saved) : { name: 'Minh Trần (Demo Expert)', email: 'demo@dauan.studio', isDemo: true };
+      return saved ? JSON.parse(saved) : null;
     } catch (e) {
-      return { name: 'Minh Trần (Demo Expert)', email: 'demo@dauan.studio', isDemo: true };
+      return null;
     }
   });
 
@@ -98,7 +98,7 @@ export default function App() {
   };
 
   const handleCopyProfile = () => {
-    const text = `HỒ SƠ THƯƠNG HIỆU CÁ NHÂN (BRAND BLUEPRINT)\n\nChuyên gia: ${brandProfile.name}\nKinh nghiệm: ${brandProfile.yearsExperience}\nHình mẫu thương hiệu: ${brandProfile.archetypeName}\nVisual Style: ${brandProfile.brandVibe}\n\nĐỊNH VỊ THƯƠNG HIỆU:\n"${brandProfile.positioningStatement}"\n\nSẢN PHẨM KHỞI ĐẦU:\n${brandProfile.firstOffer}`;
+    const text = `HỒ SƠ THƯƠNG HIỆU CÁ NHÂN (BRAND BLUEPRINT)\n\nChuyên gia: ${brandProfile.name}\nKinh nghiệm: ${brandProfile.yearsExperience}\nHình mẫu thương hiệu: ${brandProfile.archetypeName}\nVisual Style: ${brandProfile.brandVibe}\n\nĐỊNH VỊ THƯƠNG HIỆU:\n"${brandProfile.positioningStatement}"\n\nSẢN PHẢM KHỞI ĐẦU:\n${brandProfile.firstOffer}`;
     navigator.clipboard.writeText(text);
     setCopiedProfile(true);
     setTimeout(() => setCopiedProfile(false), 2000);
@@ -121,99 +121,113 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-cream">
-      {/* Top Navigation Bar */}
-      <header className="fixed top-0 left-0 right-0 z-40 bg-cream/90 backdrop-blur-md border-b border-silver/50">
-        <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
-          {/* Brand Mark */}
+      {/* Top Main Header */}
+      <header className="fixed top-0 left-0 right-0 z-40 bg-cream/95 backdrop-blur-md border-b border-silver/60">
+        <div className="max-w-4xl mx-auto px-4 md:px-6 py-3 flex items-center justify-between gap-2">
+          {/* Brand Logo & Main Tab Switcher */}
           <div className="flex items-center gap-3">
-            <svg width="28" height="28" viewBox="0 0 40 40" fill="none" className="opacity-90">
-              <circle cx="20" cy="20" r="18" stroke="#111111" strokeWidth="1.5" fill="none"/>
-              <circle cx="20" cy="20" r="13" stroke="#111111" strokeWidth="1.2" fill="none"/>
-              <circle cx="20" cy="20" r="8" stroke="#111111" strokeWidth="1" fill="none"/>
-              <circle cx="20" cy="20" r="3.5" fill="#111111"/>
-            </svg>
-            <span className="font-serif text-lg font-semibold tracking-tight text-ink">Dấu Ấn</span>
+            <div 
+              onClick={() => setActiveMainTab('studio')}
+              className="flex items-center gap-2 cursor-pointer"
+            >
+              <svg width="26" height="26" viewBox="0 0 40 40" fill="none" className="opacity-90">
+                <circle cx="20" cy="20" r="18" stroke="#111111" strokeWidth="1.5" fill="none"/>
+                <circle cx="20" cy="20" r="13" stroke="#111111" strokeWidth="1.2" fill="none"/>
+                <circle cx="20" cy="20" r="8" stroke="#111111" strokeWidth="1" fill="none"/>
+                <circle cx="20" cy="20" r="3.5" fill="#111111"/>
+              </svg>
+              <span className="font-serif text-base md:text-lg font-bold tracking-tight text-ink hidden sm:inline">Dấu Ấn Studio</span>
+            </div>
+
+            {/* TAB SWITCHER: Studio vs Hiểu Mình */}
+            <div className="flex items-center bg-white p-1 rounded-full border border-silver text-xs">
+              <button
+                onClick={() => setActiveMainTab('studio')}
+                className={`px-3 py-1 rounded-full font-bold transition-all flex items-center gap-1 ${
+                  activeMainTab === 'studio' ? 'bg-ink text-cream shadow-sm' : 'text-ink/60 hover:text-ink'
+                }`}
+              >
+                <Compass className="w-3.5 h-3.5" />
+                <span>Studio 5 Bước</span>
+              </button>
+
+              <button
+                onClick={() => setActiveMainTab('self-discovery')}
+                className={`px-3 py-1 rounded-full font-bold transition-all flex items-center gap-1 ${
+                  activeMainTab === 'self-discovery' ? 'bg-coral text-white shadow-sm' : 'text-coral hover:bg-coral/10'
+                }`}
+              >
+                <Heart className="w-3.5 h-3.5 fill-current" />
+                <span>🌿 Hiểu Mình</span>
+              </button>
+            </div>
           </div>
 
-          {/* Session Steps or Self-Discovery Switcher */}
-          {activeMainTab === 'studio' ? (
-            <div className="flex items-center gap-2">
-              {SESSIONS.map((s) => (
-                <button
-                  key={s.id}
-                  onClick={() => goToSession(s.id)}
-                  className="group relative flex items-center"
-                  title={s.label}
-                >
-                  <div className={`step-dot ${
-                    currentSession === s.id
-                      ? 'w-7 bg-ink'
-                      : s.id < currentSession
-                      ? 'bg-ink'
-                      : 'bg-silver'
-                  }`} />
-                  <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] text-ink/60 font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                    {s.shortLabel}
-                  </span>
-                </button>
-              ))}
-            </div>
-          ) : (
-            <span className="text-xs font-serif italic text-accent font-semibold">Góc Khai Vấn ICF · Hiểu Mình</span>
-          )}
-
-          {/* Auth, Self-Discovery & Profile Actions */}
+          {/* User Auth & Profile Action Buttons */}
           <div className="flex items-center gap-2">
-            {/* Hiểu Mình Tab Toggle Button */}
-            <button
-              onClick={() => setActiveMainTab(activeMainTab === 'studio' ? 'self-discovery' : 'studio')}
-              className={`text-xs font-semibold px-3 py-1.5 rounded-full border transition-all flex items-center gap-1.5 ${
-                activeMainTab === 'self-discovery'
-                  ? 'bg-coral text-white border-coral shadow'
-                  : 'bg-white border-silver/80 text-ink hover:border-ink/40'
-              }`}
-            >
-              <Heart className="w-3.5 h-3.5 fill-current" />
-              <span>{activeMainTab === 'self-discovery' ? 'Vào Studio 5 Bước' : '🌿 Hiểu Mình'}</span>
-            </button>
-
             {userAuth ? (
-              <div className="flex items-center gap-1">
-                <span className="text-xs font-semibold text-ink bg-white px-2.5 py-1 rounded-full border border-silver flex items-center gap-1">
-                  <User className="w-3 h-3 text-emerald-600" />
-                  {userAuth.name}
-                </span>
+              <div className="flex items-center gap-1.5 bg-white px-3 py-1 rounded-full border border-silver shadow-sm">
+                <User className="w-3.5 h-3.5 text-emerald-600" />
+                <span className="text-xs font-bold text-ink max-w-[100px] truncate">{userAuth.name}</span>
                 <button
                   onClick={handleLogout}
                   title="Đăng xuất"
-                  className="p-1 rounded-full hover:bg-silver/40 text-ink/40 hover:text-ink"
+                  className="p-1 hover:text-coral text-ink/40 transition-colors ml-0.5"
                 >
-                  <LogOut className="w-3.5 h-3.5" />
+                  <LogOut className="w-3 h-3" />
                 </button>
               </div>
             ) : (
               <button
                 onClick={() => setShowAuthModal(true)}
-                className="text-xs font-semibold text-ink hover:text-accent transition-colors flex items-center gap-1 bg-white px-3 py-1.5 rounded-full border border-silver/80"
+                className="text-xs font-bold text-white bg-ink hover:bg-ink/90 transition-all flex items-center gap-1.5 px-3.5 py-1.5 rounded-full shadow-sm"
               >
-                <LogIn className="w-3.5 h-3.5" />
+                <LogIn className="w-3.5 h-3.5 text-cream" />
                 <span>Đăng nhập</span>
               </button>
             )}
 
             <button
-              className="text-xs font-medium text-ink/60 hover:text-ink transition-colors flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-full border border-silver/80"
+              className="text-xs font-bold text-ink bg-white hover:bg-cream transition-colors flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-silver shadow-sm"
               onClick={() => setShowProfileDrawer(true)}
             >
               <FileText className="w-3.5 h-3.5 text-accent" />
-              <span>Hồ sơ</span>
+              <span className="hidden sm:inline">Hồ sơ</span>
             </button>
           </div>
         </div>
+
+        {/* Secondary Navigation Bar for Studio 5 Session Steps */}
+        {activeMainTab === 'studio' && (
+          <div className="bg-cream/80 border-t border-silver/40 py-2">
+            <div className="max-w-xl mx-auto px-4 flex items-center justify-between">
+              {SESSIONS.map((s) => (
+                <button
+                  key={s.id}
+                  onClick={() => goToSession(s.id)}
+                  className={`flex items-center gap-1.5 text-xs transition-all ${
+                    currentSession === s.id
+                      ? 'font-extrabold text-ink scale-105'
+                      : s.id < currentSession
+                      ? 'font-semibold text-ink/70'
+                      : 'font-normal text-ink/30'
+                  }`}
+                >
+                  <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] ${
+                    currentSession === s.id ? 'bg-ink text-cream font-mono' : 'bg-silver/60 text-ink/60'
+                  }`}>
+                    {s.id}
+                  </span>
+                  <span className="hidden sm:inline">{s.shortLabel}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Main Content Area */}
-      <main className="pt-20 min-h-screen">
+      <main className="pt-28 min-h-screen">
         {renderContent()}
       </main>
 
