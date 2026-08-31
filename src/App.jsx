@@ -10,7 +10,7 @@ import AuthModal from './components/AuthModal';
 import { syncBrandProfileToSupabase } from './lib/supabaseClient';
 import { BRAND_ARCHETYPES } from './data/brandVibes';
 import { TRANSLATIONS } from './data/translations';
-import { ShieldCheck, Award, X, Copy, Check, FileText, User, LogIn, Edit3, Save, LogOut, Heart, Sparkles, Compass, RefreshCw, Globe, Menu } from 'lucide-react';
+import { ShieldCheck, Award, X, Copy, Check, FileText, User, LogIn, Edit3, Save, LogOut, Heart, Sparkles, Compass, RefreshCw, Globe, Unlock } from 'lucide-react';
 
 const SESSIONS = [
   { id: 1, label: 'Hiểu thế mạnh', shortLabel: 'Thế mạnh', labelEn: 'Strengths', shortLabelEn: 'Strengths' },
@@ -40,25 +40,8 @@ export default function App() {
     } catch (e) {}
   };
 
-  // Check if positioning has been completed before
-  const [hasCompletedPositioning, setHasCompletedPositioning] = useState(() => {
-    try {
-      return localStorage.getItem('dauan_positioning_completed') === 'true';
-    } catch (e) {
-      return false;
-    }
-  });
-
-  // Default session logic: If user completed positioning before -> Land directly in Session 4 (Content Studio)!
-  const [currentSession, setCurrentSession] = useState(() => {
-    try {
-      const isDone = localStorage.getItem('dauan_positioning_completed') === 'true';
-      return isDone ? 4 : 1;
-    } catch (e) {
-      return 1;
-    }
-  });
-
+  // Default starting session: Set to 1 by default, but ALL sessions are 100% unlocked & clickable anytime!
+  const [currentSession, setCurrentSession] = useState(1);
   const [activeMainTab, setActiveMainTab] = useState('studio'); // 'studio' | 'self-discovery'
   const [showProfileDrawer, setShowProfileDrawer] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -115,24 +98,6 @@ export default function App() {
     });
   };
 
-  const markPositioningComplete = () => {
-    setHasCompletedPositioning(true);
-    try {
-      localStorage.setItem('dauan_positioning_completed', 'true');
-    } catch (e) {}
-  };
-
-  const handleRestartCoachProcess = () => {
-    if (confirm(lang === 'en' ? "Would you like to restart the 1:1 Positioning Coach from Step 1?" : "Bạn có muốn thực hiện lại buổi Coach định vị 1:1 từ Bước 1 không?")) {
-      setHasCompletedPositioning(false);
-      try {
-        localStorage.setItem('dauan_positioning_completed', 'false');
-      } catch (e) {}
-      setCurrentSession(1);
-      setShowProfileDrawer(false);
-    }
-  };
-
   const handleLoginSuccess = (user) => {
     setUserAuth(user);
     try {
@@ -168,7 +133,7 @@ export default function App() {
     switch (currentSession) {
       case 1: return <Session1Strengths profile={brandProfile} updateProfile={updateProfile} onNext={() => goToSession(2)} userAuth={userAuth} onLoginSuccess={handleLoginSuccess} lang={lang} />;
       case 2: return <Session2Positioning profile={brandProfile} updateProfile={updateProfile} onNext={() => goToSession(3)} onBack={() => goToSession(1)} lang={lang} />;
-      case 3: return <Session3Packaging profile={brandProfile} updateProfile={updateProfile} onNext={() => { markPositioningComplete(); goToSession(4); }} onBack={() => goToSession(2)} lang={lang} />;
+      case 3: return <Session3Packaging profile={brandProfile} updateProfile={updateProfile} onNext={() => goToSession(4)} onBack={() => goToSession(2)} lang={lang} />;
       case 4: return <Session4Content profile={brandProfile} updateProfile={updateProfile} onNext={() => goToSession(5)} onBack={() => goToSession(3)} lang={lang} />;
       case 5: return <Session5Opportunities profile={brandProfile} updateProfile={updateProfile} onBack={() => goToSession(4)} lang={lang} />;
       default: return null;
@@ -204,7 +169,7 @@ export default function App() {
                 }`}
               >
                 <Compass className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                <span>{hasCompletedPositioning ? t.contentStudio : t.studio5Steps}</span>
+                <span>{t.studio5Steps}</span>
               </button>
 
               <button
@@ -263,59 +228,38 @@ export default function App() {
           </div>
         </div>
 
-        {/* Secondary Bar for Studio Session Navigation */}
+        {/* PROMINENT & 100% UNLOCKED STEP NAVIGATION BAR */}
         {activeMainTab === 'studio' && (
-          <div className="bg-cream/80 border-t border-silver/40 py-1.5 overflow-x-auto custom-scrollbar">
-            <div className="max-w-xl mx-auto px-4 flex items-center justify-between min-w-[290px]">
-              {SESSIONS.map((s) => (
-                <button
-                  key={s.id}
-                  onClick={() => goToSession(s.id)}
-                  className={`flex items-center gap-1 text-[11px] sm:text-xs transition-all ${
-                    currentSession === s.id
-                      ? 'font-extrabold text-ink scale-105'
-                      : s.id < currentSession
-                      ? 'font-semibold text-ink/70'
-                      : 'font-normal text-ink/30'
-                  }`}
-                >
-                  <span className={`w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full flex items-center justify-center text-[9px] sm:text-[10px] ${
-                    currentSession === s.id ? 'bg-ink text-cream font-mono' : 'bg-silver/60 text-ink/60'
-                  }`}>
-                    {s.id}
-                  </span>
-                  <span className="whitespace-nowrap">{lang === 'en' ? s.shortLabelEn : s.shortLabel}</span>
-                </button>
-              ))}
+          <div className="bg-white border-t border-silver/60 py-2 shadow-sm">
+            <div className="max-w-2xl mx-auto px-4 flex items-center justify-between overflow-x-auto custom-scrollbar gap-2">
+              {SESSIONS.map((s) => {
+                const isActive = currentSession === s.id;
+                return (
+                  <button
+                    key={s.id}
+                    onClick={() => goToSession(s.id)}
+                    className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                      isActive
+                        ? 'bg-ink text-cream shadow-md scale-105 ring-2 ring-ink/20'
+                        : 'bg-cream text-ink/80 hover:bg-ink hover:text-cream border border-silver/80'
+                    }`}
+                  >
+                    <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-mono font-bold ${
+                      isActive ? 'bg-amber-400 text-slate-950' : 'bg-silver/60 text-ink/70'
+                    }`}>
+                      {s.id}
+                    </span>
+                    <span>{lang === 'en' ? s.shortLabelEn : s.shortLabel}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         )}
       </header>
 
-      {/* Returning User Notification Banner */}
-      {hasCompletedPositioning && activeMainTab === 'studio' && currentSession === 4 && (
-        <div className="pt-24 pb-0 max-w-3xl mx-auto px-4 sm:px-6">
-          <div className="bg-white rounded-2xl border border-silver/80 p-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 shadow-sm text-xs">
-            <div className="flex items-center gap-2 text-ink/80">
-              <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-              <span>
-                {lang === 'en'
-                  ? 'Welcome back! Positioning is locked. You are in the Content & Video Studio.'
-                  : 'Chào mừng trở lại! Định vị thương hiệu đã khóa an toàn. Bạn đang ở Xưởng Content & Video.'}
-              </span>
-            </div>
-            <button
-              onClick={handleRestartCoachProcess}
-              className="text-[11px] font-bold text-accent hover:underline flex items-center gap-1 shrink-0"
-            >
-              <RefreshCw className="w-3 h-3" /> {lang === 'en' ? 'Re-do Coach' : 'Chẩn đoán lại 1:1'}
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* Main Content Area */}
-      <main className={`${hasCompletedPositioning && activeMainTab === 'studio' && currentSession === 4 ? 'pt-4' : 'pt-28'} min-h-screen`}>
+      <main className="pt-28 min-h-screen">
         {renderContent()}
       </main>
 
