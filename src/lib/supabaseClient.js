@@ -6,7 +6,7 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder-k
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 /**
- * Helper to sync Brand Profile to Supabase database
+ * Helper to sync Brand Profile & Avatar to Supabase database
  */
 export async function syncBrandProfileToSupabase(profile) {
   try {
@@ -20,6 +20,7 @@ export async function syncBrandProfileToSupabase(profile) {
       .upsert([
         {
           name: profile.name,
+          avatar: profile.avatar,
           years_experience: profile.yearsExperience,
           biggest_win: profile.biggestWin,
           strength_summary: profile.strengthSummary,
