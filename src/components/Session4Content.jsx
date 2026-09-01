@@ -312,12 +312,15 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
     }
   }, [isMuted, voiceLang]);
 
-  // Speak voiceover whenever active scene changes during playback
+  // Audio Source selection: 'expert' (giọng gốc từ Video upload) vs 'tts' (Giọng AI trình duyệt)
+  const [audioSourceMode, setAudioSourceMode] = useState('expert');
+
+  // Speak voiceover ONLY when in TTS mode and playing
   useEffect(() => {
-    if (isPlaying && activeScene) {
+    if (isPlaying && activeScene && audioSourceMode === 'tts') {
       speakVoiceover(activeScene.voiceover);
     }
-  }, [activeSceneIndex, isPlaying]);
+  }, [activeSceneIndex, isPlaying, audioSourceMode]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -344,6 +347,7 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
     setRawVideoFile(file);
     const videoObjUrl = URL.createObjectURL(file);
     setRawVideoUrl(videoObjUrl);
+    setAudioSourceMode('expert'); // Default to authentic expert voice from uploaded video!
     setIsPlaying(false);
     setRenderComplete(false);
     setRenderedBlobUrl(null);
@@ -360,7 +364,7 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
     setScenes(prev => prev.map(s => s.id === sceneId ? { ...s, [field]: value } : s));
   };
 
-  // Toggle Play / Pause Video + Speech Synthesis
+  // Toggle Play / Pause Video
   const togglePlayPause = () => {
     if (isPlaying) {
       setIsPlaying(false);
@@ -372,12 +376,13 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
       if (videoRef.current) {
         videoRef.current.play().catch(e => console.warn(e));
       }
-      speakVoiceover(activeScene?.voiceover || scenes[0]?.voiceover);
+      if (audioSourceMode === 'tts') {
+        speakVoiceover(activeScene?.voiceover || scenes[0]?.voiceover);
+      }
     }
   };
 
-  // ─── REAL CANVAS COMPOSITE RENDER + MEDIARECORDER PIPELINE ─── //
-  // ─── ULTRA-FAST, HANG-PROOF CANVAS RENDER PIPELINE (Completed in ~3s) ─── //
+  // ─── FULL DURATION CANVAS COMPOSITE RENDER PIPELINE ─── //
   const handleStartRender = async () => {
     setIsRendering(true);
     setRenderProgress(0);
@@ -385,13 +390,16 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
     setRenderedBlobUrl(null);
     setRenderMessage(RENDER_STEPS[0].msg);
 
-    // Hard failsafe timeout: Guarantee render stops after 5 seconds no matter what
+    const targetDur = videoRef.current?.duration || 55;
+    const maxTimeoutMs = Math.max(15, Math.ceil(targetDur + 10)) * 1000;
+
+    // Failsafe timeout based on actual video length
     const hardFailsafe = setTimeout(() => {
       setIsRendering(false);
       setRenderProgress(100);
       setRenderComplete(true);
       setRenderMessage('✅ Render hoàn tất! Video sẵn sàng tải xuống.');
-    }, 5000);
+    }, maxTimeoutMs);
 
     try {
       if (rawVideoUrl && videoRef.current) {
@@ -407,7 +415,7 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
     }
   };
 
-  // Fast progress timer (2.5s total)
+  // Simulated fast progress timer for avatar mode
   const doFastProgressRender = () => {
     return new Promise((resolve) => {
       let stepIdx = 0;
@@ -424,11 +432,11 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
         }
         setRenderProgress(RENDER_STEPS[stepIdx].pct);
         setRenderMessage(RENDER_STEPS[stepIdx].msg);
-      }, 250); // 11 steps * 250ms = 2.75s total!
+      }, 250);
     });
   };
 
-  // Real Canvas Composite: draw frames into MediaRecorder fast with 3s hard cutoff
+  // Full-length Real Canvas Composite matching video's actual duration (e.g. 3:09)
   const doCanvasRender = () => {
     return new Promise((resolve) => {
       const video = videoRef.current;
@@ -440,7 +448,9 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
       canvas.height = H;
       const ctx = canvas.getContext('2d');
 
-      // Unmute video for audio track
+      const dur = video.duration || 55;
+
+      // Reset to start
       video.currentTime = 0;
       video.muted = false;
       video.volume = 1.0;
@@ -490,11 +500,12 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
         resolve();
       };
 
-      recorder.start(100);
+      recorder.start(200);
 
-      let stepIdx = 0;
+      // Frame loop synced to actual video playback time up to full duration
       const renderTimer = setInterval(() => {
-        stepIdx++;
+        const t = video.currentTime;
+        const pctDone = Math.min(99, Math.round((t / dur) * 100));
 
         // Draw current frame to canvas
         const vw = video.videoWidth || 1920;
@@ -506,20 +517,19 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
         const dy = (H - dh) / 2;
         ctx.drawImage(video, dx, dy, dw, dh);
 
-        // Update progress
-        if (stepIdx < RENDER_STEPS.length) {
-          setRenderProgress(RENDER_STEPS[stepIdx].pct);
-          setRenderMessage(RENDER_STEPS[stepIdx].msg);
-        }
+        // Update progress percentage
+        setRenderProgress(pctDone);
+        const stepMsg = RENDER_STEPS.find(s => pctDone <= s.pct);
+        if (stepMsg) setRenderMessage(stepMsg.msg);
 
-        // Finish after 3 seconds max (12 steps * 250ms = 3000ms)
-        if (stepIdx >= RENDER_STEPS.length) {
+        // Finish when video reaches end or full duration
+        if (video.ended || t >= dur - 0.2) {
           clearInterval(renderTimer);
           if (recorder.state !== 'inactive') {
             recorder.stop();
           }
         }
-      }, 250);
+      }, 100);
     });
   };
 
@@ -1031,6 +1041,38 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
             {/* Left Column: Upload + Render Controls */}
             <div className="lg:col-span-7 space-y-4">
               
+              {/* Audio Source Selector */}
+              <div className="p-4 rounded-3xl bg-white border border-silver/80 space-y-2 shadow-xs">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-ink/50 block">
+                  🔊 NGUỒN ÂM THANH VIDEO:
+                </span>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <button
+                    onClick={() => setAudioSourceMode('expert')}
+                    className={`p-3 rounded-2xl border text-left transition-all space-y-0.5 ${
+                      audioSourceMode === 'expert'
+                        ? 'bg-[#315CFF]/10 border-[#315CFF] text-[#315CFF] font-bold ring-1 ring-[#315CFF]/20'
+                        : 'bg-cream/50 border-silver text-ink/70 hover:border-ink/30'
+                    }`}
+                  >
+                    <p className="text-[11px] font-bold">🎙 Giọng nói thật Chuyên gia</p>
+                    <p className="text-[9px] text-ink/50">Giữ 100% giọng thật tự nhiên từ Video upload</p>
+                  </button>
+
+                  <button
+                    onClick={() => setAudioSourceMode('tts')}
+                    className={`p-3 rounded-2xl border text-left transition-all space-y-0.5 ${
+                      audioSourceMode === 'tts'
+                        ? 'bg-[#315CFF]/10 border-[#315CFF] text-[#315CFF] font-bold ring-1 ring-[#315CFF]/20'
+                        : 'bg-cream/50 border-silver text-ink/70 hover:border-ink/30'
+                    }`}
+                  >
+                    <p className="text-[11px] font-bold">🤖 Giọng đọc AI Trình duyệt</p>
+                    <p className="text-[9px] text-ink/50">Đọc kịch bản bằng giọng AI TTS</p>
+                  </button>
+                </div>
+              </div>
+
               {/* Upload Box */}
               <div className="p-6 rounded-3xl bg-white border-2 border-dashed border-silver/80 text-center space-y-3 shadow-xs">
                 <div className="w-12 h-12 rounded-2xl bg-[#315CFF]/10 text-[#315CFF] flex items-center justify-center mx-auto">
