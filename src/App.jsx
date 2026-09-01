@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import './index.css';
 import Session1Strengths from './components/Session1Strengths';
 import Session2Positioning from './components/Session2Positioning';
@@ -8,17 +8,40 @@ import Session5Opportunities from './components/Session5Opportunities';
 import SelfDiscoveryTab from './components/SelfDiscoveryTab';
 import AuthModal from './components/AuthModal';
 import { syncBrandProfileToSupabase } from './lib/supabaseClient';
-import { BRAND_ARCHETYPES } from './data/brandVibes';
 import { TRANSLATIONS } from './data/translations';
-import { ShieldCheck, Award, X, Copy, Check, FileText, User, LogIn, Edit3, Save, LogOut, Heart, Sparkles, Compass, RefreshCw, Globe, Layers } from 'lucide-react';
+import { 
+  Sparkles, Award, X, Copy, Check, FileText, User, LogIn, Edit3, 
+  Save, LogOut, Heart, Compass, Globe, Box, Handshake, CheckCircle2, ChevronDown 
+} from 'lucide-react';
 
-const SESSIONS = [
-  { id: 1, label: 'Thế mạnh', shortLabel: '1. Thế mạnh', labelEn: 'Strengths', shortLabelEn: '1. Strengths' },
-  { id: 2, label: 'Định vị', shortLabel: '2. Định vị', labelEn: 'Positioning', shortLabelEn: '2. Positioning' },
-  { id: 3, label: 'Đóng gói giá trị', shortLabel: '3. Giá trị', labelEn: 'Package Value', shortLabelEn: '3. Packaging' },
-  { id: 4, label: 'Tạo nội dung', shortLabel: '4. Tạo nội dung', labelEn: 'Content Studio', shortLabelEn: '4. Content' },
-  { id: 5, label: 'Cơ hội', shortLabel: '5. Cơ hội', labelEn: 'Opportunities', shortLabelEn: '5. Leads' },
+/**
+ * EXPERTPRINT — APP SHELL
+ * Matching 100% Screenshot 1 & 2 + Master Spec 5 Core Navigation Areas
+ */
+
+// 5 Locked Core Navigation Areas (Black Bottom Bar)
+const NAVIGATION_AREAS = [
+  { id: 1, label: 'Hôm nay', labelEn: 'Today', icon: Sparkles },
+  { id: 2, label: 'Thương hiệu', labelEn: 'Brand', icon: FingerprintIcon },
+  { id: 3, label: 'Giá trị', labelEn: 'Value', icon: Box },
+  { id: 4, label: 'Nội dung', labelEn: 'Content', icon: Edit3 },
+  { id: 5, label: 'Cơ hội', labelEn: 'Leads', icon: Handshake },
 ];
+
+function FingerprintIcon({ className }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M12 3a9 9 0 0 0-9 9" />
+      <path d="M12 3a9 9 0 0 1 9 9" />
+      <path d="M12 7a5 5 0 0 0-5 5" />
+      <path d="M12 7a5 5 0 0 1 5 5" />
+      <path d="M12 11a1 1 0 0 0-1 1" />
+      <path d="M12 11a1 1 0 0 1 1 1" />
+      <path d="M7 12a5 5 0 0 0 10 0" />
+      <path d="M3 12a9 9 0 0 0 18 0" />
+    </svg>
+  );
+}
 
 export default function App() {
   // Bilingual Language State: 'vi' | 'en'
@@ -40,23 +63,28 @@ export default function App() {
     } catch (e) {}
   };
 
-  const [currentSession, setCurrentSession] = useState(1);
-  const [activeMainTab, setActiveMainTab] = useState('studio'); // 'studio' | 'self-discovery'
+  // Active Navigation Area (1 to 5) - Default area 2: "Thương hiệu" (Session 1 Discovery)
+  const [currentArea, setCurrentArea] = useState(2);
   const [showProfileDrawer, setShowProfileDrawer] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  
-  // Persistent Auth State
+
+  // User Profile
   const [userAuth, setUserAuth] = useState(() => {
     try {
       const saved = localStorage.getItem('dauan_user_session');
-      return saved ? JSON.parse(saved) : { name: 'Minh Trần (Demo Expert)', email: 'demo@expertprint.studio', isDemo: true };
+      return saved ? JSON.parse(saved) : { 
+        name: 'Trần Thị Phương Hà', 
+        email: 'phuongha@expertprint.studio', 
+        avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80' 
+      };
     } catch (e) {
-      return { name: 'Minh Trần (Demo Expert)', email: 'demo@expertprint.studio', isDemo: true };
+      return { 
+        name: 'Trần Thị Phương Hà', 
+        email: 'phuongha@expertprint.studio',
+        avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80'
+      };
     }
   });
-
-  const [isEditingProfile, setIsEditingProfile] = useState(false);
-  const [copiedProfile, setCopiedProfile] = useState(false);
 
   const [brandProfile, setBrandProfile] = useState(() => {
     try {
@@ -64,25 +92,19 @@ export default function App() {
       if (savedProf) return JSON.parse(savedProf);
     } catch (e) {}
     return {
-      name: 'Minh Trần',
+      name: 'Trần Thị Phương Hà',
       yearsExperience: '10 năm',
-      biggestWin: 'Giúp 60+ startup gọi vốn thành công',
-      strengthSummary: 'Nhìn thấu bản chất vấn đề, kinh nghiệm thực chiến đo lường được, và phong cách truyền đạt tạo niềm tin ngay lần đầu.',
-      whoHelp: 'chuyên gia 30-45 tuổi đang chuyển đổi sang làm tự do',
+      biggestWin: 'Giúp 60+ chuyên gia xây quỹ dòng tiền và đóng gói Signature Offer',
+      strengthSummary: 'Nhìn thấu bản chất vấn đề, chẩn đoán đúng nút thắt chiến lược, và đóng gói giải pháp có giá trị chuyển đổi cao.',
+      whoHelp: 'chuyên gia 30-45 tuổi đang chuyển đổi sang tư vấn độc lập',
       whatChange: 'xây quỹ an toàn 12 tháng & có 3 khách hàng đầu tiên',
-      whyTrust: '10+ năm kinh nghiệm thực chiến đồng hành cùng 60+ chuyên gia',
+      whyTrust: '10+ năm kinh nghiệm thực chiến đồng hành cùng 60+ dự án',
       positioningStatement: 'Bạn giúp chuyên gia đang chuyển sang làm tự do xây quỹ an toàn 12 tháng trước khi rời công việc.',
       firstOffer: 'Buổi chẩn đoán 1:1: Rà soát 3 điểm nghẽn chiến lược trong 60 phút',
-      offerType: 'Buổi chẩn đoán 1:1',
-      offerDescription: 'Rà soát 3 điểm nghẽn chiến lược trong 60 phút',
-      archetypeId: 'sage-mentor',
       archetypeName: 'The Sage & Mentor (Người Cố Vấn Tri Thức)',
       brandVibe: 'Editorial Luxury / Apple Minimalist',
       brandColors: ['#F7F7F5', '#111111', '#315CFF', '#D9DADC'],
-      pinterestTag: 'Editorial Confidence, Minimalist Studio, Warm Light Serif',
       contentGoal: 'Để đúng khách hàng biết đến tôi',
-      contentIdeas: [],
-      opportunities: [],
     };
   });
 
@@ -112,159 +134,104 @@ export default function App() {
     } catch (e) {}
   };
 
-  const goToSession = (n) => {
-    setActiveMainTab('studio');
-    if (n >= 1 && n <= 5) setCurrentSession(n);
-  };
-
-  const handleCopyProfile = () => {
-    const text = `HỒ SƠ THƯƠNG HIỆU CÁ NHÂN (BRAND BLUEPRINT)\n\nChuyên gia: ${brandProfile.name}\nKinh nghiệm: ${brandProfile.yearsExperience}\nHình mẫu thương hiệu: ${brandProfile.archetypeName}\nVisual Style: ${brandProfile.brandVibe}\n\nĐỊNH VỊ THƯƠNG HIỆU:\n"${brandProfile.positioningStatement}"\n\nSẢN PHẨM KHỞI ĐẦU:\n${brandProfile.firstOffer}`;
-    navigator.clipboard.writeText(text);
-    setCopiedProfile(true);
-    setTimeout(() => setCopiedProfile(false), 2000);
-  };
-
-  const renderContent = () => {
-    if (activeMainTab === 'self-discovery') {
-      return <SelfDiscoveryTab profile={brandProfile} updateProfile={updateProfile} lang={lang} />;
-    }
-
-    switch (currentSession) {
-      case 1: return <Session1Strengths profile={brandProfile} updateProfile={updateProfile} onNext={() => goToSession(2)} userAuth={userAuth} onLoginSuccess={handleLoginSuccess} lang={lang} />;
-      case 2: return <Session2Positioning profile={brandProfile} updateProfile={updateProfile} onNext={() => goToSession(3)} onBack={() => goToSession(1)} lang={lang} />;
-      case 3: return <Session3Packaging profile={brandProfile} updateProfile={updateProfile} onNext={() => goToSession(4)} onBack={() => goToSession(2)} lang={lang} />;
-      case 4: return <Session4Content profile={brandProfile} updateProfile={updateProfile} onNext={() => goToSession(5)} onBack={() => goToSession(3)} lang={lang} />;
-      case 5: return <Session5Opportunities profile={brandProfile} updateProfile={updateProfile} onBack={() => goToSession(4)} lang={lang} />;
-      default: return null;
+  // Render Area Components
+  const renderCurrentArea = () => {
+    switch (currentArea) {
+      case 1: // Hôm nay (Self-Discovery & Compass)
+        return <SelfDiscoveryTab profile={brandProfile} updateProfile={updateProfile} lang={lang} />;
+      case 2: // Thương hiệu (Session 1 Discovery & Session 2 Positioning)
+        return <Session1Strengths profile={brandProfile} updateProfile={updateProfile} onNext={() => setCurrentArea(3)} lang={lang} />;
+      case 3: // Giá trị (Packaging Signature Offer)
+        return <Session3Packaging profile={brandProfile} updateProfile={updateProfile} onNext={() => setCurrentArea(4)} onBack={() => setCurrentArea(2)} lang={lang} />;
+      case 4: // Nội dung (Content & Video Studio)
+        return <Session4Content profile={brandProfile} updateProfile={updateProfile} onNext={() => setCurrentArea(5)} onBack={() => setCurrentArea(3)} lang={lang} />;
+      case 5: // Cơ hội (Opportunities Pipeline CRM)
+        return <Session5Opportunities profile={brandProfile} updateProfile={updateProfile} onBack={() => setCurrentArea(4)} lang={lang} />;
+      default:
+        return <Session1Strengths profile={brandProfile} updateProfile={updateProfile} onNext={() => setCurrentArea(3)} lang={lang} />;
     }
   };
 
   return (
-    <div className="min-h-screen bg-cream overflow-x-hidden font-sans text-ink">
-      {/* Top Main Responsive Header */}
-      <header className="fixed top-0 left-0 right-0 z-40 bg-cream/95 backdrop-blur-md border-b border-silver/60">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-2.5 flex items-center justify-between gap-2">
-          {/* Brand Logo & Tagline */}
-          <div className="flex items-center gap-3">
-            <div 
-              onClick={() => { setActiveMainTab('studio'); setCurrentSession(1); }}
-              className="flex items-center gap-2 cursor-pointer shrink-0"
-            >
-              {/* Continuous Fingerprint Logo Motif */}
-              <svg width="24" height="24" viewBox="0 0 40 40" fill="none" className="text-ink stroke-current">
-                <circle cx="20" cy="20" r="18" strokeWidth="1.5" fill="none"/>
-                <circle cx="20" cy="20" r="13" strokeWidth="1.2" fill="none"/>
-                <circle cx="20" cy="20" r="8" strokeWidth="1" fill="none"/>
-                <circle cx="20" cy="20" r="3.5" fill="#111111"/>
-              </svg>
-              <div className="flex flex-col">
-                <span className="font-serif text-base md:text-lg font-bold tracking-tight text-ink leading-tight">{t.appTitle}</span>
-                <span className="text-[9px] text-ink/40 font-sans tracking-wide hidden sm:inline">{t.tagline}</span>
-              </div>
-            </div>
-
-            {/* TAB SWITCHER: Main Journey vs Content Compass */}
-            <div className="flex items-center bg-white p-0.5 sm:p-1 rounded-full border border-silver text-[11px] sm:text-xs">
-              <button
-                onClick={() => setActiveMainTab('studio')}
-                className={`px-3 py-1 rounded-full font-semibold transition-all flex items-center gap-1.5 ${
-                  activeMainTab === 'studio' ? 'bg-ink text-cream shadow-sm' : 'text-ink/60 hover:text-ink'
-                }`}
-              >
-                <Compass className="w-3.5 h-3.5" />
-                <span>{t.studio5Steps}</span>
-              </button>
-
-              <button
-                onClick={() => setActiveMainTab('self-discovery')}
-                className={`px-3 py-1 rounded-full font-semibold transition-all flex items-center gap-1.5 ${
-                  activeMainTab === 'self-discovery' ? 'bg-coral text-white shadow-sm' : 'text-coral hover:bg-coral/10'
-                }`}
-              >
-                <Heart className="w-3.5 h-3.5 fill-current" />
-                <span>{t.selfDiscovery}</span>
-              </button>
-            </div>
+    <div className="min-h-screen bg-cream text-ink font-sans flex flex-col justify-between selection:bg-[#315CFF]/15 selection:text-ink">
+      
+      {/* Top Header Bar (Exact Match to Screenshot 1 & 2) */}
+      <header className="sticky top-0 z-40 bg-cream/95 backdrop-blur-md border-b border-silver/60">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-2">
+          
+          {/* Left: Breadcrumbs / Area Name */}
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-mono tracking-widest text-ink/70 uppercase">
+              {currentArea === 2 && (lang === 'en' ? 'MY BRAND · DISCOVERY 01' : 'THƯƠNG HIỆU CỦA TÔI · KHÁM PHÁ 01')}
+              {currentArea === 4 && (lang === 'en' ? 'Create Content / Video' : 'Tạo nội dung / Video')}
+              {currentArea === 1 && (lang === 'en' ? 'Today / Reflection Compass' : 'Hôm nay / La Bàn Khai Vấn')}
+              {currentArea === 3 && (lang === 'en' ? 'Package Value / Signature Offer' : 'Đóng gói giá trị / Signature Offer')}
+              {currentArea === 5 && (lang === 'en' ? 'Opportunities / Pipeline CRM' : 'Cơ hội / Pipeline CRM')}
+            </span>
           </div>
 
-          {/* Language Switcher, Auth & Profile Action Buttons */}
-          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-            {/* Bilingual VI / EN Switcher Button */}
+          {/* Right: Autosave status & User Profile Avatar (Exact Match) */}
+          <div className="flex items-center gap-3">
+            {/* Autosave Status */}
+            <span className="text-xs text-ink/60 font-sans flex items-center gap-1">
+              <Check className="w-3.5 h-3.5 text-emerald-600" />
+              <span>{lang === 'en' ? 'Saved' : 'Đã lưu'}</span>
+            </span>
+
+            {/* Language Switcher */}
             <button
               onClick={toggleLanguage}
-              className="text-[11px] sm:text-xs font-semibold text-ink bg-white hover:bg-cream px-2.5 py-1 rounded-full border border-silver shadow-sm flex items-center gap-1"
-              title="Change Language"
+              className="text-[10px] font-semibold text-ink bg-white hover:bg-cream px-2.5 py-1 rounded-full border border-silver/80 shadow-xs flex items-center gap-1"
             >
-              <Globe className="w-3.5 h-3.5 text-accent" />
+              <Globe className="w-3 h-3 text-[#315CFF]" />
               <span>{lang === 'vi' ? 'VI' : 'EN'}</span>
             </button>
 
-            {userAuth ? (
-              <div className="flex items-center gap-1 bg-white px-2.5 py-1 rounded-full border border-silver shadow-sm text-[11px] sm:text-xs">
-                <User className="w-3 h-3 text-emerald-600" />
-                <span className="font-semibold text-ink max-w-[70px] sm:max-w-[110px] truncate">{userAuth.name}</span>
-                <button
-                  onClick={handleLogout}
-                  title="Logout"
-                  className="p-0.5 hover:text-coral text-ink/40 transition-colors ml-0.5"
-                >
-                  <LogOut className="w-3 h-3" />
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={() => setShowAuthModal(true)}
-                className="text-[11px] sm:text-xs font-semibold text-white bg-ink hover:bg-ink/90 transition-all flex items-center gap-1 px-3 py-1 rounded-full shadow-sm"
+            {/* User Profile Pill with Avatar Dropdown */}
+            {userAuth && (
+              <button 
+                onClick={() => setShowProfileDrawer(true)}
+                className="flex items-center gap-2 bg-white pl-1.5 pr-2.5 py-1 rounded-full border border-silver/80 hover:border-ink/40 transition-all shadow-xs"
               >
-                <LogIn className="w-3 h-3 text-cream" />
-                <span>{t.login}</span>
+                <img 
+                  src={userAuth.avatar || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80'} 
+                  alt="Avatar" 
+                  className="w-5 h-5 rounded-full object-cover"
+                />
+                <span className="text-xs font-semibold text-ink max-w-[120px] truncate">{userAuth.name}</span>
+                <ChevronDown className="w-3 h-3 text-ink/40" />
               </button>
             )}
-
-            <button
-              className="text-[11px] sm:text-xs font-semibold text-ink bg-white hover:bg-cream transition-colors flex items-center gap-1 px-3 py-1 rounded-full border border-silver shadow-sm"
-              onClick={() => setShowProfileDrawer(true)}
-            >
-              <FileText className="w-3.5 h-3.5 text-accent" />
-              <span className="hidden sm:inline">{t.profile}</span>
-            </button>
           </div>
         </div>
-
-        {/* 5 Core Discovery Area Navigation Bar */}
-        {activeMainTab === 'studio' && (
-          <div className="bg-white border-t border-silver/60 py-2 shadow-xs">
-            <div className="max-w-2xl mx-auto px-4 flex items-center justify-between overflow-x-auto custom-scrollbar gap-2">
-              {SESSIONS.map((s) => {
-                const isActive = currentSession === s.id;
-                return (
-                  <button
-                    key={s.id}
-                    onClick={() => goToSession(s.id)}
-                    className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
-                      isActive
-                        ? 'bg-ink text-cream shadow-sm scale-102 ring-1 ring-ink/10'
-                        : 'bg-cream text-ink/70 hover:bg-ink hover:text-cream border border-silver/60'
-                    }`}
-                  >
-                    <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-mono ${
-                      isActive ? 'bg-accent text-white font-bold' : 'bg-silver/60 text-ink/60'
-                    }`}>
-                      {s.id}
-                    </span>
-                    <span>{lang === 'en' ? s.shortLabelEn : s.shortLabel}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
       </header>
 
       {/* Main Content Area */}
-      <main className="pt-28 min-h-screen">
-        {renderContent()}
+      <main className="flex-1">
+        {renderCurrentArea()}
       </main>
+
+      {/* Fixed Black Bottom Navigation Bar (Exact Match to Screenshot 1) */}
+      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-[#111111] text-white shadow-2xl border-t border-white/10">
+        <div className="max-w-xl mx-auto px-4 h-16 flex items-center justify-around">
+          {NAVIGATION_AREAS.map((item) => {
+            const Icon = item.icon;
+            const isActive = currentArea === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setCurrentArea(item.id)}
+                className={`flex flex-col items-center justify-center gap-1 transition-all py-1 px-3 rounded-xl ${
+                  isActive ? 'text-white font-bold scale-105' : 'text-white/40 hover:text-white/80'
+                }`}
+              >
+                <Icon className={`w-4 h-4 ${isActive ? 'text-[#315CFF]' : 'text-current'}`} />
+                <span className="text-[10px] tracking-tight">{lang === 'en' ? item.labelEn : item.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </nav>
 
       {/* Auth Modal */}
       <AuthModal
@@ -273,122 +240,56 @@ export default function App() {
         onLoginSuccess={handleLoginSuccess}
       />
 
-      {/* Brand Profile Blueprint Drawer */}
+      {/* Brand Profile Drawer */}
       {showProfileDrawer && (
         <div className="fixed inset-0 z-50 bg-ink/40 backdrop-blur-sm flex justify-end animate-fade-in">
           <div className="w-full max-w-md bg-cream h-full border-l border-silver p-5 md:p-8 overflow-y-auto space-y-6 flex flex-col justify-between shadow-2xl">
             <div className="space-y-6">
               <div className="flex items-center justify-between border-b border-silver/60 pb-4">
                 <div className="flex items-center gap-2">
-                  <Award className="w-5 h-5 text-accent" />
+                  <Award className="w-5 h-5 text-[#315CFF]" />
                   <h3 className="font-serif text-lg font-bold text-ink">
                     {lang === 'en' ? 'Brand Profile Blueprint' : 'Hồ Sơ Thương Hiệu Cá Nhân'}
                   </h3>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setIsEditingProfile(!isEditingProfile)}
-                    className="px-3 py-1 bg-white border border-silver rounded-full text-xs font-bold text-ink flex items-center gap-1 hover:border-ink"
-                  >
-                    {isEditingProfile ? <Save className="w-3 h-3 text-emerald-600" /> : <Edit3 className="w-3 h-3" />}
-                    <span>{isEditingProfile ? (lang === 'en' ? 'Save' : 'Lưu') : (lang === 'en' ? 'Edit' : 'Sửa')}</span>
-                  </button>
-
-                  <button
-                    onClick={() => setShowProfileDrawer(false)}
-                    className="p-1.5 rounded-full hover:bg-silver/40 text-ink/60 hover:text-ink"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
+                <button
+                  onClick={() => setShowProfileDrawer(false)}
+                  className="p-1.5 rounded-full hover:bg-silver/40 text-ink/60 hover:text-ink"
+                >
+                  <X className="w-4 h-4" />
+                </button>
               </div>
 
-              {/* Profile Fields */}
+              {/* Profile Card Summary */}
               <div className="space-y-4 text-xs">
                 <div className="bg-white p-4 rounded-2xl border border-silver/80 space-y-2">
-                  <span className="text-[10px] text-ink/40 font-bold uppercase tracking-wider block">
-                    {lang === 'en' ? 'Expert Name & Experience' : 'Chuyên gia & Kinh nghiệm'}
-                  </span>
-                  {isEditingProfile ? (
-                    <div className="space-y-2">
-                      <input
-                        type="text"
-                        value={brandProfile.name}
-                        onChange={(e) => updateProfile({ name: e.target.value })}
-                        className="w-full bg-cream border border-silver rounded p-2 text-xs font-bold text-ink"
-                      />
-                      <input
-                        type="text"
-                        value={brandProfile.yearsExperience}
-                        onChange={(e) => updateProfile({ yearsExperience: e.target.value })}
-                        className="w-full bg-cream border border-silver rounded p-2 text-xs text-ink"
-                      />
-                    </div>
-                  ) : (
-                    <>
-                      <p className="font-serif text-base font-bold text-ink">{brandProfile.name}</p>
-                      <p className="text-ink/60">{brandProfile.yearsExperience} {lang === 'en' ? 'experience' : 'kinh nghiệm'}</p>
-                    </>
-                  )}
+                  <span className="text-[10px] text-ink/40 font-bold uppercase tracking-wider block">Chuyên gia</span>
+                  <p className="font-serif text-base font-bold text-ink">{brandProfile.name}</p>
+                  <p className="text-ink/60">{brandProfile.yearsExperience} kinh nghiệm</p>
                 </div>
 
                 <div className="bg-white p-4 rounded-2xl border border-silver/80 space-y-2">
-                  <span className="text-[10px] text-ink/40 font-bold uppercase tracking-wider block">
-                    {lang === 'en' ? 'Brand Archetype & Moodboard' : 'Hình mẫu & Visual Moodboard'}
-                  </span>
-                  <div className="flex items-center justify-between">
-                    <p className="font-serif font-bold text-ink text-xs">{brandProfile.archetypeName}</p>
-                    <div className="flex gap-1">
-                      {brandProfile.brandColors?.map((c, i) => (
-                        <div key={i} className="w-3.5 h-3.5 rounded-full border border-silver" style={{ backgroundColor: c }} />
-                      ))}
-                    </div>
-                  </div>
-                  <p className="text-ink/50 text-[10px]">Vibe: {brandProfile.brandVibe}</p>
+                  <span className="text-[10px] text-[#315CFF] font-bold uppercase tracking-wider block">Định vị</span>
+                  <p className="font-serif text-sm font-semibold text-ink leading-snug">"{brandProfile.positioningStatement}"</p>
                 </div>
 
                 <div className="bg-white p-4 rounded-2xl border border-silver/80 space-y-2">
-                  <span className="text-[10px] text-accent font-bold uppercase tracking-wider block">
-                    {lang === 'en' ? 'Brand Positioning Statement' : 'Định vị thương hiệu'}
-                  </span>
-                  {isEditingProfile ? (
-                    <textarea
-                      rows={3}
-                      value={brandProfile.positioningStatement}
-                      onChange={(e) => updateProfile({ positioningStatement: e.target.value })}
-                      className="w-full bg-cream border border-silver rounded p-2 text-xs text-ink resize-none"
-                    />
-                  ) : (
-                    <p className="font-serif text-sm font-semibold text-ink leading-snug">"{brandProfile.positioningStatement}"</p>
-                  )}
-                </div>
-
-                <div className="bg-white p-4 rounded-2xl border border-silver/80 space-y-2">
-                  <span className="text-[10px] text-ink/40 font-bold uppercase tracking-wider block">
-                    {lang === 'en' ? 'Signature Offer' : 'Sản phẩm giá trị (Signature Offer)'}
-                  </span>
-                  {isEditingProfile ? (
-                    <input
-                      type="text"
-                      value={brandProfile.firstOffer}
-                      onChange={(e) => updateProfile({ firstOffer: e.target.value })}
-                      className="w-full bg-cream border border-silver rounded p-2 text-xs text-ink"
-                    />
-                  ) : (
-                    <p className="font-medium text-ink">{brandProfile.firstOffer}</p>
-                  )}
+                  <span className="text-[10px] text-ink/40 font-bold uppercase tracking-wider block">Sản phẩm giá trị</span>
+                  <p className="font-medium text-ink">{brandProfile.firstOffer}</p>
                 </div>
               </div>
             </div>
 
-            <div className="pt-4 border-t border-silver/60 flex items-center justify-between">
+            <div className="pt-4 border-t border-silver/60">
               <button
-                onClick={handleCopyProfile}
-                className="w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-full bg-ink text-cream text-xs font-semibold hover:bg-ink/90 transition-all shadow-sm"
+                onClick={() => {
+                  navigator.clipboard.writeText(`HỒ SƠ THƯƠNG HIỆU: ${brandProfile.name}\nĐịnh vị: ${brandProfile.positioningStatement}`);
+                  alert("Đã sao chép hồ sơ thương hiệu!");
+                }}
+                className="w-full h-11 rounded-full bg-ink text-cream text-xs font-semibold hover:bg-ink/90 transition-all shadow-sm"
               >
-                {copiedProfile ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                <span>{copiedProfile ? (lang === 'en' ? 'Blueprint Copied' : 'Đã sao chép hồ sơ') : (lang === 'en' ? 'Copy Full Blueprint' : 'Sao chép toàn bộ hồ sơ')}</span>
+                Sao chép toàn bộ hồ sơ
               </button>
             </div>
           </div>

@@ -7,10 +7,10 @@ import {
 
 /**
  * EXPERTPRINT — SESSION 1: GUIDED DISCOVERY EXPERIENCE
- * Built strictly according to ExpertPrint_Session1_UIUX_Spec.md
+ * Exact Pixel-Perfect Match to Screenshot 1 & ExpertPrint_Session1_UIUX_Spec.md
  */
 
-// 4 Core Discovery Question Stages (Ngôn ngữ đời thường)
+// 4 Core Discovery Question Stages
 const DISCOVERY_STAGES = [
   {
     id: 1,
@@ -22,15 +22,15 @@ const DISCOVERY_STAGES = [
     questionEn: 'What makes you want the market to clearly understand your expertise right now?',
     helper: 'Không cần trả lời hoàn hảo. Hãy kể bối cảnh hiện tại, số năm kinh nghiệm và động lực thật của bạn.',
     helperEn: 'No need for a perfect answer. Share your current role, years of experience, and authentic drive.',
-    placeholder: 'Ví dụ: Tôi có 12 năm làm tư vấn chiến lược cho các chuỗi bán lẻ, hiện muốn...',
-    placeholderEn: 'e.g., I have 12 years consulting for retail chains, currently wanting to...',
+    placeholder: 'Ví dụ: Tôi có 10+ năm kinh nghiệm trong ngành, hiện muốn đóng gói chuyên môn để chủ động hơn...',
+    placeholderEn: 'e.g., I have 10+ years in the industry, currently wanting to package my expertise...',
     hints: [
       'Bạn đang ở vị trí nào và có bao nhiêu năm tích lũy chuyên môn?',
-      'Tại sao việc xây dựng thương hiệu lại quan trọng với bạn ngay lúc này thay vì 2 năm trước?'
+      'Tại sao việc xây dựng thương hiệu lại quan trọng với bạn ngay lúc này?'
     ],
     hintsEn: [
       'What is your current role and years of deep expertise?',
-      'Why is building your authority crucial right now rather than 2 years ago?'
+      'Why is building your authority crucial right now?'
     ],
     defaultSignals: ['Kinh nghiệm thực chiến', 'Mục tiêu vị thế mới']
   },
@@ -54,7 +54,7 @@ const DISCOVERY_STAGES = [
       'What was the most difficult bottleneck they faced initially?',
       'What was the measurable metric or transformation after your solution?'
     ],
-    defaultSignals: ['Năng lực giải quyết điểm nghẽn', 'Chuyển đổi đo lường được']
+    defaultSignals: ['Giải quyết điểm nghẽn', 'Chuyển đổi đo lường được']
   },
   {
     id: 3,
@@ -96,7 +96,7 @@ const DISCOVERY_STAGES = [
     ],
     hintsEn: [
       'What concerns you most about publicly sharing your insights?',
-      'Is the constraint about packaging packaging framework or personal belief?'
+      'Is the constraint about packaging framework or personal belief?'
     ],
     defaultSignals: ['Nhận diện rào cản', 'Vùng phát triển (Growth Edge)']
   }
@@ -107,8 +107,6 @@ export default function Session1Strengths({ profile, updateProfile, onNext, lang
 
   // Navigation State: 'landing' | 'discovery' | 'blueprint'
   const [viewState, setViewState] = useState('landing');
-  
-  // Current active stage (0 to 3)
   const [currentStageIdx, setCurrentStageIdx] = useState(0);
 
   // User input text & audio state
@@ -154,7 +152,7 @@ export default function Session1Strengths({ profile, updateProfile, onNext, lang
       evidence: isEn 
         ? 'Evidenced from your career track record and transformation achievements.'
         : 'Trích xuất từ kinh nghiệm thực tế và các kết quả dự án cụ thể mà bạn đã dẫn dắt.',
-      confidence: 'proven', // 'proven' | 'needs_example' | 'hypothesis'
+      confidence: 'proven',
       isEditing: false
     },
     {
@@ -173,7 +171,7 @@ export default function Session1Strengths({ profile, updateProfile, onNext, lang
       id: 3,
       title: isEn ? 'Deep Domain Authority & Framework Ownership' : 'Đóng gói phương pháp luận thực chiến thành giải pháp độc bản',
       description: isEn
-        ? 'You create value by turning 10+ years of tacit knowledge into a clear, proprietary intellectual asset.'
+        ? 'You turn years of tacit experience into a structured Signature Offer that the market can readily recognize.'
         : 'Bạn tạo giá trị bằng việc biến kinh nghiệm tích lũy lâu năm thành một khung phương pháp có cấu trúc, giúp khách hàng đạt kết quả nhanh hơn.',
       evidence: isEn
         ? 'Derived from your willingness to articulate non-negotiable principles.'
@@ -241,22 +239,7 @@ export default function Session1Strengths({ profile, updateProfile, onNext, lang
     setShowHints(false);
     setIsReflecting(true);
 
-    // Update dynamic signal chips
-    if (currentStageIdx === 0) {
-      setEmergingSignals([
-        { id: 1, label: isEn ? 'Domain Mastery' : 'Bề dày chuyên môn', status: 'tested' },
-        { id: 2, label: isEn ? 'Strategic Motivation' : 'Động lực bứt phá', status: 'testing' },
-        { id: 3, label: isEn ? 'Market Positioning' : 'Định vị thị trường', status: 'testing' }
-      ]);
-    } else if (currentStageIdx === 1) {
-      setEmergingSignals([
-        { id: 1, label: isEn ? 'Measurable Impact' : 'Kết quả đo lường được', status: 'tested' },
-        { id: 2, label: isEn ? 'Problem Solving' : 'Giải quyết nút thắt', status: 'tested' },
-        { id: 3, label: isEn ? 'Methodology Ownership' : 'Khung phương pháp', status: 'testing' }
-      ]);
-    }
-
-    // AI Reflection generation (maximum 2-3 sentences with exact quote)
+    // AI Reflection generation
     setTimeout(() => {
       setIsReflecting(false);
       const quoteSnippet = text.slice(0, 45);
@@ -308,8 +291,6 @@ export default function Session1Strengths({ profile, updateProfile, onNext, lang
   };
 
   const handleGenerateBlueprint = (finalAnswers) => {
-    // Dynamically update blueprint cards based on authentic user stories
-    const contextSnippet = finalAnswers.context || profile.name || '';
     const winSnippet = finalAnswers.win || '';
     
     setBlueprintStrengths([
@@ -349,7 +330,6 @@ export default function Session1Strengths({ profile, updateProfile, onNext, lang
   };
 
   const handleApproveBlueprint = () => {
-    // Save approved strengths to Brand Memory
     updateProfile({
       strengthSummary: blueprintStrengths.map(s => s.title).join('. '),
       brandBlueprint: {
@@ -364,86 +344,86 @@ export default function Session1Strengths({ profile, updateProfile, onNext, lang
   };
 
   // -------------------------------------------------------------
-  // VIEW 1: MÀN MỞ ĐẦU (ART LANDING PAGE — SECTION 5 IN SPEC)
+  // VIEW 1: MÀN MỞ ĐẦU (EXACT MATCH TO SCREENSHOT 1)
   // -------------------------------------------------------------
   if (viewState === 'landing') {
     return (
-      <div className="max-w-4xl mx-auto px-6 py-12 min-h-[calc(100vh-140px)] flex flex-col justify-between animate-fade-in">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center pt-4 md:pt-10">
-          {/* Left Visual Area: Fingerprint Continuous Line Motif */}
-          <div className="md:col-span-5 flex items-center justify-center">
-            <div className="relative w-64 h-64 md:w-80 md:h-80 flex items-center justify-center">
-              {/* Artistic Fingerprint SVG */}
-              <svg viewBox="0 0 200 200" fill="none" className="w-full h-full text-ink opacity-90 stroke-current">
-                <path d="M100 20 C 50 20, 20 60, 20 100 C 20 150, 60 180, 100 180 C 140 180, 180 150, 180 100 C 180 60, 150 20, 100 20" strokeWidth="1.5" strokeDasharray="3 3"/>
-                <path d="M100 35 C 60 35, 35 70, 35 100 C 35 140, 70 165, 100 165 C 130 165, 165 140, 165 100 C 165 70, 140 35, 100 35" strokeWidth="2"/>
-                <path d="M100 50 C 72 50, 50 78, 50 100 C 50 130, 75 150, 100 150 C 125 150, 150 130, 150 100 C 150 78, 128 50, 100 50" strokeWidth="2.5"/>
-                <path d="M100 65 C 80 65, 65 85, 65 100 C 65 120, 85 135, 100 135 C 115 135, 135 120, 135 100 C 135 85, 120 65, 100 65" strokeWidth="2.8" className="text-accent stroke-accent"/>
-                <path d="M100 80 C 88 80, 80 92, 80 100 C 80 112, 92 120, 100 120 C 108 120, 120 112, 120 100 C 120 92, 112 80, 100 80" strokeWidth="3"/>
-                <circle cx="100" cy="100" r="8" fill="#111111" />
-              </svg>
-              <div className="absolute inset-0 bg-gradient-to-tr from-accent/5 to-transparent rounded-full pointer-events-none" />
-            </div>
+      <div className="relative min-h-[calc(100vh-140px)] flex flex-col justify-between max-w-4xl mx-auto px-6 py-6 md:py-10 animate-fade-in">
+        {/* Rotated Right Watermark: "CHUYÊN MÔN TẠO NÊN DẤU ẤN" */}
+        <div className="hidden lg:block absolute right-2 top-1/2 -translate-y-1/2 rotate-90 origin-right text-[10px] font-mono tracking-[0.25em] text-ink/30 uppercase select-none pointer-events-none">
+          {isEn ? 'EXPERTISE CREATES FOOTPRINT' : 'CHUYÊN MÔN TẠO NÊN DẤU ẤN'}
+        </div>
+
+        {/* Center Fingerprint Art Motif (Exact Match) */}
+        <div className="flex flex-col items-center justify-center text-center space-y-6 pt-2 md:pt-6">
+          {/* Fingerprint Arch Line Art */}
+          <div className="w-48 h-48 md:w-60 md:h-60 flex items-center justify-center">
+            <svg viewBox="0 0 200 220" fill="none" className="w-full h-full">
+              {/* Outer Arc 1 - Left Blue, Right Black */}
+              <path d="M40 180 A 60 70 0 0 1 100 30" stroke="#315CFF" strokeWidth="2.5" strokeLinecap="round" />
+              <path d="M100 30 A 60 70 0 0 1 160 180" stroke="#111111" strokeWidth="2.5" strokeLinecap="round" />
+
+              {/* Arc 2 - Left Coral, Right Black */}
+              <path d="M55 180 A 45 55 0 0 1 100 50" stroke="#FF5A47" strokeWidth="2.5" strokeLinecap="round" />
+              <path d="M100 50 A 45 55 0 0 1 145 180" stroke="#111111" strokeWidth="2.5" strokeLinecap="round" />
+
+              {/* Arc 3 - Left Blue, Right Black */}
+              <path d="M70 180 A 30 40 0 0 1 100 70" stroke="#315CFF" strokeWidth="2.5" strokeLinecap="round" />
+              <path d="M100 70 A 30 40 0 0 1 130 180" stroke="#111111" strokeWidth="2.5" strokeLinecap="round" />
+
+              {/* Innermost Arc - Left Coral, Right Black */}
+              <path d="M85 180 A 15 25 0 0 1 100 95" stroke="#FF5A47" strokeWidth="2.5" strokeLinecap="round" />
+              <path d="M100 95 A 15 25 0 0 1 115 180" stroke="#111111" strokeWidth="2.5" strokeLinecap="round" />
+            </svg>
           </div>
 
-          {/* Right Copy Area */}
-          <div className="md:col-span-7 space-y-6">
-            <div className="space-y-3">
-              <span className="text-[11px] font-bold uppercase tracking-widest text-ink/40 block">
-                {isEn ? 'EXPERT DISCOVERY · STEP 01' : 'THƯƠNG HIỆU CỦA TÔI · KHÁM PHÁ 01'}
-              </span>
+          {/* Eyebrow in Electric Blue */}
+          <div className="space-y-3 max-w-2xl">
+            <span className="text-xs font-semibold tracking-wider text-[#315CFF] uppercase block">
+              {isEn ? 'GUIDED DISCOVERY SESSION · STEP 1/5' : 'PHIÊN KHÁM PHÁ CÓ HƯỚNG DẪN · BƯỚC 1/5'}
+            </span>
 
-              <h1 className="font-serif text-3xl sm:text-5xl font-medium text-ink leading-[1.12] tracking-tight">
-                {isEn ? 'What makes your approach truly distinct?' : 'Điều gì khiến cách làm của bạn khác biệt?'}
-              </h1>
+            {/* Didone Big Headline */}
+            <h1 className="font-serif text-3xl sm:text-5xl md:text-[54px] font-normal text-ink leading-[1.12] tracking-tight">
+              {isEn ? 'What makes your approach truly distinct?' : 'Điều gì khiến cách làm của bạn khác biệt?'}
+            </h1>
 
-              <p className="text-sm sm:text-base text-ink/70 font-sans leading-relaxed pt-2">
-                {isEn
-                  ? 'Share your authentic experience. ExpertPrint will help you uncover the core capabilities and proof behind your real achievements.'
-                  : 'Hãy kể bằng trải nghiệm thật. ExpertPrint sẽ giúp bạn nhìn ra năng lực cốt lõi đứng sau những kết quả đó để thị trường hiểu vì sao họ nên chọn bạn.'}
-              </p>
-            </div>
+            {/* Body Description */}
+            <p className="text-sm sm:text-base text-ink/70 font-sans leading-relaxed pt-1 max-w-xl mx-auto">
+              {isEn
+                ? 'Share your authentic experience. ExpertPrint will help you uncover the core capabilities behind your achievements.'
+                : 'Hãy kể bằng trải nghiệm thật. ExpertPrint sẽ giúp bạn nhìn ra năng lực đứng sau những kết quả đó.'}
+            </p>
+          </div>
 
-            {/* Meta tags */}
-            <div className="flex items-center gap-4 text-xs text-ink/50 pt-1 font-mono">
-              <span>⏱ {isEn ? 'Approx. 8–12 mins' : 'Khoảng 8–12 phút'}</span>
-              <span>·</span>
-              <span>💾 {isEn ? 'Autosaves progress' : 'Tự động lưu tiến độ'}</span>
-            </div>
+          {/* Action Buttons: Blue Pill & Cream Pill */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-3 w-full max-w-md">
+            <button
+              onClick={() => setViewState('discovery')}
+              className="w-full sm:w-auto h-12 px-8 rounded-full bg-[#315CFF] text-white font-sans text-sm font-semibold hover:bg-[#274bdb] transition-all flex items-center justify-center gap-2 shadow-sm active:scale-[0.98]"
+            >
+              <span>{isEn ? 'Start discovery' : 'Bắt đầu khám phá'}</span>
+            </button>
 
-            {/* Actions */}
-            <div className="space-y-3 pt-4">
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                <button
-                  onClick={() => setViewState('discovery')}
-                  className="h-12 px-7 rounded-full bg-accent text-white font-sans text-sm font-semibold hover:bg-accent/90 transition-all flex items-center justify-center gap-2 shadow-sm active:scale-[0.98]"
-                >
-                  <span>{isEn ? 'Start Discovery' : 'Bắt đầu khám phá'}</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
+            <button
+              onClick={() => setShowDocumentModal(true)}
+              className="w-full sm:w-auto h-12 px-7 rounded-full bg-cream border border-silver/90 text-ink font-sans text-sm font-medium hover:border-ink/40 transition-all flex items-center justify-center gap-2"
+            >
+              <span>{isEn ? 'Use existing document' : 'Dùng tài liệu có sẵn'}</span>
+            </button>
+          </div>
 
-                <button
-                  onClick={() => setShowDocumentModal(true)}
-                  className="h-12 px-6 rounded-full bg-white border border-silver text-ink font-sans text-sm font-medium hover:border-ink/40 transition-all flex items-center justify-center gap-2"
-                >
-                  <FileText className="w-4 h-4 text-ink/50" />
-                  <span>{isEn ? 'Use existing document' : 'Dùng tài liệu có sẵn'}</span>
-                </button>
-              </div>
-
-              {/* Privacy control notice */}
-              <div className="pt-2">
-                <button
-                  onClick={() => setShowPrivacyModal(true)}
-                  className="text-xs text-ink/40 hover:text-ink transition-colors flex items-center gap-1.5"
-                >
-                  <Shield className="w-3.5 h-3.5 text-emerald-600" />
-                  <span className="underline underline-offset-2">
-                    {isEn ? 'How is this data used & protected?' : 'Dữ liệu này được dùng và bảo vệ thế nào?'}
-                  </span>
-                </button>
-              </div>
-            </div>
+          {/* Bottom Meta Line */}
+          <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-ink/50 pt-2 font-sans">
+            <span>{isEn ? 'Approx. 8–12 mins' : 'Khoảng 8–12 phút'}</span>
+            <span>•</span>
+            <span>{isEn ? 'Can pause and resume anytime' : 'Có thể dừng và tiếp tục'}</span>
+            <button
+              onClick={() => setShowPrivacyModal(true)}
+              className="text-ink/60 hover:text-ink underline underline-offset-2 ml-1"
+            >
+              {isEn ? 'How is this data used?' : 'Dữ liệu này được dùng thế nào?'}
+            </button>
           </div>
         </div>
 
@@ -464,8 +444,8 @@ export default function Session1Strengths({ profile, updateProfile, onNext, lang
                 </h3>
                 <p className="text-xs text-ink/60">
                   {isEn
-                    ? 'Paste your LinkedIn summary, CV, portfolio, or past case studies. ExpertPrint will synthesize working hypotheses.'
-                    : 'Dán phần giới thiệu LinkedIn, CV, bài viết hoặc case study cũ. ExpertPrint sẽ tự trích xuất dữ liệu để bạn xác nhận.'}
+                    ? 'Paste your LinkedIn summary, CV, portfolio, or past case studies.'
+                    : 'Dán phần giới thiệu LinkedIn, CV, bài viết hoặc case study cũ để trích xuất dữ liệu.'}
                 </p>
               </div>
 
@@ -492,16 +472,16 @@ export default function Session1Strengths({ profile, updateProfile, onNext, lang
                     setViewState('discovery');
                   }}
                   disabled={!documentInputText.trim()}
-                  className="px-6 py-2.5 rounded-full bg-ink text-cream text-xs font-bold hover:bg-ink/90 transition-all disabled:opacity-40"
+                  className="px-6 py-2.5 rounded-full bg-[#315CFF] text-white text-xs font-bold hover:bg-[#274bdb] transition-all disabled:opacity-40"
                 >
-                  {isEn ? 'Analyze Document' : 'Phân tích & Bắt đầu'}
+                  {isEn ? 'Analyze & Start' : 'Phân tích & Bắt đầu'}
                 </button>
               </div>
             </div>
           </div>
         )}
 
-        {/* Privacy Policy Modal */}
+        {/* Privacy Modal */}
         {showPrivacyModal && (
           <div className="fixed inset-0 z-50 bg-ink/40 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
             <div className="bg-white rounded-3xl border border-silver max-w-md w-full p-6 space-y-4 shadow-xl relative">
@@ -520,9 +500,9 @@ export default function Session1Strengths({ profile, updateProfile, onNext, lang
               </div>
 
               <div className="space-y-2.5 text-xs text-ink/80 leading-relaxed font-sans">
-                <p>• <strong>{isEn ? 'Strict Workspace Isolation:' : 'Cô lập dữ liệu:'}</strong> {isEn ? 'Your answers and stories are strictly stored in your private workspace.' : 'Dữ liệu và câu chuyện của bạn được lưu riêng trong workspace cá nhân.'}</p>
-                <p>• <strong>{isEn ? 'No Public Model Training:' : 'Không train AI công khai:'}</strong> {isEn ? 'Your proprietary experience is never used to train public models without consent.' : 'Tri thức của bạn không bao giờ được dùng để huấn luyện mô hình AI chung.'}</p>
-                <p>• <strong>{isEn ? 'Explicit Approval Gate:' : 'Chỉ lưu khi bạn duyệt:'}</strong> {isEn ? 'Nothing becomes approved Brand Memory until you explicitly review and save.' : 'Mọi phân tích chỉ là giả thuyết cho đến khi bạn bấm duyệt chính thức.'}</p>
+                <p>• <strong>{isEn ? 'Private Workspace:' : 'Workspace riêng tư:'}</strong> {isEn ? 'Your answers and stories are strictly stored in your private workspace.' : 'Dữ liệu được lưu riêng tư trong workspace của bạn.'}</p>
+                <p>• <strong>{isEn ? 'No Public Training:' : 'Không train AI công khai:'}</strong> {isEn ? 'Your expertise is never used to train public models without consent.' : 'Tri thức của bạn không bao giờ được dùng để huấn luyện mô hình chung.'}</p>
+                <p>• <strong>{isEn ? 'Approval Gate:' : 'Chỉ lưu khi bạn duyệt:'}</strong> {isEn ? 'Nothing becomes approved Brand Memory until you explicitly review and save.' : 'Mọi phân tích chỉ là giả thuyết cho đến khi bạn bấm duyệt chính thức.'}</p>
               </div>
 
               <div className="pt-2 text-right">
@@ -545,32 +525,8 @@ export default function Session1Strengths({ profile, updateProfile, onNext, lang
   // -------------------------------------------------------------
   if (viewState === 'discovery') {
     return (
-      <div className="max-w-[1120px] mx-auto px-4 sm:px-6 py-6 min-h-[calc(100vh-140px)] animate-fade-in">
-        {/* Main Canvas Header (72px) */}
-        <div className="h-[72px] flex items-center justify-between border-b border-silver/60 mb-6">
-          <div>
-            <span className="text-[10px] font-mono tracking-widest text-ink/40 uppercase block">
-              {isEn ? 'MY BRAND · DISCOVERY 01' : 'THƯƠNG HIỆU CỦA TÔI · KHÁM PHÁ 01'}
-            </span>
-            <h2 className="font-serif text-lg font-semibold text-ink">
-              {isEn ? 'Uncovering Core Strengths' : 'Thế mạnh tạo nên dấu ấn'}
-            </h2>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <span className="text-xs text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 font-medium">
-              ✓ {isEn ? 'Autosaved' : 'Đã lưu'}
-            </span>
-            <button
-              onClick={() => setViewState('landing')}
-              className="text-xs text-ink/50 hover:text-ink transition-colors font-medium hidden sm:inline"
-            >
-              {isEn ? 'Exit & Resume Later' : 'Thoát & tiếp tục sau'}
-            </button>
-          </div>
-        </div>
-
-        {/* 2-Column Grid: 720px Conversation Canvas + 280px Session Rail */}
+      <div className="max-w-[1120px] mx-auto px-4 sm:px-6 py-4 min-h-[calc(100vh-140px)] animate-fade-in">
+        {/* 2-Column Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
           {/* LEFT: Conversation Canvas (720px max) */}
@@ -579,13 +535,13 @@ export default function Session1Strengths({ profile, updateProfile, onNext, lang
             {/* Active Question Box */}
             <div className="space-y-3 pt-2">
               <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-                <span className="text-[10px] font-bold uppercase tracking-widest text-accent">
+                <span className="w-2 h-2 rounded-full bg-[#315CFF] animate-pulse" />
+                <span className="text-[10px] font-bold uppercase tracking-widest text-[#315CFF]">
                   {currentStage.eyebrow} · {currentStage.title}
                 </span>
               </div>
 
-              <h1 className="font-serif text-2xl sm:text-3xl md:text-[34px] font-medium text-ink leading-[1.18] tracking-tight">
+              <h1 className="font-serif text-2xl sm:text-3xl md:text-[34px] font-normal text-ink leading-[1.18] tracking-tight">
                 {isEn ? currentStage.questionEn : currentStage.question}
               </h1>
 
@@ -594,32 +550,27 @@ export default function Session1Strengths({ profile, updateProfile, onNext, lang
               </p>
             </div>
 
-            {/* AI Reflection Block (Appears after submitting answer) */}
+            {/* AI Reflection Block */}
             {isReflecting && (
-              <div className="p-5 rounded-2xl bg-white border border-silver/80 space-y-3 animate-fade-in shadow-sm">
+              <div className="p-5 rounded-2xl bg-white border border-silver/80 space-y-3 animate-fade-in shadow-xs">
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded-full bg-accent/10 flex items-center justify-center">
-                    <Sparkles className="w-2.5 h-2.5 text-accent" />
-                  </div>
                   <span className="text-[10px] font-bold uppercase tracking-widest text-ink/40">
-                    {isEn ? 'EXPERTPRINT REFLECTION' : 'EXPERTPRINT ĐANG PHẢN CHIẾU'}
+                    {isEn ? 'EXPERTPRINT IS REFLECTING' : 'EXPERTPRINT ĐANG PHẢN CHIẾU'}
                   </span>
                 </div>
-                <div className="flex items-center gap-2 text-xs text-ink/50 py-1">
-                  <RefreshCw className="w-3.5 h-3.5 animate-spin text-accent" />
+                <div className="flex items-center gap-2 text-xs text-ink/50 py-1 font-sans">
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin text-[#315CFF]" />
                   <span>{isEn ? 'Reflecting on your real story...' : 'Đang phản chiếu câu trả lời...'}</span>
                 </div>
               </div>
             )}
 
             {currentReflection && !isReflecting && (
-              <div className="p-6 rounded-2xl bg-white border border-silver space-y-4 animate-fade-in shadow-sm">
+              <div className="p-6 rounded-2xl bg-white border border-silver space-y-4 animate-fade-in shadow-xs">
                 <div className="flex items-center justify-between border-b border-silver/40 pb-2.5">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-accent">
-                      {isEn ? 'EXPERTPRINT OBSERVATION' : 'PHẢN CHIẾU TỪ EXPERTPRINT'}
-                    </span>
-                  </div>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-[#315CFF]">
+                    {isEn ? 'EXPERTPRINT OBSERVATION' : 'PHẢN CHIẾU TỪ EXPERTPRINT'}
+                  </span>
                   <span className="text-[10px] font-mono text-ink/40">
                     {isEn ? 'Working Hypothesis' : 'Giả thuyết đang nhận diện'}
                   </span>
@@ -660,7 +611,7 @@ export default function Session1Strengths({ profile, updateProfile, onNext, lang
                       setShowHints(true);
                       setCurrentReflection(null);
                     }}
-                    className="px-4 py-2 rounded-full bg-cream border border-silver text-xs font-medium text-accent hover:border-accent transition-all"
+                    className="px-4 py-2 rounded-full bg-cream border border-silver text-xs font-medium text-[#315CFF] hover:border-[#315CFF] transition-all"
                   >
                     <HelpCircle className="w-3.5 h-3.5 inline mr-1" />
                     <span>{isEn ? 'Dig deeper' : 'Đào sâu thêm'}</span>
@@ -669,14 +620,14 @@ export default function Session1Strengths({ profile, updateProfile, onNext, lang
               </div>
             )}
 
-            {/* Hint breakdown if user clicked "Tôi chưa nghĩ ra" or "Đào sâu thêm" */}
+            {/* Hint breakdown */}
             {showHints && (
-              <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200/80 space-y-2 text-xs text-amber-900 animate-fade-in">
+              <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200/80 space-y-2 text-xs text-amber-900 animate-fade-in font-sans">
                 <p className="font-bold flex items-center gap-1.5">
                   <HelpCircle className="w-3.5 h-3.5" />
                   <span>{isEn ? 'Helpful sub-questions to guide you:' : 'Gợi ý chia nhỏ câu hỏi:'}</span>
                 </p>
-                <ul className="space-y-1.5 list-disc list-inside font-sans">
+                <ul className="space-y-1.5 list-disc list-inside">
                   {(isEn ? currentStage.hintsEn : currentStage.hints).map((h, i) => (
                     <li key={i}>{h}</li>
                   ))}
@@ -711,8 +662,8 @@ export default function Session1Strengths({ profile, updateProfile, onNext, lang
               </div>
             )}
 
-            {/* STICKY COMPOSER (Bottom fixed on mobile & sticky canvas) */}
-            <div className="fixed sm:sticky bottom-0 left-0 right-0 sm:left-auto sm:right-auto bg-white/95 sm:bg-white backdrop-blur-md border border-silver/80 rounded-t-3xl sm:rounded-2xl p-4 shadow-lg sm:shadow-sm space-y-3 z-30">
+            {/* STICKY COMPOSER */}
+            <div className="fixed sm:sticky bottom-16 sm:bottom-4 left-0 right-0 sm:left-auto sm:right-auto bg-white/95 sm:bg-white backdrop-blur-md border border-silver/80 rounded-t-3xl sm:rounded-2xl p-4 shadow-lg sm:shadow-sm space-y-3 z-30">
               <textarea
                 rows={3}
                 value={inputText}
@@ -723,18 +674,16 @@ export default function Session1Strengths({ profile, updateProfile, onNext, lang
 
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-3">
-                  {/* Voice Record Button */}
                   <button
                     onClick={() => setIsRecording(!isRecording)}
                     className={`h-9 px-3.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
                       isRecording ? 'bg-coral text-white animate-pulse' : 'bg-cream border border-silver text-ink hover:border-ink/40'
                     }`}
                   >
-                    {isRecording ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5 text-accent" />}
+                    {isRecording ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5 text-[#315CFF]" />}
                     <span>{isRecording ? `${recordTimer}s` : (isEn ? 'Voice' : 'Thu âm')}</span>
                   </button>
 
-                  {/* Help Link */}
                   <button
                     onClick={() => setShowHints(true)}
                     className="text-[11px] text-ink/40 hover:text-ink transition-colors hidden sm:inline"
@@ -743,11 +692,10 @@ export default function Session1Strengths({ profile, updateProfile, onNext, lang
                   </button>
                 </div>
 
-                {/* Send Button */}
                 <button
                   onClick={handleSendAnswer}
                   disabled={!inputText.trim()}
-                  className="h-9 px-5 rounded-full bg-accent text-white text-xs font-bold hover:bg-accent/90 transition-all disabled:opacity-30 flex items-center gap-1.5 shadow-sm"
+                  className="h-9 px-5 rounded-full bg-[#315CFF] text-white text-xs font-bold hover:bg-[#274bdb] transition-all disabled:opacity-30 flex items-center gap-1.5 shadow-sm"
                 >
                   <span>{isEn ? 'Send' : 'Gửi'}</span>
                   <Send className="w-3.5 h-3.5" />
@@ -758,7 +706,6 @@ export default function Session1Strengths({ profile, updateProfile, onNext, lang
 
           {/* RIGHT: Session Rail (280px Sticky) */}
           <div className="lg:col-span-4 space-y-4 sticky top-24">
-            
             {/* Card 1: Progress */}
             <div className="p-4 rounded-2xl bg-white border border-silver/80 space-y-2 text-xs">
               <div className="flex items-center justify-between text-ink/50 text-[10px] font-mono">
@@ -773,7 +720,7 @@ export default function Session1Strengths({ profile, updateProfile, onNext, lang
               </p>
             </div>
 
-            {/* Card 2: What's Emerging (Signal Chips) */}
+            {/* Card 2: Emerging Signals */}
             <div className="p-4 rounded-2xl bg-white border border-silver/80 space-y-3 text-xs">
               <span className="text-[10px] font-bold uppercase tracking-wider text-ink/40 block">
                 {isEn ? 'EMERGING SIGNALS' : 'ĐIỀU ĐANG NỔI LÊN'}
@@ -783,7 +730,7 @@ export default function Session1Strengths({ profile, updateProfile, onNext, lang
                 {emergingSignals.map((signal) => (
                   <div key={signal.id} className="flex items-center justify-between p-2 rounded-xl bg-cream/70 border border-silver/60">
                     <span className="font-medium text-ink text-xs">{signal.label}</span>
-                    <span className="text-[9px] font-bold text-accent bg-accent/10 px-2 py-0.5 rounded-full uppercase">
+                    <span className="text-[9px] font-bold text-[#315CFF] bg-[#315CFF]/10 px-2 py-0.5 rounded-full uppercase">
                       {isEn ? 'Testing' : 'Đang kiểm chứng'}
                     </span>
                   </div>
@@ -791,7 +738,7 @@ export default function Session1Strengths({ profile, updateProfile, onNext, lang
               </div>
             </div>
 
-            {/* Card 3: Control & Privacy */}
+            {/* Card 3: Data Control */}
             <div className="p-4 rounded-2xl bg-white border border-silver/80 space-y-2 text-xs text-ink/60">
               <span className="text-[10px] font-bold uppercase tracking-wider text-ink/40 block">
                 {isEn ? 'DATA CONTROL' : 'QUYỀN KIỂM SOÁT'}
@@ -801,12 +748,6 @@ export default function Session1Strengths({ profile, updateProfile, onNext, lang
                   ? 'Only you see this working draft. Stored privately in your workspace.'
                   : 'Chỉ bạn thấy bản nháp này. Dữ liệu được lưu riêng tư trong workspace của bạn.'}
               </p>
-              <button
-                onClick={() => setShowPrivacyModal(true)}
-                className="text-[11px] text-accent font-semibold hover:underline block pt-1"
-              >
-                {isEn ? 'Manage data settings' : 'Quản lý dữ liệu'}
-              </button>
             </div>
           </div>
         </div>
@@ -815,28 +756,27 @@ export default function Session1Strengths({ profile, updateProfile, onNext, lang
   }
 
   // -------------------------------------------------------------
-  // VIEW 3: MÀN KẾT QUẢ "BẢN ĐỒ DẤU ẤN" (SECTION 8 IN SPEC)
+  // VIEW 3: MÀN KẾT QUẢ "BẢN ĐỒ DẤU ẤN"
   // -------------------------------------------------------------
   if (viewState === 'blueprint') {
     return (
-      <div className="max-w-4xl mx-auto px-6 py-10 min-h-[calc(100vh-140px)] space-y-8 animate-fade-in-up">
-        
+      <div className="max-w-4xl mx-auto px-6 py-8 min-h-[calc(100vh-140px)] space-y-8 animate-fade-in-up pb-24">
         {/* Header Art Hero */}
         <div className="space-y-2 border-b border-silver/60 pb-6">
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-mono font-bold tracking-widest text-accent uppercase bg-accent/10 px-2.5 py-0.5 rounded-full">
+            <span className="text-[10px] font-mono font-bold tracking-widest text-[#315CFF] uppercase bg-[#315CFF]/10 px-2.5 py-0.5 rounded-full">
               {isEn ? 'BRAND BLUEPRINT · DRAFT 01' : 'BẢN ĐỒ DẤU ẤN · BẢN NHÁP 01'}
             </span>
           </div>
 
-          <h1 className="font-serif text-3xl sm:text-4xl font-medium text-ink tracking-tight">
+          <h1 className="font-serif text-3xl sm:text-4xl font-normal text-ink tracking-tight">
             {isEn ? 'Three capabilities the market should remember about you.' : 'Ba năng lực thị trường nên nhớ về bạn.'}
           </h1>
 
           <p className="text-xs sm:text-sm text-ink/60 font-sans">
             {isEn
-              ? 'Synthesized from your real experience. Review, refine names if needed, and approve to save into your Brand Memory.'
-              : 'Tổng hợp từ trải nghiệm thật của bạn. Bạn có quyền sửa cách gọi và chỉ lưu vào Brand Memory khi bạn hoàn toàn hài lòng.'}
+              ? 'Synthesized from your real experience. Review and approve to save into your Brand Memory.'
+              : 'Tổng hợp từ trải nghiệm thật của bạn. Bạn có thể sửa cách gọi và chỉ lưu khi bạn hoàn toàn hài lòng.'}
           </p>
         </div>
 
@@ -848,10 +788,10 @@ export default function Session1Strengths({ profile, updateProfile, onNext, lang
 
           <div className="grid grid-cols-1 gap-4">
             {blueprintStrengths.map((st, idx) => (
-              <div key={st.id} className="p-6 rounded-3xl bg-white border border-silver/80 space-y-3.5 shadow-sm hover:border-ink/40 transition-all">
+              <div key={st.id} className="p-6 rounded-3xl bg-white border border-silver/80 space-y-3.5 shadow-xs hover:border-ink/40 transition-all">
                 <div className="flex items-start justify-between gap-3">
                   <div className="space-y-1 flex-1">
-                    <span className="text-[10px] font-mono text-accent font-bold">0{idx + 1}</span>
+                    <span className="text-[10px] font-mono text-[#315CFF] font-bold">0{idx + 1}</span>
                     
                     {st.isEditing ? (
                       <input
@@ -870,7 +810,6 @@ export default function Session1Strengths({ profile, updateProfile, onNext, lang
                     )}
                   </div>
 
-                  {/* Confidence Badge */}
                   <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border shrink-0 ${
                     st.confidence === 'proven'
                       ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
@@ -886,15 +825,13 @@ export default function Session1Strengths({ profile, updateProfile, onNext, lang
                   {st.description}
                 </p>
 
-                {/* Evidence Quote */}
                 <div className="p-3 bg-cream/70 rounded-xl border border-silver/60 text-xs text-ink/70 space-y-1">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-ink/40 block">
-                    {isEn ? 'Evidence from your authentic story:' : 'Bằng chứng từ câu chuyện của bạn:'}
+                    {isEn ? 'Evidence from your story:' : 'Bằng chứng từ câu chuyện của bạn:'}
                   </span>
                   <p className="italic font-serif">"{st.evidence}"</p>
                 </div>
 
-                {/* Card Actions */}
                 <div className="flex items-center justify-between pt-2 border-t border-silver/40 text-xs">
                   <button
                     onClick={() => {
@@ -910,7 +847,7 @@ export default function Session1Strengths({ profile, updateProfile, onNext, lang
                     onClick={() => {
                       setBlueprintStrengths(prev => prev.map(item => item.id === st.id ? { ...item, isEditing: !item.isEditing } : item));
                     }}
-                    className="text-accent font-semibold hover:underline flex items-center gap-1"
+                    className="text-[#315CFF] font-semibold hover:underline flex items-center gap-1"
                   >
                     <Edit3 className="w-3.5 h-3.5" />
                     <span>{st.isEditing ? (isEn ? 'Save' : 'Lưu tên') : (isEn ? 'Rename' : 'Sửa cách gọi')}</span>
@@ -922,11 +859,11 @@ export default function Session1Strengths({ profile, updateProfile, onNext, lang
         </div>
 
         {/* GROWTH EDGE SECTION */}
-        <div className="p-6 rounded-3xl bg-white border border-silver/80 space-y-2 shadow-sm">
+        <div className="p-6 rounded-3xl bg-white border border-silver/80 space-y-2 shadow-xs">
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-coral" />
             <span className="text-xs font-bold uppercase tracking-wider text-coral">
-              {isEn ? '2. GROWTH EDGE (UNSEEN ZONE OF EXPANSION)' : '2. ĐIỂM CHƯA ĐƯỢC NHÌN THẤY (GROWTH EDGE)'}
+              {isEn ? '2. GROWTH EDGE' : '2. ĐIỂM CHƯA ĐƯỢC NHÌN THẤY (GROWTH EDGE)'}
             </span>
           </div>
 
@@ -934,12 +871,12 @@ export default function Session1Strengths({ profile, updateProfile, onNext, lang
           <p className="text-xs sm:text-sm text-ink/70 leading-relaxed font-sans">{growthEdge.description}</p>
         </div>
 
-        {/* CONTENT COMPASS SECTION (3 Core Domains) */}
-        <div className="p-6 rounded-3xl bg-white border border-silver/80 space-y-4 shadow-sm">
+        {/* CONTENT COMPASS SECTION */}
+        <div className="p-6 rounded-3xl bg-white border border-silver/80 space-y-4 shadow-xs">
           <div className="flex items-center gap-2">
-            <Layers className="w-4 h-4 text-accent" />
-            <span className="text-xs font-bold uppercase tracking-wider text-accent">
-              {isEn ? '3. CONTENT COMPASS (YOUR 3 AUTHORITY TERRITORIES)' : '3. LA BÀN NỘI DUNG (3 LÃNH ĐỊA BẠN CÓ QUYỀN LÊN TIẾNG)'}
+            <Layers className="w-4 h-4 text-[#315CFF]" />
+            <span className="text-xs font-bold uppercase tracking-wider text-[#315CFF]">
+              {isEn ? '3. CONTENT COMPASS' : '3. LA BÀN NỘI DUNG (3 LÃNH ĐỊA BẠN CÓ QUYỀN LÊN TIẾNG)'}
             </span>
           </div>
 
@@ -965,7 +902,7 @@ export default function Session1Strengths({ profile, updateProfile, onNext, lang
 
           <button
             onClick={handleApproveBlueprint}
-            className="h-12 px-8 rounded-full bg-accent text-white font-bold text-sm hover:bg-accent/90 transition-all flex items-center justify-center gap-2 shadow-md active:scale-[0.98]"
+            className="h-12 px-8 rounded-full bg-[#315CFF] text-white font-bold text-sm hover:bg-[#274bdb] transition-all flex items-center justify-center gap-2 shadow-md active:scale-[0.98]"
           >
             <span>{isEn ? 'Approve & Save into My Brand' : 'Duyệt & lưu vào thương hiệu của tôi'}</span>
             <ArrowRight className="w-4 h-4" />

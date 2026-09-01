@@ -1,525 +1,348 @@
-import React, { useState, useEffect } from 'react';
-import { ArrowRight, ArrowLeft, Target, Heart, MessageCircle, Handshake, FileText, Video, LayoutGrid, Sparkles, Film, Music, Download, Play, Pause, Copy, Check, Link2, Wand2, RefreshCw, Eye, MoveVertical, Send, Calendar, Clock, Globe, ShieldCheck, CheckCircle2, Lightbulb } from 'lucide-react';
-import { synthesizeServerAudio } from '../lib/audioServerEngine';
-import { SOCIAL_PLATFORMS } from '../data/brandVibes';
-import VideoStudioEngine from './VideoStudioEngine';
+import React, { useState } from 'react';
+import { 
+  ArrowRight, ArrowLeft, Play, Edit3, ChevronDown, ChevronUp, 
+  Sparkles, Volume2, Video, Film, CheckCircle2, Download, Send, 
+  Layers, Sliders, RefreshCw, Wand2
+} from 'lucide-react';
 
-const CONTENT_GOALS = [
-  { id: 'awareness', icon: Target, label: 'Để đúng khách hàng biết đến tôi', color: 'text-accent' },
-  { id: 'trust', icon: Heart, label: 'Tạo niềm tin với người đang theo dõi', color: 'text-coral' },
-  { id: 'explain', icon: MessageCircle, label: 'Giải thích rõ giá trị dịch vụ', color: 'text-ink' },
-  { id: 'connect', icon: Handshake, label: 'Mở ra một cuộc trò chuyện / hợp tác', color: 'text-accent' },
-];
-
-const CONTENT_IDEAS = {
-  awareness: [
-    { title: 'Sai lầm #1 khi chuyển sang làm tự do', why: 'Chạm vào nỗi sợ phổ biến nhất, dễ thu hút người cùng hoàn cảnh', audience: 'Chuyên gia 30-45 tuổi đang cân nhắc nghỉ việc', result: 'Tăng nhận diện với đúng tệp khách hàng mục tiêu', format: 'Bài viết' },
-    { title: '3 dấu hiệu bạn đã sẵn sàng ra riêng', why: 'Giúp người đọc tự đánh giá, tạo kết nối cá nhân', audience: 'Người đang bế tắc trong công việc hiện tại', result: 'Thu hút tin nhắn hỏi thăm về dịch vụ', format: 'Carousel' },
-    { title: 'Câu chuyện: Ngày đầu tiên tôi không còn nhận lương', why: 'Câu chuyện cá nhân tạo sự đồng cảm mạnh mẽ', audience: 'Bất kỳ ai quan tâm đến tự do tài chính', result: 'Xây dựng hình ảnh chuyên gia đáng tin cậy', format: 'Video ngắn' },
-  ],
-  trust: [
-    { title: 'Hậu trường một buổi tư vấn 1:1 của tôi', why: 'Cho thấy quy trình làm việc thật, tạo niềm tin', audience: 'Người đang theo dõi nhưng chưa quyết định', result: 'Chuyển đổi người theo dõi thành khách hàng tiềm năng', format: 'Video ngắn' },
-    { title: 'Kết quả sau 90 ngày đồng hành cùng khách hàng X', why: 'Bằng chứng thực tế tạo uy tín, không cần quảng cáo', audience: 'Người đã biết đến bạn nhưng cần thêm bằng chứng', result: 'Tăng tỷ lệ đặt lịch tư vấn', format: 'Carousel' },
-    { title: 'Điều tôi ước mình biết sớm hơn 10 năm trước', why: 'Thể hiện chiều sâu kinh nghiệm, tạo giá trị miễn phí', audience: 'Người mới bắt đầu trong lĩnh vực', result: 'Xây dựng vị thế mentor đáng tin cậy', format: 'Bài viết' },
-  ],
-  explain: [
-    { title: 'Tại sao buổi chẩn đoán 1:1 không phải "tư vấn miễn phí"', why: 'Giải thích giá trị rõ ràng, loại bỏ hiểu nhầm', audience: 'Người đang cân nhắc đặt lịch', result: 'Tăng nhận thức về giá trị dịch vụ, giảm từ chối', format: 'Bài viết' },
-    { title: '5 bước trong quy trình đồng hành của tôi', why: 'Minh bạch quy trình tạo niềm tin', audience: 'Khách hàng tiềm năng đang so sánh lựa chọn', result: 'Giúp khách hàng ra quyết định nhanh hơn', format: 'Carousel' },
-    { title: 'Ai phù hợp (và ai KHÔNG phù hợp) làm việc với tôi', why: 'Bộ lọc rõ ràng tạo cảm giác chuyên nghiệp', audience: 'Tất cả người theo dõi', result: 'Thu hút đúng người, tiết kiệm thời gian cho cả hai bên', format: 'Video ngắn' },
-  ],
-  connect: [
-    { title: 'Tôi đang tìm 3 chuyên gia để hợp tác trong dự án này', why: 'Trực tiếp mở cửa, thu hút phản hồi ngay', audience: 'Chuyên gia cùng lĩnh vực hoặc bổ trợ', result: 'Mở ra cơ hội hợp tác và mở rộng mạng lưới', format: 'Bài viết' },
-    { title: 'AMA: Hỏi tôi bất cứ điều gì về [lĩnh vực]', why: 'Tạo tương tác hai chiều, hiểu rõ nhu cầu thị trường', audience: 'Tất cả người theo dõi', result: 'Thu thập câu hỏi thực tế để tạo nội dung tiếp theo', format: 'Video ngắn' },
-    { title: 'Bài học từ cuộc gặp với [người ấn tượng nhất năm nay]', why: 'Kết nối cộng đồng, thể hiện mạng lưới chất lượng', audience: 'Người quan tâm đến tăng trưởng cá nhân', result: 'Xây dựng hình ảnh người kết nối đáng giá', format: 'Carousel' },
-  ],
-};
+/**
+ * EXPERTPRINT — SESSION 4: TẠO NỘI DUNG / VIDEO
+ * Exact Pixel-Perfect Match to Screenshot 2 & Master Spec Section 9
+ */
 
 export default function Session4Content({ profile, updateProfile, onNext, onBack, lang = 'vi' }) {
-  const [selectedGoal, setSelectedGoal] = useState('awareness');
-  const [selectedIdea, setSelectedIdea] = useState(0);
-  const [showIdeas, setShowIdeas] = useState(true);
-  
-  // Output Asset Studio Mode: 'ideas' | 'text' | 'carousel' | 'video' | 'remix'
-  const [activeStudioTab, setActiveStudioTab] = useState('ideas');
-  const [copied, setCopied] = useState(false);
+  const isEn = lang === 'en';
 
-  // Auto Publish & Schedule State
-  const [showScheduleModal, setShowScheduleModal] = useState(false);
-  const [selectedPlatforms, setSelectedPlatforms] = useState(['linkedin', 'facebook']);
-  const [scheduledDate, setScheduledDate] = useState('2026-09-02');
-  const [scheduledTime, setScheduledTime] = useState('09:00');
-  const [publishSuccess, setPublishSuccess] = useState(false);
-  const [isPublishing, setIsPublishing] = useState(false);
+  // Stepper Step: 1: Ý tưởng, 2: Phong cách, 3: Xem trước, 4: Xuất bản
+  const [currentStep, setCurrentStep] = useState(3); // Default at Preview stage matching screenshot
 
-  // Editable post content
-  const [editablePostTitle, setEditablePostTitle] = useState('Sai lầm #1 khi chuyển sang làm tự do');
-  const [editablePostBody, setEditablePostBody] = useState(`Nhiều người nghĩ rằng có ${profile.yearsExperience || '10+ năm'} kinh nghiệm thì cứ ra làm tự do là có khách. Nhưng sự thật là: Chuyên môn giỏi mà không có định vị đúng thì bạn vẫn mãi kiệt sức với giá thấp.\n\n3 nguyên tắc thực chiến:\n1. Chọn 1 WHO chuẩn xác: Tập trung vào nhóm khách hàng ${profile.whoHelp || 'chuyển đổi'}.\n2. Chuẩn bị Quỹ Sinh Tồn 12 tháng.\n3. Đóng gói Signature Offer: Buổi chẩn đoán 1:1 giải quyết 1 nỗi đau duy nhất.\n\nNếu bạn đang chuẩn bị chuyển đổi, hãy nhắn cho tôi để nhận buổi chẩn đoán 1:1 đầu tiên.`);
+  // Style Mode Pills: 'authentic' | 'expert_view' | 'case_study'
+  const [styleMode, setStyleMode] = useState('expert_view');
 
-  // Link Remix State
-  const [remixUrl, setRemixUrl] = useState('');
-  const [isRemixing, setIsRemixing] = useState(false);
-  const [remixedResult, setRemixedResult] = useState(null);
+  // Advanced Accordion State
+  const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
 
-  const ideas = selectedGoal ? CONTENT_IDEAS[selectedGoal] : CONTENT_IDEAS.awareness;
-  const currentIdea = selectedIdea !== null ? ideas[selectedIdea] : ideas[0];
-
-  useEffect(() => {
-    if (currentIdea) {
-      setEditablePostTitle(currentIdea.title);
-      setEditablePostBody(`Nhiều người nghĩ rằng có ${profile.yearsExperience || '10+ năm'} kinh nghiệm thì cứ ra làm tự do là có khách. Nhưng sự thật là: Chuyên môn giỏi mà không có định vị đúng thì bạn vẫn mãi kiệt sức với giá thấp.\n\n3 nguyên tắc thực chiến:\n1. Chọn 1 WHO chuẩn xác: Tập trung vào nhóm khách hàng ${profile.whoHelp || 'chuyển đổi'}.\n2. Chuẩn bị Quỹ Sinh Tồn 12 tháng.\n3. Đóng gói Signature Offer: Buổi chẩn đoán 1:1 giải quyết 1 nỗi đau duy nhất.\n\nNếu bạn đang chuẩn bị chuyển đổi, hãy nhắn cho tôi để nhận buổi chẩn đoán 1:1 đầu tiên.`);
+  // Script Blocks State (Editable)
+  const [scriptBlocks, setScriptBlocks] = useState([
+    {
+      id: 'hook',
+      title: isEn ? 'Hook' : 'Mở đầu',
+      text: 'Nhiều người nghĩ rằng có tiếng làm tín dụng ngân hàng gần 6 năm thì cứ nghỉ việc là tự do. Nhưng sự thật là: Chuyên môn giỏi mà không có định vị đúng thì bạn vẫn mãi làm việc phía sau và bị động.',
+      textEn: 'Many people assume that having 6 years of banking credit experience means quitting leads to freedom. But the reality is: Being skilled without clear positioning keeps you trapped behind the scenes.',
+      imgUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&auto=format&fit=crop&q=80',
+      isEditing: false
+    },
+    {
+      id: 'core_insight',
+      title: isEn ? 'Core Perspective' : 'Góc nhìn chính',
+      text: '80% mắc kẹt vì thiếu QUỸ DÒNG TIỀN. Sai lầm 90% mắc phải là bán thời gian thay vì giải pháp. Paid Pain: Mất nguồn thu cố định và không biết đóng gói sản phẩm để có khách hàng ngay.',
+      textEn: '80% get stuck due to lacking a CASH FLOW RUNWAY. The 90% mistake is selling hours instead of solutions. Paid Pain: Losing fixed income without packaged offers to land immediate clients.',
+      imgUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&auto=format&fit=crop&q=80',
+      isEditing: false
+    },
+    {
+      id: 'cta',
+      title: isEn ? 'Call to Action' : 'Kêu gọi hành động',
+      text: 'Đừng chỉ giỏi chuyên môn. Hãy học cách định vị — đóng gói — và tạo hệ thống để bạn có khách hàng ngay cả khi chưa có thương hiệu cá nhân.',
+      textEn: 'Don’t just be skilled in your craft. Learn how to position, package, and build a system to acquire clients even before your personal brand is famous.',
+      imgUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&auto=format&fit=crop&q=80',
+      isEditing: false
     }
-  }, [selectedIdea, currentIdea, profile]);
+  ]);
 
-  const handleSelectGoal = (goalId) => {
-    setSelectedGoal(goalId);
-    setSelectedIdea(0);
-    setShowIdeas(false);
-    setTimeout(() => setShowIdeas(true), 300);
+  // Advanced settings state
+  const [presenceMode, setPresenceMode] = useState('human'); // 'human' | 'faceless' | 'avatar' | 'pip'
+  const [selectedLanguage, setSelectedLanguage] = useState('vi');
+  const [isRendering, setIsRendering] = useState(false);
+  const [renderProgress, setRenderProgress] = useState(0);
+
+  const handleUpdateScript = (id, newText) => {
+    setScriptBlocks(prev => prev.map(b => b.id === id ? { ...b, text: newText, textEn: newText } : b));
   };
 
-  const handleCopyText = (text) => {
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const toggleEditBlock = (id) => {
+    setScriptBlocks(prev => prev.map(b => b.id === id ? { ...b, isEditing: !b.isEditing } : b));
   };
 
-  const togglePlatform = (id) => {
-    if (selectedPlatforms.includes(id)) {
-      setSelectedPlatforms(selectedPlatforms.filter(p => p !== id));
-    } else {
-      setSelectedPlatforms([...selectedPlatforms, id]);
-    }
-  };
-
-  const handlePublishNow = () => {
-    setIsPublishing(true);
-    setTimeout(() => {
-      setIsPublishing(false);
-      setPublishSuccess(true);
-      setTimeout(() => {
-        setPublishSuccess(false);
-        setShowScheduleModal(false);
-      }, 2500);
-    }, 1200);
-  };
-
-  // Remix Link Action
-  const handleRemixLink = () => {
-    if (!remixUrl.trim()) return;
-    setIsRemixing(true);
-    setTimeout(() => {
-      setIsRemixing(false);
-      setRemixedResult({
-        originalHook: "Cách tôi xây dựng hệ thống 100M/tháng không cần team",
-        remixedHook: `[DÀNH CHO ${profile.whoHelp || 'CHUYÊN GIA'}] Cách đóng gói kinh nghiệm ${profile.yearsExperience || '10+ năm'} thành sản phẩm cố vấn mà không bị kiệt sức`,
-        body: `Nhiều người nghĩ làm tư vấn tự do là phải làm 14 tiếng/ngày. Nhưng sự thật là: Nếu bạn đóng gói đúng 1 WHO + 1 OFFER, bạn chỉ cần 3 khách hàng chất lượng.\n\n3 nguyên tắc thực chiến:\n1. Chọn ngách sắc như dao cạo.\n2. Chuẩn bị quỹ sinh tồn 12 tháng.\n3. Tạo buổi chẩn đoán 1:1 giải quyết 1 nỗi đau duy nhất.`
+  const handleStartRender = () => {
+    setIsRendering(true);
+    setRenderProgress(10);
+    const interval = setInterval(() => {
+      setRenderProgress(p => {
+        if (p >= 100) {
+          clearInterval(interval);
+          setIsRendering(false);
+          alert(isEn ? 'Video render completed successfully (1080x1920 HD)!' : 'Video đã dựng hoàn tất chuẩn 1080x1920 9:16!');
+          return 100;
+        }
+        return p + 20;
       });
-    }, 1500);
+    }, 400);
   };
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 min-h-[calc(100vh-80px)] flex flex-col justify-between animate-fade-in-up">
-      <div className="flex-1 space-y-6">
-        {/* ALWAYS VISIBLE SUB-TAB SWITCHER BAR AT THE VERY TOP OF SESSION 4 */}
-        <div className="bg-white p-2 rounded-2xl border border-silver/80 shadow-sm space-y-2">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-silver/50 pb-2">
-            <span className="text-xs font-bold text-ink flex items-center gap-1.5 uppercase tracking-wider">
-              <Sparkles className="w-4 h-4 text-accent" />
-              Xưởng Sản Xuất Ấn Phẩm Nội Dung:
-            </span>
-            
-            {/* Always visible sub-tabs */}
-            <div className="flex items-center gap-1 bg-cream p-1 rounded-full border border-silver text-xs overflow-x-auto max-w-full custom-scrollbar">
-              <button
-                onClick={() => setActiveStudioTab('ideas')}
-                className={`px-3 py-1.5 rounded-full font-bold transition-all whitespace-nowrap ${
-                  activeStudioTab === 'ideas' ? 'bg-ink text-cream shadow-sm' : 'text-ink/60 hover:text-ink'
-                }`}
-              >
-                <Lightbulb className="w-3.5 h-3.5 inline mr-1" />
-                {lang === 'en' ? 'Ideas & Goals' : 'Ý Tưởng & Trụ Cột'}
-              </button>
-
-              <button
-                onClick={() => setActiveStudioTab('text')}
-                className={`px-3 py-1.5 rounded-full font-bold transition-all whitespace-nowrap ${
-                  activeStudioTab === 'text' ? 'bg-ink text-cream shadow-sm' : 'text-ink/60 hover:text-ink'
-                }`}
-              >
-                ✍️ {lang === 'en' ? 'Full Post' : 'Bài Viết Chi Tiết'}
-              </button>
-
-              <button
-                onClick={() => setActiveStudioTab('carousel')}
-                className={`px-3 py-1.5 rounded-full font-bold transition-all whitespace-nowrap ${
-                  activeStudioTab === 'carousel' ? 'bg-ink text-cream shadow-sm' : 'text-ink/60 hover:text-ink'
-                }`}
-              >
-                🎨 Carousel 5-Slide
-              </button>
-
-              <button
-                onClick={() => setActiveStudioTab('video')}
-                className={`px-3 py-1.5 rounded-full font-bold transition-all whitespace-nowrap ${
-                  activeStudioTab === 'video' ? 'bg-ink text-cream shadow-sm' : 'text-ink/60 hover:text-ink'
-                }`}
-              >
-                🎬 Video 9:16 & Teleprompter
-              </button>
-
-              <button
-                onClick={() => setActiveStudioTab('remix')}
-                className={`px-3 py-1.5 rounded-full font-bold transition-all whitespace-nowrap ${
-                  activeStudioTab === 'remix' ? 'bg-ink text-cream shadow-sm' : 'text-ink/60 hover:text-ink'
-                }`}
-              >
-                🔗 Viral Remixer
-              </button>
-            </div>
-          </div>
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 min-h-[calc(100vh-140px)] animate-fade-in pb-24 font-sans">
+      
+      {/* Top Breadcrumb & Stepper (Exact Match to Screenshot 2) */}
+      <div className="space-y-4 mb-6">
+        <div className="flex items-center justify-between text-xs text-ink/50">
+          <span className="font-medium text-ink/70">
+            {isEn ? 'Create Content / Video' : 'Tạo nội dung / Video'}
+          </span>
         </div>
 
-        <h1 className="font-serif text-2xl sm:text-4xl font-semibold text-ink leading-snug">
-          {lang === 'en' ? 'What do you want content to achieve this week?' : 'Tuần này bạn muốn '}
-          <span className="highlight-word">{lang === 'en' ? '' : 'nội dung'}</span>
-          {lang === 'en' ? '' : ' giúp mình điều gì?'}
-        </h1>
-
-        {/* Content Goal Selection & Idea List */}
-        {activeStudioTab === 'ideas' && (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {CONTENT_GOALS.map((goal) => {
-                const Icon = goal.icon;
-                const isSelected = selectedGoal === goal.id;
-                return (
-                  <button
-                    key={goal.id}
-                    onClick={() => handleSelectGoal(goal.id)}
-                    className={`p-4 rounded-2xl border text-left transition-all flex items-center gap-3.5 ${
-                      isSelected
-                        ? 'bg-ink text-cream border-ink shadow-sm'
-                        : 'bg-white border-silver/80 hover:border-ink/30'
-                    }`}
-                  >
-                    <Icon className={`w-5 h-5 shrink-0 ${isSelected ? 'text-cream' : goal.color}`} />
-                    <span className={`text-xs font-semibold ${isSelected ? 'text-cream' : 'text-ink'}`}>{goal.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* AI Generated Content Ideas */}
-            {selectedGoal && (
-              <div className="space-y-4">
-                {!showIdeas ? (
-                  <div className="flex items-center gap-3 text-ink/50 animate-pulse py-4">
-                    <div className="w-5 h-5 border-2 border-ink/30 border-t-ink rounded-full animate-spin" />
-                    <span className="text-sm">Đang tạo 3 ý tưởng nội dung phù hợp với vị thế của bạn...</span>
-                  </div>
-                ) : (
-                  <>
-                    <p className="text-xs font-medium text-ink/40 uppercase tracking-widest">
-                      3 ý tưởng gợi ý riêng cho bạn (Bấm chọn để sản xuất ấn phẩm):
-                    </p>
-
-                    {ideas.map((idea, i) => {
-                      const isSelected = selectedIdea === i;
-                      return (
-                        <div
-                          key={i}
-                          onClick={() => setSelectedIdea(i)}
-                          className={`bg-white rounded-2xl border p-5 cursor-pointer transition-all animate-fade-in ${
-                            isSelected ? 'border-ink ring-1 ring-ink/10 shadow-sm' : 'border-silver/80 hover:border-ink/30'
-                          }`}
-                        >
-                          <div className="flex items-start justify-between gap-3 mb-2">
-                            <h3 className="font-serif text-base font-semibold text-ink">"{idea.title}"</h3>
-                            <span className="text-[10px] font-semibold bg-cream px-2 py-0.5 rounded border border-silver/60 text-ink/60 shrink-0">
-                              {idea.format}
-                            </span>
-                          </div>
-
-                          <div className="space-y-1.5 text-xs text-ink/70 mb-4">
-                            <p><strong className="text-ink/40 font-normal">Vì sao hợp:</strong> {idea.why}</p>
-                            <p><strong className="text-ink/40 font-normal">Dành cho:</strong> {idea.audience}</p>
-                          </div>
-
-                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-3 border-t border-silver/50">
-                            <span className="text-[11px] text-emerald-700 font-medium">✓ {idea.result}</span>
-                            <div className="flex items-center gap-2">
-                              <button
-                                onClick={(e) => { e.stopPropagation(); setSelectedIdea(i); setActiveStudioTab('text'); }}
-                                className="px-3.5 py-1.5 rounded-full bg-ink text-cream text-xs font-bold hover:bg-ink/90 transition-all"
-                              >
-                                ✍️ Viết Bài
-                              </button>
-                              <button
-                                onClick={(e) => { e.stopPropagation(); setSelectedIdea(i); setActiveStudioTab('video'); }}
-                                className="px-3.5 py-1.5 rounded-full bg-accent text-white text-xs font-bold hover:bg-accent/90 transition-all"
-                              >
-                                🎬 Dựng Video 9:16
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </>
-                )}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Studio Tab: Full Post Text Generator */}
-        {activeStudioTab === 'text' && (
-          <div className="bg-white rounded-2xl border border-silver/80 p-5 md:p-6 space-y-4 animate-fade-in-up">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-silver/50 pb-3 gap-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-ink/40">Bài viết chi tiết (Có thể chỉnh sửa)</span>
-              
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setShowScheduleModal(true)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-accent text-white text-xs font-semibold hover:bg-accent/90 transition-all shadow-sm"
+        {/* Stepper: 1 Ý tưởng — 2 Phong cách — 3 Xem trước — 4 Xuất bản */}
+        <div className="flex items-center gap-3 sm:gap-6 text-xs text-ink/40 border-b border-silver/50 pb-4 overflow-x-auto custom-scrollbar">
+          {[
+            { num: 1, label: isEn ? 'Idea' : 'Ý tưởng' },
+            { num: 2, label: isEn ? 'Style' : 'Phong cách' },
+            { num: 3, label: isEn ? 'Preview' : 'Xem trước' },
+            { num: 4, label: isEn ? 'Publish' : 'Xuất bản' },
+          ].map((st, i) => {
+            const isActive = currentStep === st.num;
+            return (
+              <React.Fragment key={st.num}>
+                <div 
+                  onClick={() => setCurrentStep(st.num)}
+                  className={`flex items-center gap-2 cursor-pointer whitespace-nowrap transition-colors ${
+                    isActive ? 'text-ink font-bold' : 'text-ink/50 hover:text-ink'
+                  }`}
                 >
-                  <Send className="w-3.5 h-3.5" />
-                  <span>Đăng ngay / Hẹn giờ</span>
-                </button>
-
-                <button
-                  onClick={() => handleCopyText(`HÒAN THÀNH BÀI VIẾT:\n\n${editablePostTitle}\n\n${editablePostBody}`)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-silver text-xs font-medium text-ink hover:bg-cream transition-all"
-                >
-                  {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                  <span>{copied ? 'Đã chép' : 'Sao chép'}</span>
-                </button>
-              </div>
-            </div>
-
-            <input
-              type="text"
-              value={editablePostTitle}
-              onChange={(e) => setEditablePostTitle(e.target.value)}
-              className="w-full font-serif text-lg sm:text-xl font-semibold text-ink bg-cream/50 p-2 rounded-lg border border-silver/60 focus:border-ink"
-            />
-
-            <textarea
-              rows={10}
-              value={editablePostBody}
-              onChange={(e) => setEditablePostBody(e.target.value)}
-              className="w-full text-xs sm:text-sm text-ink/80 leading-relaxed font-sans bg-cream/50 p-4 rounded-xl border border-silver/60 focus:border-ink resize-none"
-            />
-          </div>
-        )}
-
-        {/* Studio Tab: Notion-Style 5-Slide Carousel */}
-        {activeStudioTab === 'carousel' && (
-          <div className="bg-white rounded-2xl border border-silver/80 p-5 md:p-6 space-y-4 animate-fade-in-up">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-silver/50 pb-3 gap-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-ink/40">Carousel 5-Slide Notion Style</span>
-              
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setShowScheduleModal(true)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-accent text-white text-xs font-semibold hover:bg-accent/90 transition-all shadow-sm"
-                >
-                  <Send className="w-3.5 h-3.5" />
-                  <span>Đăng ngay / Hẹn giờ</span>
-                </button>
-
-                <button
-                  onClick={() => alert("Đang xuất bộ 5 slide Notion Carousel định dạng PNG HD!")}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-silver text-xs font-medium text-ink hover:bg-cream transition-all"
-                >
-                  <Download className="w-3.5 h-3.5 text-accent" />
-                  <span>Tải PNG</span>
-                </button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5 pt-2">
-              {[
-                { slide: 1, tag: "COVER", title: editablePostTitle || currentIdea?.title, body: `Bởi ${profile.name || 'Chuyên gia'}` },
-                { slide: 2, tag: "PAIN", title: "Sai lầm phổ biến", body: "Làm tư vấn tự do nhưng bán thời gian giá rẻ" },
-                { slide: 3, tag: "INSIGHT", title: "3 Nguyên tắc", body: "Quỹ 12 tháng + 1 WHO + 1 Offer" },
-                { slide: 4, tag: "ACTION", title: "Bước đầu tiên", body: "Đóng gói buổi chẩn đoán 1:1 chuyển đổi" },
-                { slide: 5, tag: "CTA", title: "Nhận bản đồ 1:1", body: "Nhắn tin trực tiếp cho tôi" },
-              ].map((item) => (
-                <div key={item.slide} className="aspect-[4/5] bg-cream rounded-xl border border-silver/80 p-3 flex flex-col justify-between hover:border-ink/40 transition-all">
-                  <span className="text-[9px] font-bold tracking-widest text-ink/40 uppercase">{item.tag}</span>
-                  <div>
-                    <h4 className="font-serif text-xs font-bold text-ink leading-snug">{item.title}</h4>
-                    <p className="text-[10px] text-ink/60 mt-1 line-clamp-2">{item.body}</p>
-                  </div>
-                  <span className="text-[9px] text-ink/30 font-mono text-right">{item.slide}/5</span>
+                  <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-mono font-bold ${
+                    isActive ? 'bg-ink text-cream' : 'bg-silver/60 text-ink/70'
+                  }`}>
+                    {st.num}
+                  </span>
+                  <span>{st.label}</span>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Studio Tab: Full Video Studio Engine */}
-        {activeStudioTab === 'video' && (
-          <VideoStudioEngine
-            ideaTitle={editablePostTitle || currentIdea?.title}
-            ideaWhy={currentIdea?.why}
-            profile={profile}
-          />
-        )}
-
-        {/* Studio Tab: Viral Remixer */}
-        {activeStudioTab === 'remix' && (
-          <div className="bg-white rounded-2xl border border-silver/80 p-5 md:p-6 space-y-4 animate-fade-in-up">
-            <div className="space-y-1">
-              <h3 className="font-serif text-lg font-semibold text-ink">Viral Remixer — Tái Cấu Trúc Nội Dung</h3>
-              <p className="text-xs text-ink/50">Dán bất kỳ link bài viết hoặc video TikTok/LinkedIn nào để AI tự động chuyển hóa thành góc nhìn của bạn.</p>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-2">
-              <input
-                type="text"
-                value={remixUrl}
-                onChange={(e) => setRemixUrl(e.target.value)}
-                placeholder="Dán link bài viết TikTok / LinkedIn / Facebook vào đây..."
-                className="flex-1 bg-cream border border-silver rounded-xl text-xs text-ink p-3 placeholder:text-silver focus:border-ink/30 transition-colors"
-              />
-              <button
-                onClick={handleRemixLink}
-                disabled={isRemixing || !remixUrl.trim()}
-                className="px-5 py-2.5 rounded-xl bg-ink text-cream text-xs font-semibold hover:bg-ink/90 transition-all disabled:opacity-30 flex items-center justify-center gap-1.5 shrink-0"
-              >
-                {isRemixing ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Wand2 className="w-3.5 h-3.5" />}
-                <span>Remix Ngay</span>
-              </button>
-            </div>
-
-            {remixedResult && (
-              <div className="p-4 rounded-xl bg-cream border border-silver/80 space-y-3 text-xs text-ink/80 animate-fade-in">
-                <div className="space-y-1">
-                  <span className="text-[10px] text-ink/40 uppercase tracking-wider font-bold">Tiêu đề gốc:</span>
-                  <p className="line-through text-ink/50">{remixedResult.originalHook}</p>
-                </div>
-
-                <div className="space-y-1">
-                  <span className="text-[10px] text-accent uppercase tracking-wider font-bold">Tiêu đề mới theo ngách của bạn:</span>
-                  <p className="font-bold text-ink">{remixedResult.remixedHook}</p>
-                </div>
-
-                <div className="pt-2 border-t border-silver/60">
-                  <p className="whitespace-pre-line leading-relaxed">{remixedResult.body}</p>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
+                {i < 3 && <span className="text-silver">—</span>}
+              </React.Fragment>
+            );
+          })}
+        </div>
       </div>
 
-      {/* Auto Publish & Schedule Modal */}
-      {showScheduleModal && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
-          <div className="w-full max-w-md bg-cream border border-silver rounded-3xl p-6 space-y-5 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-            <button
-              onClick={() => setShowScheduleModal(false)}
-              className="absolute right-5 top-5 p-2 rounded-full bg-white border border-silver/80 text-ink/60 hover:text-ink"
+      {/* Main Headline & Style Switcher Pills Header */}
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-8">
+        <div className="space-y-1.5 max-w-2xl">
+          <h1 className="font-serif text-3xl sm:text-4xl md:text-[42px] font-normal text-ink leading-tight tracking-tight">
+            {isEn ? 'Turn an idea into a video' : 'Biến một ý tưởng thành video'}
+          </h1>
+          <p className="text-xs sm:text-sm text-ink/60 leading-relaxed font-sans">
+            {isEn 
+              ? 'Script, voice, and visual assets are synced with your brand identity.'
+              : 'Nội dung, giọng nói và hình ảnh đã được đồng bộ theo thương hiệu của bạn.'}
+          </p>
+        </div>
+
+        {/* 3 Style Pills (Right Side) */}
+        <div className="flex items-center bg-white p-1 rounded-2xl border border-silver/80 text-xs font-semibold shrink-0 shadow-xs">
+          {[
+            { id: 'authentic', label: isEn ? 'Authentic' : 'Chia sẻ thật' },
+            { id: 'expert_view', label: isEn ? 'Expert View' : 'Góc nhìn chuyên gia' },
+            { id: 'case_study', label: isEn ? 'Case Study' : 'Case study' },
+          ].map((style) => {
+            const isSelected = styleMode === style.id;
+            return (
+              <button
+                key={style.id}
+                onClick={() => setStyleMode(style.id)}
+                className={`px-4 py-2 rounded-xl transition-all ${
+                  isSelected ? 'bg-[#315CFF] text-white shadow-xs' : 'text-ink/60 hover:text-ink'
+                }`}
+              >
+                {style.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 2-Column Content Grid: Left 3 Script Cards & Accordion | Right 9:16 Video Player */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        {/* LEFT COLUMN: 3 Script Blocks + Accordion */}
+        <div className="lg:col-span-7 space-y-4">
+          {scriptBlocks.map((block) => (
+            <div 
+              key={block.id}
+              className="p-4 sm:p-5 rounded-2xl bg-white border border-silver/80 shadow-xs hover:border-ink/30 transition-all flex items-start gap-4"
             >
-              ✕
+              {/* Speaker Thumbnail */}
+              <div className="w-16 h-20 sm:w-20 sm:h-24 rounded-xl overflow-hidden bg-cream border border-silver shrink-0 relative">
+                <img 
+                  src={block.imgUrl} 
+                  alt="Speaker" 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
+              {/* Script Text & Header */}
+              <div className="flex-1 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-serif text-base font-bold text-ink">
+                    {block.title}
+                  </h3>
+                  <button
+                    onClick={() => toggleEditBlock(block.id)}
+                    className="p-1 text-ink/40 hover:text-ink transition-colors"
+                  >
+                    <Edit3 className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {block.isEditing ? (
+                  <div className="space-y-2 pt-1">
+                    <textarea
+                      rows={3}
+                      value={isEn ? block.textEn : block.text}
+                      onChange={(e) => handleUpdateScript(block.id, e.target.value)}
+                      className="w-full text-xs sm:text-sm text-ink bg-cream p-2.5 rounded-xl border border-silver focus:border-ink resize-none font-sans"
+                    />
+                    <button
+                      onClick={() => toggleEditBlock(block.id)}
+                      className="px-3 py-1 rounded-full bg-ink text-cream text-[10px] font-bold"
+                    >
+                      {isEn ? 'Save' : 'Lưu'}
+                    </button>
+                  </div>
+                ) : (
+                  <p className="text-xs sm:text-sm text-ink/80 font-sans leading-relaxed">
+                    {isEn ? block.textEn : block.text}
+                  </p>
+                )}
+              </div>
+            </div>
+          ))}
+
+          {/* Accordion: Tinh Chỉnh Nâng Cao */}
+          <div className="rounded-2xl bg-cream/70 border border-silver/80 overflow-hidden">
+            <button
+              onClick={() => setIsAdvancedOpen(!isAdvancedOpen)}
+              className="w-full p-4 flex items-center justify-between text-xs font-semibold text-ink hover:bg-cream transition-colors"
+            >
+              <span>{isEn ? 'Advanced Fine-Tuning' : 'Tinh chỉnh nâng cao'}</span>
+              {isAdvancedOpen ? <ChevronUp className="w-4 h-4 text-ink/50" /> : <ChevronDown className="w-4 h-4 text-ink/50" />}
             </button>
 
-            <div className="space-y-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-accent bg-accent/10 px-2.5 py-0.5 rounded-full">
-                Auto Publish & Scheduler
-              </span>
-              <h3 className="font-serif text-xl font-bold text-ink">Đăng Ngay Hoặc Cài Giờ Đăng</h3>
-            </div>
+            {isAdvancedOpen && (
+              <div className="p-5 border-t border-silver/60 bg-white space-y-4 text-xs animate-fade-in">
+                <div className="space-y-2">
+                  <span className="font-bold text-ink/70 block">Cách xuất hiện:</span>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {[
+                      { id: 'human', label: 'Người thật' },
+                      { id: 'faceless', label: 'Faceless B-Roll' },
+                      { id: 'avatar', label: 'AI Avatar' },
+                      { id: 'pip', label: 'Hybrid PiP' },
+                    ].map((p) => (
+                      <button
+                        key={p.id}
+                        onClick={() => setPresenceMode(p.id)}
+                        className={`p-2.5 rounded-xl border text-center font-medium transition-all ${
+                          presenceMode === p.id ? 'bg-ink text-cream border-ink' : 'bg-cream border-silver text-ink/70'
+                        }`}
+                      >
+                        {p.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-            {/* Platform Selection */}
-            <div className="space-y-2">
-              <label className="text-xs font-semibold text-ink/70 block">Chọn nền tảng đẩy bài:</label>
-              <div className="grid grid-cols-2 gap-2">
-                {SOCIAL_PLATFORMS.map((p) => {
-                  const isChecked = selectedPlatforms.includes(p.id);
-                  return (
-                    <button
-                      key={p.id}
-                      onClick={() => togglePlatform(p.id)}
-                      className={`p-3 rounded-xl border text-xs font-semibold flex items-center justify-between transition-all ${
-                        isChecked ? 'bg-white border-ink shadow-sm text-ink' : 'bg-cream border-silver/80 text-ink/50'
-                      }`}
+                <div className="grid grid-cols-2 gap-3 pt-2">
+                  <div>
+                    <span className="font-bold text-ink/70 block mb-1">Ngôn ngữ kịch bản:</span>
+                    <select
+                      value={selectedLanguage}
+                      onChange={(e) => setSelectedLanguage(e.target.value)}
+                      className="w-full bg-cream border border-silver rounded-xl p-2.5 text-xs text-ink"
                     >
-                      <span>{p.name}</span>
-                      {isChecked && <CheckCircle2 className="w-4 h-4 text-emerald-600" />}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+                      <option value="vi">Tiếng Việt (Chuẩn miền Bắc/Nam)</option>
+                      <option value="en">English (Global B2B)</option>
+                      <option value="ja">日本語 (Business Japanese)</option>
+                    </select>
+                  </div>
 
-            {/* Schedule Date & Time */}
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <div>
-                <label className="text-[11px] font-medium text-ink/60 block mb-1">Ngày đăng:</label>
-                <input
-                  type="date"
-                  value={scheduledDate}
-                  onChange={(e) => setScheduledDate(e.target.value)}
-                  className="w-full bg-white border border-silver rounded-xl p-2.5 text-ink"
-                />
-              </div>
-              <div>
-                <label className="text-[11px] font-medium text-ink/60 block mb-1">Giờ đăng:</label>
-                <input
-                  type="time"
-                  value={scheduledTime}
-                  onChange={(e) => setScheduledTime(e.target.value)}
-                  className="w-full bg-white border border-silver rounded-xl p-2.5 text-ink"
-                />
-              </div>
-            </div>
-
-            {publishSuccess ? (
-              <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 text-center font-bold animate-fade-in">
-                ✓ Đã lên lịch đăng bài thành công lên {selectedPlatforms.length} nền tảng!
-              </div>
-            ) : (
-              <div className="flex items-center gap-2 pt-2">
-                <button
-                  onClick={handlePublishNow}
-                  disabled={isPublishing || selectedPlatforms.length === 0}
-                  className="flex-1 py-3 rounded-full bg-ink text-cream text-xs font-bold hover:bg-ink/90 transition-all shadow flex items-center justify-center gap-1.5"
-                >
-                  <Send className="w-3.5 h-3.5" />
-                  <span>{isPublishing ? 'Đang đẩy bài...' : '🚀 Đăng Ngay'}</span>
-                </button>
-
-                <button
-                  onClick={handlePublishNow}
-                  disabled={isPublishing || selectedPlatforms.length === 0}
-                  className="flex-1 py-3 rounded-full bg-accent text-white text-xs font-bold hover:bg-accent/90 transition-all shadow flex items-center justify-center gap-1.5"
-                >
-                  <Calendar className="w-3.5 h-3.5" />
-                  <span>⏰ Cài Giờ Tự Động</span>
-                </button>
+                  <div>
+                    <span className="font-bold text-ink/70 block mb-1">Nhạc nền Ambient:</span>
+                    <select className="w-full bg-cream border border-silver rounded-xl p-2.5 text-xs text-ink">
+                      <option>Ambient Piano 12% (Mặc định)</option>
+                      <option>Lo-Fi Focus Beat 10%</option>
+                      <option>Không nhạc nền</option>
+                    </select>
+                  </div>
+                </div>
               </div>
             )}
           </div>
         </div>
-      )}
 
-      {/* Bottom Navigation */}
-      <div className="pt-8 pb-4 flex items-center justify-between">
-        <button onClick={onBack} className="inline-flex items-center gap-1.5 text-sm text-ink/50 hover:text-ink transition-colors">
-          <ArrowLeft className="w-4 h-4" />
-          {lang === 'en' ? 'Back' : 'Quay lại'}
-        </button>
+        {/* RIGHT COLUMN: 9:16 Video Player Preview Card */}
+        <div className="lg:col-span-5 flex flex-col items-center lg:items-end">
+          <div className="w-full max-w-[340px] space-y-4">
+            
+            {/* 9:16 Vertical Video Screen (Exact Match to Screenshot 2) */}
+            <div className="aspect-[9/16] rounded-3xl overflow-hidden border-2 border-silver/80 relative shadow-xl bg-ink">
+              {/* Speaker Video / High Res Image */}
+              <img 
+                src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=700&auto=format&fit=crop&q=80" 
+                alt="Expert Video Preview" 
+                className="w-full h-full object-cover"
+              />
 
-        <button
-          onClick={onNext}
-          className="inline-flex items-center gap-2 bg-ink text-cream px-6 py-3 rounded-full text-sm font-semibold hover:bg-ink/90 transition-all active:scale-95"
-        >
-          {lang === 'en' ? 'Track Opportunities' : 'Theo dõi cơ hội'}
-          <ArrowRight className="w-4 h-4" />
-        </button>
+              {/* Gradient Overlay for Subtitles */}
+              <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80 pointer-events-none" />
+
+              {/* Top Bar: 0:20 Timer & Audio Icon */}
+              <div className="absolute top-4 left-4 right-4 flex items-center justify-between text-white text-xs z-10">
+                <span className="bg-black/40 backdrop-blur px-2.5 py-0.5 rounded-full font-mono text-[11px]">
+                  0:20
+                </span>
+                <button className="w-7 h-7 rounded-full bg-black/40 backdrop-blur flex items-center justify-center hover:bg-black/60">
+                  <Volume2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              {/* Kinetic Caption in Middle-Bottom */}
+              <div className="absolute bottom-8 left-4 right-4 space-y-2 z-10">
+                {/* Blue Tag */}
+                <div className="inline-block bg-[#315CFF] text-white font-bold text-[10px] uppercase tracking-wider px-2.5 py-0.5 rounded-md shadow-sm">
+                  {styleMode === 'expert_view' ? 'GÓC NHÌN CHUYÊN GIA' : styleMode === 'authentic' ? 'CHIA SẺ THẬT' : 'CASE STUDY'}
+                </div>
+
+                {/* Subtitle Caption */}
+                <div className="p-3 bg-black/60 backdrop-blur-md rounded-2xl border border-white/20 text-white space-y-1 shadow-lg">
+                  <p className="font-bold text-sm sm:text-base leading-snug">
+                    80% mắc kẹt vì thiếu QUỸ DÒNG TIỀN.
+                  </p>
+                  <p className="text-xs text-white/90 leading-relaxed font-sans">
+                    Bán thời gian thay vì giải pháp là sai lầm phổ biến nhất.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Buttons: [▶ Xem thử] & [Tạo video] */}
+            <div className="flex items-center gap-3 pt-1">
+              <button
+                onClick={() => alert("Đang phát video xem trước thời lượng 0-55s!")}
+                className="flex-1 h-12 rounded-full bg-white border border-silver/90 text-ink font-sans text-xs sm:text-sm font-semibold hover:border-ink/40 transition-all flex items-center justify-center gap-2 shadow-xs"
+              >
+                <Play className="w-3.5 h-3.5 fill-current" />
+                <span>{isEn ? 'Preview' : 'Xem thử'}</span>
+              </button>
+
+              <button
+                onClick={handleStartRender}
+                disabled={isRendering}
+                className="flex-1 h-12 rounded-full bg-[#315CFF] text-white font-sans text-xs sm:text-sm font-bold hover:bg-[#274bdb] transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-40"
+              >
+                {isRendering ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Video className="w-4 h-4" />}
+                <span>{isRendering ? `${renderProgress}%...` : (isEn ? 'Generate Video' : 'Tạo video')}</span>
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
