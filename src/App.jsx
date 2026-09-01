@@ -21,7 +21,7 @@ import {
  */
 
 const NAVIGATION_AREAS = [
-  { id: 1, label: 'Hôm nay', labelEn: 'Today', icon: Sparkles },
+  { id: 1, label: 'Hiểu mình', labelEn: 'Self-Discovery', icon: Sparkles },
   { id: 2, label: 'Thương hiệu', labelEn: 'Brand', icon: FingerprintNavIcon },
   { id: 3, label: 'Giá trị', labelEn: 'Value', icon: Box },
   { id: 4, label: 'Nội dung', labelEn: 'Content', icon: Edit3 },
