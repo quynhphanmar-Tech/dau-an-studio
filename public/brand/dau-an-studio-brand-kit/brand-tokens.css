@@ -1,0 +1,32 @@
+:root {
+  --dau-an-optical-white: #F7F7F5;
+  --dau-an-ink: #111111;
+  --dau-an-cool-silver: #D9DADC;
+  --dau-an-cobalt: #315CFF;
+  --dau-an-coral: #FF5A47;
+
+  --dau-an-font-display: "Playfair Display", Georgia, serif;
+  --dau-an-font-ui: "Be Vietnam Pro", Arial, sans-serif;
+
+  --dau-an-radius-card: 16px;
+  --dau-an-radius-control: 999px;
+  --dau-an-control-height: 48px;
+  --dau-an-border: 1px solid var(--dau-an-cool-silver);
+  --dau-an-motion-fast: 180ms;
+  --dau-an-motion-standard: 240ms;
+}
+
+/* Display copy only: wordmark, hero, pivotal question, milestone. */
+.dau-an-display {
+  font-family: var(--dau-an-font-display);
+  font-weight: 400;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+}
+
+/* UI, labels, body, controls and data. */
+.dau-an-ui {
+  font-family: var(--dau-an-font-ui);
+  font-weight: 400;
+  line-height: 1.6;
+}
