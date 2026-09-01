@@ -537,77 +537,90 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
         // ── Find active scene for this time ──
         const sceneForTime = scenes.find(s => t >= s.startSec && t <= s.endSec) || scenes[0];
 
-        // ── Bottom gradient for text readability ──
-        const btmGrad = ctx.createLinearGradient(0, H * 0.55, 0, H);
-        btmGrad.addColorStop(0, 'rgba(0,0,0,0)');
-        btmGrad.addColorStop(1, 'rgba(0,0,0,0.85)');
-        ctx.fillStyle = btmGrad;
-        ctx.fillRect(0, H * 0.55, W, H * 0.45);
+        // ── 9:16 SAFE ZONE BOUNDARIES (Clean UI, no watermarks, no expert badges) ──
+        // Safe Zone: X = 80px -> 1000px (Width 920px), Y = 400px -> 1450px
 
-        // ── Keyword Hook Badge (top-left golden box) ──
+        // 1. POPPING KEYWORD BADGE IN UPPER SAFE ZONE (Y = 450px)
         if (sceneForTime.keyword) {
-          ctx.fillStyle = currentTemplate.keywordBg;
-          const kwText = sceneForTime.keyword;
-          ctx.font = 'bold 28px "Be Vietnam Pro", sans-serif';
+          ctx.font = 'bold 36px "Be Vietnam Pro", sans-serif';
+          const kwText = `🔥 ${sceneForTime.keyword}`;
           const kwMetrics = ctx.measureText(kwText);
-          const kwW = kwMetrics.width + 36;
-          const kwH = 48;
-          const kwX = 40;
-          const kwY = H - 480;
-          // Rounded rect
+          const kwW = kwMetrics.width + 48;
+          const kwH = 64;
+          const kwX = (W - kwW) / 2; // Center horizontally
+          const kwY = 450;
+
+          // Glowing badge background
+          ctx.fillStyle = currentTemplate.keywordBg;
+          ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
+          ctx.shadowBlur = 15;
           ctx.beginPath();
-          ctx.roundRect(kwX, kwY, kwW, kwH, 12);
+          ctx.roundRect(kwX, kwY, kwW, kwH, 16);
           ctx.fill();
+          ctx.shadowBlur = 0; // reset
+
           ctx.fillStyle = '#FFFFFF';
-          ctx.fillText(kwText, kwX + 18, kwY + 34);
+          ctx.fillText(kwText, kwX + 24, kwY + 44);
         }
 
-        // ── Subtitle box ──
-        if (sceneForTime.onScreen) {
-          const subBg = currentSubStyle.bg;
-          const subX = 36;
-          const subY = H - 400;
-          const subW = W - 72;
-          const subH = 220;
+        // 2. DYNAMIC KARAOKE-STYLE ANIMATED SUBTITLES IN CENTER SAFE ZONE (Y = 1200px)
+        if (sceneForTime.voiceover) {
+          const sceneDuration = Math.max(1, sceneForTime.endSec - sceneForTime.startSec);
+          const elapsedInScene = Math.max(0, t - sceneForTime.startSec);
+          const progressInScene = Math.min(1, elapsedInScene / sceneDuration);
 
-          ctx.fillStyle = subBg;
+          const words = sceneForTime.voiceover.split(' ');
+          const currentWordIdx = Math.floor(progressInScene * words.length);
+
+          // Show a sliding window of ~6-8 words around current spoken word
+          const windowSize = 7;
+          const startWord = Math.max(0, Math.min(currentWordIdx - 2, words.length - windowSize));
+          const visibleWords = words.slice(startWord, startWord + windowSize);
+
+          const subY = 1220;
+          ctx.font = 'bold 42px "Be Vietnam Pro", sans-serif';
+          ctx.textAlign = 'center';
+
+          // Subtitle pill background container
+          const subText = visibleWords.join(' ');
+          const subMetrics = ctx.measureText(subText);
+          const bgW = Math.min(W - 120, subMetrics.width + 60);
+          const bgH = 110;
+          const bgX = (W - bgW) / 2;
+
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
+          ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+          ctx.shadowBlur = 20;
           ctx.beginPath();
-          ctx.roundRect(subX, subY, subW, subH, 24);
+          ctx.roundRect(bgX, subY - 50, bgW, bgH, 24);
           ctx.fill();
+          ctx.shadowBlur = 0;
 
-          // On-screen text (title)
-          ctx.fillStyle = currentSubStyle.colorAccent;
-          ctx.font = 'bold 34px "Playfair Display", serif';
-          wrapText(ctx, `"${sceneForTime.onScreen}"`, subX + 24, subY + 50, subW - 48, 42);
+          // Draw words with active word highlighted in bright yellow/coral
+          let currentX = bgX + 30;
+          const lineY = subY + 15;
+          ctx.textAlign = 'left';
 
-          // Voiceover text below
-          ctx.fillStyle = currentSubStyle.colorMain;
-          ctx.font = '24px "Be Vietnam Pro", sans-serif';
-          wrapText(ctx, sceneForTime.voiceover, subX + 24, subY + 110, subW - 48, 32);
+          visibleWords.forEach((word, index) => {
+            const wordGlobalIdx = startWord + index;
+            const isCurrent = wordGlobalIdx === currentWordIdx;
+
+            ctx.font = isCurrent ? 'bold 46px "Be Vietnam Pro", sans-serif' : 'bold 40px "Be Vietnam Pro", sans-serif';
+            ctx.fillStyle = isCurrent ? '#FBBF24' : '#FFFFFF';
+
+            // Text shadow for pop effect
+            ctx.shadowColor = isCurrent ? 'rgba(251, 191, 36, 0.8)' : 'rgba(0,0,0,0.9)';
+            ctx.shadowBlur = isCurrent ? 12 : 4;
+
+            ctx.fillText(word, currentX, lineY);
+            currentX += ctx.measureText(word + ' ').width;
+          });
+
+          ctx.shadowBlur = 0;
+          ctx.textAlign = 'left'; // reset
         }
 
-        // ── Expert name badge ──
-        ctx.fillStyle = 'rgba(0,0,0,0.5)';
-        ctx.beginPath();
-        ctx.roundRect(36, H - 560, 350, 50, 25);
-        ctx.fill();
-        ctx.fillStyle = '#FFFFFF';
-        ctx.font = 'bold 24px "Be Vietnam Pro", sans-serif';
-        ctx.fillText(userName, 100, H - 528);
-
-        // ── Top bar: Language + Scene label ──
-        ctx.fillStyle = 'rgba(0,0,0,0.4)';
-        ctx.beginPath();
-        ctx.roundRect(30, 30, 200, 36, 18);
-        ctx.fill();
-        ctx.fillStyle = '#FFFFFF';
-        ctx.font = 'bold 20px monospace';
-        ctx.fillText(`🇻🇳 ${voiceLang.toUpperCase()} · ${sceneForTime.label}`, 48, 55);
-
-        // ── DẤU ẤN STUDIO watermark ──
-        ctx.fillStyle = 'rgba(255,255,255,0.3)';
-        ctx.font = 'bold 18px "Be Vietnam Pro", sans-serif';
-        ctx.fillText('DẤU ẤN STUDIO', W - 220, H - 30);
+        // Clean screen: Watermark, expert name, and top language badges REMOVED as requested!
 
         animFrame = requestAnimationFrame(drawFrame);
       };
