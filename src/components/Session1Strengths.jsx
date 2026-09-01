@@ -1,104 +1,125 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Mic, MicOff, ShieldCheck, Sparkles, FileText, ArrowRight, RefreshCw, CheckCircle2, MessageCircle, User, Heart, Target, Eye, Lightbulb, Send } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { ShieldCheck, Sparkles, User, Heart, ArrowRight, Send } from 'lucide-react';
 
 /**
- * ICF COACHING FLOW ARCHITECTURE:
+ * ICF COACHING FLOW ARCHITECTURE WITH CUSTOMIZED COGNITIVE TWIST
  * 
- * Phase 0: Welcome & Rapport (Build Trust)
- * Phase 1: Powerful Opening Question → Expert answers freely
- * Phase 2: AI Coach reflects back + asks deeper follow-up (Blind Spot Mirror)
- * Phase 3: Challenge Question → Uncover limiting beliefs
- * Phase 4: Strengths Synthesis + Blind Spot Awareness Card
- * Phase 5: Action Commitment → Move to Session 2
+ * Persona: "Dấu Ấn Coach (ICF Partner)" - Warm, profound, human, deeply respectful.
  * 
- * ICF Principles applied:
- * - Coach does NOT give advice, only asks questions
- * - Coach reflects what was said, highlighting patterns
- * - Coach challenges gently ("What if the opposite were true?")
- * - Coach acknowledges courage and authenticity
- * - Coach holds silence (waits for real answers)
+ * Dynamic Cognitive Twist Generator:
+ * - Detects if Expert is in "Comfort Zone / High Income / Senior Role" vs "Career Transition / Challenge"
+ * - Tailors the Content Compass to:
+ *    A) Senior / Comfortable Expert: Legacy, Knowledge Monopoly & Freedom of Choice ("Di sản & Quyền Chọn Hợp Tác")
+ *    B) Transitioning Expert: Value Independence & Safety Net ("Tự Do Tài Chính & Đóng Gói Chuyên Môn")
  */
 
 const COACHING_PHASES = [
   {
     id: 'welcome',
-    coachMessage: 'Chào mừng bạn đến với buổi coaching 1:1. Tôi là Coach AI của Dấu Ấn Studio — vai trò của tôi không phải tư vấn, mà là đặt câu hỏi để giúp bạn tự nhìn thấy điều mà có thể bạn chưa nhìn ra.\n\nMọi câu trả lời của bạn đều đúng. Không có đáp án sai ở đây.',
-    coachMessageEn: 'Welcome to your 1:1 coaching session. I am your AI Coach at Dấu Ấn Studio — my role is not to advise, but to ask questions that help you see what you might not yet see.\n\nEvery answer you give is valid. There are no wrong answers here.',
+    coachMessage: 'Chào mừng bạn đến với buổi khai vấn 1:1. Tôi là Người Đồng Hành Khai Vấn từ Dấu Ấn Studio — vai trò của tôi không phải đưa lời khuyên hay giảng giải, mà là lắng nghe và cùng bạn nhìn thấy những góc nhìn mới mà có thể bạn chưa từng gọi tên.\n\nHãy thoải mái chia sẻ, đây là khoảng không gian hoàn toàn riêng tư của bạn.',
+    coachMessageEn: 'Welcome to your 1:1 coaching session. I am your ICF Partner from Dấu Ấn Studio — my role is not to give generic advice, but to listen deeply and help you uncover powerful new perspectives.\n\nFeel free to share openly, this is your private space.',
     type: 'intro'
   },
   {
     id: 'q1_context',
-    coachMessage: 'Trước khi bắt đầu, tôi muốn hiểu bối cảnh của bạn.\n\nBạn có thể chia sẻ: Bạn đang làm gì, có bao nhiêu năm kinh nghiệm, và điều gì khiến bạn quan tâm đến việc xây dựng thương hiệu cá nhân vào lúc này?',
-    coachMessageEn: 'Before we begin, I want to understand your context.\n\nCould you share: What do you do, how many years of experience do you have, and what made you interested in personal branding right now?',
-    placeholder: 'Chia sẻ tự do về bản thân, công việc và lý do bạn ở đây...',
-    placeholderEn: 'Share freely about yourself, your work, and why you are here...',
+    coachMessage: 'Để tôi có thể đi cùng bạn một cách sâu sắc nhất, hãy chia sẻ cho tôi biết:\n\nHiện tại bạn đang làm công việc gì, có bao nhiêu năm tích lũy chuyên môn, và điều gì thực sự thôi thúc bạn nghĩ đến việc xây dựng thương hiệu cá nhân ở thời điểm này?',
+    coachMessageEn: 'To accompany you meaningfully, please share:\n\nWhat is your current role, how many years of expertise have you accumulated, and what truly prompts you to build your personal brand at this moment?',
+    placeholder: 'Chia sẻ tự do về công việc, trải nghiệm và động lực thực sự của bạn...',
+    placeholderEn: 'Share freely about your work, experience, and real motivation...',
     field: 'contextAnswer',
     type: 'open'
   },
   {
     id: 'q2_biggest_win',
-    coachMessage: null, // Dynamic — generated from previous answer
+    coachMessage: null, // Dynamic
     coachMessageEn: null,
-    placeholder: 'Mô tả kết quả cụ thể nhất mà bạn tự hào...',
-    placeholderEn: 'Describe the most specific result you are proud of...',
+    placeholder: 'Kể cho tôi nghe về kết quả hoặc sự thay đổi thật mà bạn tự hào nhất...',
+    placeholderEn: 'Tell me about the real result or transformation you are most proud of...',
     field: 'biggestWinAnswer',
     type: 'open'
   },
   {
     id: 'q3_blind_spot',
-    coachMessage: null, // Dynamic — blind spot mirror
+    coachMessage: null, // Dynamic
     coachMessageEn: null,
-    placeholder: 'Chia sẻ thật — điều gì đang giữ bạn lại...',
-    placeholderEn: 'Share honestly — what is holding you back...',
+    placeholder: 'Nói thật với lòng mình — điều gì đang làm bạn băn khoăn...',
+    placeholderEn: 'Be honest with yourself — what is really making you hesitate...',
     field: 'blindSpotAnswer',
     type: 'open'
   },
   {
     id: 'q4_challenge',
-    coachMessage: null, // Dynamic — challenge question
+    coachMessage: null, // Dynamic
     coachMessageEn: null,
-    placeholder: 'Nếu điều đó không còn đúng thì sao...',
-    placeholderEn: 'If that were no longer true, then what...',
+    placeholder: 'Nếu nhìn từ góc nhìn di sản hoặc giá trị 3-5 năm tới...',
+    placeholderEn: 'Looking from the perspective of legacy or value 3-5 years out...',
     field: 'challengeAnswer',
     type: 'open'
   },
   {
     id: 'synthesis',
-    coachMessage: null, // Dynamic — strengths synthesis + blind spot awareness
+    coachMessage: null, // Dynamic — Custom Cognitive Twist & Content Compass
     type: 'synthesis'
   }
 ];
+
+// Helper to detect if user is in "Comfortable / Senior" profile
+function isComfortableSeniorProfile(text = '') {
+  const t = text.toLowerCase();
+  return (
+    t.includes('10 năm') || t.includes('15 năm') || t.includes('20 năm') ||
+    t.includes('giám đốc') || t.includes('director') || t.includes('ceo') ||
+    t.includes('quản lý') || t.includes('manager') || t.includes('ổn định') ||
+    t.includes('thu nhập tốt') || t.includes('chuyên gia') || t.includes('lâu năm') ||
+    t.includes('kinh nghiệm')
+  );
+}
 
 function generateDynamicCoachResponse(phaseId, answers, profile, isEn) {
   const name = profile.name || (isEn ? 'Expert' : 'Chuyên gia');
   const ctx = answers.contextAnswer || '';
   const win = answers.biggestWinAnswer || '';
   const blind = answers.blindSpotAnswer || '';
+  const isSenior = isComfortableSeniorProfile(ctx + ' ' + win + ' ' + blind);
 
   switch (phaseId) {
     case 'q2_biggest_win':
       if (isEn) {
-        return `Thank you for sharing, ${name}. I heard something important in what you said.\n\nNow I want to go deeper: In your entire career, what is the ONE result you created that still makes you proud when you think about it? Not the title, not the role — the actual transformation you helped someone achieve.`;
+        return `Thank you for sharing, ${name}. I hear years of dedication and deep domain mastery in your story.\n\nNow, let's look closer: Among all the projects and milestones, what is ONE specific transformation you brought to a client or team that still gives you immense fulfillment when you recall it?`;
       }
-      return `Cảm ơn bạn đã chia sẻ, ${name}. Tôi nghe thấy điều quan trọng trong câu trả lời của bạn.\n\nBây giờ tôi muốn đi sâu hơn: Trong toàn bộ sự nghiệp, đâu là MỘT kết quả mà đến bây giờ nghĩ lại bạn vẫn tự hào? Không phải chức danh, không phải vai trò — mà là sự thay đổi thực sự bạn đã tạo ra cho ai đó.`;
+      return `Cảm ơn bạn đã chia sẻ, ${name}. Tôi lắng nghe và cảm nhận được sự tích lũy cùng chiều sâu trải nghiệm trong câu chuyện của bạn.\n\nBây giờ, hãy cùng nhìn sâu hơn: Trong tất cả những cột mốc đã qua, đâu là MỘT sự thay đổi cụ thể mà bạn đã mang lại cho khách hàng hoặc tổ chức mà đến tận bây giờ, mỗi khi nhớ lại, bạn vẫn thấy tràn đầy tự hào?`;
 
     case 'q3_blind_spot':
       if (isEn) {
-        return `"${win.slice(0, 80)}..."\n\nThat's powerful. Most people would overlook this, but what you just described reveals a pattern: You naturally create trust and transformation.\n\nNow here's my real question — and I ask because I care about your growth:\n\n🔍 If this capability is so strong, what is the ONE thing that has been stopping you from packaging it into something that reaches more people? What's the friction you haven't said out loud yet?`;
+        return `"${win.slice(0, 80)}..."\n\nThat is a remarkable footprint. You don't just execute — you create genuine impact.\n\nNow, let me ask you something honest: Many professionals with your level of experience are in a comfortable position. Income is fine, reputation is established within their immediate circle.\n\n🔍 But what is the hidden constraint or inner hesitation that has kept you from packaging this expertise into a standalone Personal Brand for the broader market?`;
       }
-      return `"${win.slice(0, 80)}..."\n\nĐiều đó rất mạnh mẽ. Hầu hết mọi người sẽ bỏ qua, nhưng điều bạn vừa mô tả cho thấy một mẫu hình rõ ràng: Bạn có năng lực tạo niềm tin và chuyển đổi một cách tự nhiên.\n\nBây giờ đây là câu hỏi thật sự của tôi — và tôi hỏi vì tôi quan tâm đến sự phát triển của bạn:\n\n🔍 Nếu năng lực này mạnh đến vậy, thì ĐIỀU GÌ đang giữ bạn lại chưa đóng gói nó thành thứ có thể chạm tới nhiều người hơn? Điểm nghẽn nào bạn chưa nói ra?`;
+      return `"${win.slice(0, 80)}..."\n\nĐó là một dấu ấn thật sự ấn tượng. Bạn không chỉ làm việc — bạn tạo ra giá trị chuyển đổi thật.\n\nBởi vậy, tôi muốn hỏi bạn một câu hỏi rất thật: Nhìn từ bên ngoài, một người có bề dày kinh nghiệm như bạn thường đã có vị trí và thu nhập tương đối ổn định. Mọi thứ đều đang "tốt".\n\n🔍 Vậy điều gì thực sự đang làm bạn băn khoăn hoặc giữ bạn lại, khiến bạn chưa đóng gói tri thức này thành một Thương Hiệu Cá Nhân độc bản ra thị trường rộng lớn hơn?`;
 
     case 'q4_challenge':
-      if (isEn) {
-        return `I appreciate your honesty. "${blind.slice(0, 60)}..." — I hear that.\n\nBut I want to challenge you with love:\n\n💡 What if that belief is actually protecting you from something, rather than stopping you? What if the real question isn't "Am I ready?" but "Who am I NOT serving by staying invisible?"\n\nTake a moment. Who specifically is waiting for exactly your experience right now?`;
+      if (isSenior) {
+        if (isEn) {
+          return `I respect your reflection deeply. When things are working well, building a brand isn't about survival — and that's precisely why most experts delay it until it's too late.\n\n💡 Consider this cognitive shift:\nIf you remain invisible behind your current company or routine for another 3 to 5 years, what happens to your personal monopoly on expertise? When you step out, will you own your authority, or will you have to start from scratch?`;
+        }
+        return `Tôi rất trân trọng sự chiêm nghiệm này của bạn. Khi cuộc sống và công việc đang ổn định, xây dựng thương hiệu không phải để kiếm sống qua ngày — và đó chính là lý do vì sao nhiều chuyên gia giỏi thường trì hoãn nó cho đến khi quá muộn.\n\n💡 Hãy thử cùng tôi nhìn vào một cú xoay nhận thức (Cognitive Twist):\nNếu 3-5 năm nữa bạn vẫn ẩn mình phía sau tổ chức hay guồng quay hiện tại, điều gì sẽ xảy ra với "quyền sở hữu di sản tri thức" của riêng bạn? Khi bước ra ngoài, bạn sẽ là người nắm thế chủ động định giá và chọn đối tác, hay lại phải chứng minh năng lực từ đầu?`;
+      } else {
+        if (isEn) {
+          return `I appreciate your truth. "${blind.slice(0, 60)}..." — that is a very real friction.\n\n💡 But consider this:\nWhat if building your brand isn't an extra burden, but your ultimate safety net and freedom ticket? Who specifically is missing out right now because your framework isn't packaged yet?`;
+        }
+        return `Tôi trân trọng sự chân thật của bạn. "${blind.slice(0, 60)}..." — đó là một điểm nghẽn rất thực tế.\n\n💡 Nhưng hãy thử nhìn từ góc độ này cùng tôi:\nNếu việc xây dựng thương hiệu cá nhân không phải là một "gánh nặng làm thêm", mà chính là chiếc "quỹ an toàn và tấm vé tự do" giúp bạn hoàn toàn làm chủ thu nhập và thời gian thì sao?`;
       }
-      return `Tôi trân trọng sự thành thật của bạn. "${blind.slice(0, 60)}..." — tôi nghe thấy điều đó.\n\nNhưng tôi muốn thách thức bạn bằng sự quan tâm:\n\n💡 Nếu niềm tin đó thực ra đang bảo vệ bạn khỏi điều gì đó, thay vì ngăn cản bạn thì sao? Nếu câu hỏi thật sự không phải "Tôi đã sẵn sàng chưa?" mà là "Ai đang KHÔNG ĐƯỢC phục vụ vì tôi còn ẩn mình?"\n\nHãy dừng lại một chút. Cụ thể AI đang cần chính xác trải nghiệm của bạn ngay lúc này?`;
 
     case 'synthesis':
-      if (isEn) {
-        return `## 🪞 Coach's Mirror — What I See In You\n\nAfter listening deeply, here is what I observe:\n\n**Your 3 Core Strengths:**\n1. **Trust Architecture** — You naturally build confidence in others through real experience, not theory.\n2. **Transformation Delivery** — "${win.slice(0, 50)}..." proves you create measurable change.\n3. **Authentic Depth** — Your willingness to name your friction ("${blind.slice(0, 40)}...") shows rare self-awareness.\n\n**🔍 Your Blind Spot (Growth Edge):**\nYou may be undervaluing the very experience that makes you irreplaceable. The gap isn't capability — it's visibility. The world needs your voice packaged clearly.\n\n**🧭 Your Content Compass Direction:**\nEvery piece of content you create should answer: "Who am I NOT serving by staying silent today?"`;
+      if (isSenior) {
+        if (isEn) {
+          return `## 🪞 Phản Chiếu Từ Người Đồng Hành Khai Vấn\n\nSau khi lắng nghe sâu bối cảnh và trải nghiệm của bạn, đây là những điểm sáng và góc nhìn mới tôi nhận thấy:\n\n**✨ 3 Thế Mạnh Cốt Lõi Độc Bản:**\n1. **Uy Tín Thực Chiến (Authority)** — Tri thức tích lũy qua trải nghiệm thật, không thể làm giả.\n2. **Năng Lực Tạo Chuyển Đổi (Impact)** — "${win.slice(0, 50)}..." chứng minh giá trị tạo ra đo lường được.\n3. **Tầm Nhìn Vượt Khỏi Vùng An Toàn (Legacy Mindset)** — Sẵn sàng nhìn lại bản thân để xây dựng vị thế dài hạn.\n\n**🔍 Cú Twist Nhận Thức (Cognitive Shift):**\nĐối với một chuyên gia đã có sự ổn định, thương hiệu cá nhân **không phải để kiếm thêm thu nhập lẻ**, mà là để **SỞ HỮU QUYỀN CHỌN** (Freedom of Choice): Quyền chọn làm việc với ai, theo mức giá nào, và để lại di sản tri thức riêng vượt khỏi bất kỳ tổ chức nào.\n\n**🧭 La Bàn Nội Dung Custom Cho Bạn:**\n*Mỗi bài viết/video bạn tạo ra sẽ xoay quanh kim chỉ nam:* **"Đóng gói 10+ năm tri thức thành Di Sản Độc Bản — Chuyển từ người làm thuê cao cấp sang Chủ Sở Hữu Vị Thế."**`;
+        }
+        return `## 🪞 Gương Phản Chiếu Từ Người Đồng Hành Khai Vấn\n\nSau khi lắng nghe sâu bối cảnh và trải nghiệm của bạn, đây là những điểm sáng và góc nhìn mới tôi nhìn thấy ở bạn:\n\n**✨ 3 Thế Mạnh Cốt Lõi Độc Bản:**\n1. **Uy Tín Thực Chiến (Authority)** — Tri thức tích lũy qua trải nghiệm thật, sâu sắc và có trọng lượng.\n2. **Năng Lực Tạo Chuyển Đổi (Impact)** — "${win.slice(0, 50)}..." chứng minh giá trị tạo ra đo lường được.\n3. **Sự Dũng Cảm Nhìn Vào Điểm Mù (Self-Awareness)** — Dám nhìn thẳng vào vùng an toàn để định hình lại bước đi tương lai.\n\n**🔍 Cú Twist Trong Nhận Thức (Cognitive Twist):**\nVới một chuyên gia đã có sự ổn định như bạn, thương hiệu cá nhân **KHÔNG PHẢI để kiếm thêm thu nhập vặt**, mà là để **SỞ HỮU QUYỀN CHỌN (Freedom of Choice)**: Quyền chọn hợp tác với ai, trên điều kiện nào, định giá chuyên môn xứng đáng và để lại một **Di Sản Tri Thức Độc Bản** không phụ thuộc vào bất kỳ danh xưng công ty nào.\n\n**🧭 La Bàn Nội Dung Định Hướng Riêng Cho Bạn:**\n*Mỗi ấn phẩm nội dung bạn tạo ra từ hôm nay sẽ là một viên gạch xây dựng:* **"Di sản tri thức thực chiến — Chuyển hóa kinh nghiệm lâu năm thành Quyền Lực Thương Hiệu Độc Bản."**`;
+      } else {
+        if (isEn) {
+          return `## 🪞 Phản Chiếu Từ Người Đồng Hành Khai Vấn\n\n**✨ 3 Thế Mạnh Cốt Lõi:**\n1. **Năng Lực Tạo Niềm Tin** — Trải nghiệm thực chiến sâu sắc.\n2. **Kết Quả Thực Tế** — "${win.slice(0, 50)}..." chứng minh năng lực.\n3. **Tinh Thần Đổi Mới** — Khát khao tự do và làm chủ con đường riêng.\n\n**🔍 Cú Twist Trong Nhận Thức:**\nThương hiệu cá nhân chính là chiếc **Quỹ An Toàn & Động Cơ Tự Do** giúp bạn rút ngắn khoảng cách chuyển đổi và chủ động làm chủ sự nghiệp.\n\n**🧭 La Bàn Nội Dung Định Hướng:**\n*Mỗi bài viết bạn tạo ra từ hôm nay sẽ xoay quanh:* **"Giải quyết 1 nỗi đau cụ thể cho đúng tệp khách hàng mục tiêu bằng phương pháp thực chiến."**`;
+        }
+        return `## 🪞 Gương Phản Chiếu Từ Người Đồng Hành Khai Vấn\n\n**✨ 3 Thế Mạnh Cốt Lõi Của Bạn:**\n1. **Năng Lực Tạo Niềm Tin Chân Thật** — Trải nghiệm thực chiến giúp bạn thấu hiểu nỗi đau khách hàng sâu sắc.\n2. **Chuyển Đổi Thực Tế** — "${win.slice(0, 50)}..." chứng minh năng lực mang lại kết quả rõ ràng.\n3. **Khao Khát Tự Do Sự Nghiệp** — Dũng cảm bước ra khỏi lối mòn để tự đóng gói giá trị bản thân.\n\n**🔍 Cú Twist Trong Nhận Thức (Cognitive Twist):**\nXây dựng thương hiệu cá nhân **không phải là tạo sự chú ý hào nhoáng**, mà là xây dựng **Tấm Vé Tự Do & Quỹ An Toàn** giúp bạn rút ngắn thời gian chuyển đổi, có ngay 3 khách hàng đầu tiên mà không bị kiệt sức.\n\n**🧭 La Bàn Nội Dung Định Hướng Riêng Cho Bạn:**\n*Mỗi ấn phẩm nội dung bạn tạo ra từ hôm nay sẽ tập trung vào:* **"Đóng gói 1 giải pháp cụ thể giúp khách hàng mục tiêu vượt qua điểm nghẽn lớn nhất."**`;
       }
-      return `## 🪞 Gương Phản Chiếu Từ Coach — Điều Tôi Nhìn Thấy Ở Bạn\n\nSau khi lắng nghe sâu, đây là điều tôi quan sát được:\n\n**3 Thế Mạnh Cốt Lõi Của Bạn:**\n1. **Kiến tạo Niềm tin** — Bạn tự nhiên tạo được sự tin tưởng từ trải nghiệm thực chiến, không phải lý thuyết.\n2. **Chuyển đổi Đo lường được** — "${win.slice(0, 50)}..." chứng minh bạn tạo ra thay đổi thực sự.\n3. **Chiều sâu Chân thực** — Việc bạn dám gọi tên điểm nghẽn ("${blind.slice(0, 40)}...") cho thấy năng lực tự nhận thức hiếm có.\n\n**🔍 Điểm Mù Của Bạn (Cạnh Tăng Trưởng):**\nBạn có thể đang đánh giá thấp chính trải nghiệm khiến bạn không thể thay thế. Khoảng cách không phải năng lực — mà là sự hiện diện. Thế giới cần giọng nói của bạn được đóng gói rõ ràng.\n\n**🧭 La Bàn Nội Dung Của Bạn:**\nMỗi bài nội dung bạn tạo ra nên trả lời: "Ai đang KHÔNG được phục vụ vì hôm nay tôi còn im lặng?"`;
 
     default:
       return '';
@@ -129,7 +150,7 @@ export default function Session1Strengths({ profile, updateProfile, onNext, user
     }]);
     
     // Auto-advance to first question after welcome
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       const q1 = COACHING_PHASES[1];
       setChatHistory(prev => [...prev, {
         role: 'coach',
@@ -138,6 +159,8 @@ export default function Session1Strengths({ profile, updateProfile, onNext, user
       }]);
       setCurrentPhase(1);
     }, 1500);
+
+    return () => clearTimeout(timer);
   }, [isEn]);
 
   const handleSendAnswer = () => {
@@ -181,16 +204,20 @@ export default function Session1Strengths({ profile, updateProfile, onNext, user
 
         setCurrentPhase(nextPhaseIndex);
 
-        // If synthesis phase, update profile with extracted strengths
+        // If synthesis phase, update profile with extracted strengths and content compass
         if (nextPhase.type === 'synthesis') {
+          const isSenior = isComfortableSeniorProfile((newAnswers.contextAnswer || '') + ' ' + (newAnswers.biggestWinAnswer || ''));
           updateProfile({
             contextAnswer: newAnswers.contextAnswer,
             biggestWin: newAnswers.biggestWinAnswer,
             blindSpot: newAnswers.blindSpotAnswer,
             challengeInsight: newAnswers.challengeAnswer,
-            strengthSummary: isEn
-              ? 'Trust Architecture, Measurable Transformation Delivery, and Authentic Depth of Self-Awareness.'
-              : 'Kiến tạo Niềm tin, Chuyển đổi Đo lường được, và Chiều sâu Tự nhận thức Chân thực.',
+            strengthSummary: isSenior
+              ? (isEn ? 'Authority & Track Record, Measurable Transformation, Strategic Self-Awareness.' : 'Uy Tín Thực Chiến, Năng Lực Tạo Chuyển Đổi, Tầm Nhìn Di Sản Tri Thức.')
+              : (isEn ? 'Trust Architecture, Practical Impact, Career Transformation Drive.' : 'Năng Lực Tạo Niềm Tin, Chuyển Đổi Thực Tế, Tự Do Sự Nghiệp.'),
+            contentCompass: isSenior
+              ? 'Đóng gói 10+ năm tri thức thành Di Sản Độc Bản — Chuyển từ người làm thuê cao cấp sang Chủ Sở Hữu Vị Thế.'
+              : 'Đóng gói 1 giải pháp cụ thể giúp khách hàng mục tiêu vượt qua điểm nghẽn lớn nhất.'
           });
         }
       }
@@ -214,21 +241,21 @@ export default function Session1Strengths({ profile, updateProfile, onNext, user
       <div className="flex items-center justify-between mb-4 pb-3 border-b border-silver/60">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-full bg-coral/10 flex items-center justify-center">
-            <Heart className="w-4 h-4 text-coral" />
+            <Heart className="w-4 h-4 text-coral fill-current" />
           </div>
           <div>
             <span className="text-xs font-bold uppercase tracking-widest text-coral block">
-              {isEn ? 'ICF 1:1 Coaching Session · Step 1/5' : 'Buổi Coach 1:1 Tiêu Chuẩn ICF · Bước 1/5'}
+              {isEn ? '1:1 Executive ICF Coaching · Step 1/5' : 'Buổi Khai Vấn 1:1 Chuẩn ICF · Bước 1/5'}
             </span>
             <span className="text-[10px] text-ink/40">
-              {isEn ? 'Discovering Strengths & Blind Spots' : 'Khai phá Thế mạnh & Điểm mù'}
+              {isEn ? 'Discovering Strengths, Blind Spots & Content Compass' : 'Khai phá Thế mạnh, Điểm mù & La bàn Nội dung'}
             </span>
           </div>
         </div>
 
         <div className="flex items-center gap-1.5 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
           <ShieldCheck className="w-3 h-3" />
-          <span>{isEn ? 'Confidential' : 'Bảo mật tuyệt đối'}</span>
+          <span>{isEn ? 'Confidential' : 'Bảo mật riêng tư'}</span>
         </div>
       </div>
 
@@ -245,10 +272,10 @@ export default function Session1Strengths({ profile, updateProfile, onNext, user
               <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest mb-1.5">
                 {msg.role === 'coach' ? (
                   <>
-                    <div className="w-5 h-5 rounded-full bg-coral/10 flex items-center justify-center">
-                      <Heart className="w-2.5 h-2.5 text-coral fill-current" />
+                    <div className="w-5 h-5 rounded-full bg-amber-100 flex items-center justify-center border border-amber-300">
+                      <Heart className="w-2.5 h-2.5 text-amber-700 fill-current" />
                     </div>
-                    <span className="text-coral">Coach AI</span>
+                    <span className="text-amber-900 font-serif">Dấu Ấn Coach (ICF Partner)</span>
                   </>
                 ) : (
                   <>
@@ -275,16 +302,16 @@ export default function Session1Strengths({ profile, updateProfile, onNext, user
           <div className="flex justify-start animate-fade-in">
             <div className="bg-white border border-silver/80 rounded-3xl p-4 shadow-sm">
               <div className="flex items-center gap-2">
-                <div className="w-5 h-5 rounded-full bg-coral/10 flex items-center justify-center">
-                  <Heart className="w-2.5 h-2.5 text-coral fill-current" />
+                <div className="w-5 h-5 rounded-full bg-amber-100 flex items-center justify-center border border-amber-300">
+                  <Heart className="w-2.5 h-2.5 text-amber-700 fill-current" />
                 </div>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-coral">Coach AI</span>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-amber-900 font-serif">Dấu Ấn Coach (ICF Partner)</span>
               </div>
               <div className="flex items-center gap-1.5 mt-2 text-ink/40">
                 <div className="w-2 h-2 bg-coral/60 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
                 <div className="w-2 h-2 bg-coral/60 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
                 <div className="w-2 h-2 bg-coral/60 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                <span className="text-xs ml-1">{isEn ? 'Listening deeply...' : 'Đang lắng nghe sâu...'}</span>
+                <span className="text-xs ml-1 font-serif italic">{isEn ? 'Listening deeply to your story...' : 'Đang lắng nghe sâu câu chuyện của bạn...'}</span>
               </div>
             </div>
           </div>
@@ -317,7 +344,7 @@ export default function Session1Strengths({ profile, updateProfile, onNext, user
               className="px-5 py-2.5 rounded-full bg-ink text-cream text-xs font-bold hover:bg-ink/90 transition-all disabled:opacity-30 flex items-center gap-2 shadow"
             >
               <Send className="w-3.5 h-3.5" />
-              <span>{isEn ? 'Send' : 'Gửi câu trả lời'}</span>
+              <span>{isEn ? 'Send' : 'Gửi suy ngẫm'}</span>
             </button>
           </div>
         </div>
