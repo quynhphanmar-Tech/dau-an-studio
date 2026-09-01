@@ -8,10 +8,11 @@ import { FingerprintMark, DauAnLogoWordmark } from './DauAnLogo';
 
 /**
  * DẤU ẤN STUDIO — SESSION 1: BRAND COACHING & SNAPSHOT
- * Matching 100% personal_brand_app_uiux_update_spec.md & New Visual Moodboard (media_1788254706490.jpg)
+ * Matching 100% personal_brand_app_uiux_update_spec.md & New Visual Moodboard
+ * Auto-resumes confirmed Brand Snapshot if profile already exists in localStorage.
  */
 
-// 7 Guided Coaching Steps according to Spec Section 4.2
+// 6 Guided Coaching Steps according to Spec Section 4.2
 const COACHING_STEPS = [
   {
     id: 1,
@@ -119,8 +120,14 @@ const COACHING_STEPS = [
 export default function Session1Strengths({ profile, updateProfile, onNext, lang = 'vi' }) {
   const isEn = lang === 'en';
 
-  // State: 'welcome' | 'coaching' | 'snapshot'
-  const [viewState, setViewState] = useState('welcome');
+  // Auto-resume state: Default to 'snapshot' if profile already has confirmed positioning or snapshot
+  const [viewState, setViewState] = useState(() => {
+    if (profile?.brandSnapshot || profile?.positioningStatement) {
+      return 'snapshot';
+    }
+    return 'welcome';
+  });
+
   const [currentStepIdx, setCurrentStepIdx] = useState(0);
 
   // User input
@@ -132,12 +139,12 @@ export default function Session1Strengths({ profile, updateProfile, onNext, lang
 
   // Storage of answers
   const [answers, setAnswers] = useState({
-    roleGoal: '',
-    expertise: '',
-    proof: '',
-    pov: '',
-    audience: '',
-    voice: ''
+    roleGoal: profile.whoHelp || '',
+    expertise: profile.strengthSummary || '',
+    proof: profile.biggestWin || '',
+    pov: profile.whyTrust || '',
+    audience: profile.whoHelp || '',
+    voice: profile.archetypeName || ''
   });
 
   // Micro-reward coaching insights
@@ -145,7 +152,24 @@ export default function Session1Strengths({ profile, updateProfile, onNext, lang
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   // Final Brand Snapshot Output State
-  const [brandSnapshot, setBrandSnapshot] = useState(null);
+  const [brandSnapshot, setBrandSnapshot] = useState(() => {
+    if (profile?.brandSnapshot) return profile.brandSnapshot;
+    return {
+      positioningStatement: profile.positioningStatement || `Bạn giúp ${profile.whoHelp || 'chuyên gia 30-45 tuổi'} ${profile.whatChange || 'xây quỹ an toàn 12 tháng & đóng gói sản phẩm giá trị'}.`,
+      coreAssets: [
+        profile.strengthSummary || 'Năng lực Chẩn đoán Chiến lược & Giải quyết đúng Nút thắt',
+        profile.biggestWin || 'Uy tín Thực chiến & Năng lực Tạo Niềm tin qua Kết quả',
+        'Phương pháp luận Độc bản & Khả năng Đóng gói Giá trị'
+      ],
+      ownedTopics: [
+        '1. Năng lực Chẩn đoán & Phương pháp luận Thực chiến',
+        '2. Câu chuyện thật & Bài học Đắt giá trong Ngành',
+        '3. Góc nhìn Phản biện & Tiêu chuẩn Uy tín Mới'
+      ],
+      recommendedVoice: profile.archetypeName || 'Authority & Mentor (Sắc bén & Thấu hiểu)',
+      firstOpportunity: profile.firstOffer || 'Kịch bản Video Authority 60s về Định vị & Đóng gói Giá trị'
+    };
+  });
 
   // Voice recording interval
   useEffect(() => {
@@ -442,17 +466,17 @@ export default function Session1Strengths({ profile, updateProfile, onNext, lang
         <div className="space-y-3 border-b border-silver/60 pb-6 text-center sm:text-left">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-bold tracking-wider uppercase">
             <CheckCircle2 className="w-3.5 h-3.5" />
-            <span>BRAND SNAPSHOT LEVEL 1 · XÁC NHẬN</span>
+            <span>BRAND SNAPSHOT LEVEL 1 · ĐÃ LƯU & XÁC NHẬN</span>
           </div>
 
           <h1 className="font-serif text-3xl sm:text-4xl font-normal text-ink tracking-tight">
-            {isEn ? 'Your Brand Foundations Are Clear.' : 'Nền Móng Thương Hiệu Của Bạn Đã Rõ Nét.'}
+            {isEn ? 'Your Brand Foundations Are Confirmed.' : 'Nền Móng Thương Hiệu Của Bạn Đã Được Lưu.'}
           </h1>
 
           <p className="text-xs sm:text-sm text-ink/60 font-sans">
             {isEn
-              ? 'Review your confirmed Brand Snapshot below before creating your first content piece.'
-              : 'Hãy xem lại Brand Snapshot được tổng hợp từ trải nghiệm thật của bạn trước khi bắt đầu tạo ấn phẩm đầu tiên.'}
+              ? 'Hệ thống tự động lưu Hồ sơ Thương hiệu. Bạn không cần nhập lại mỗi khi truy cập.'
+              : 'Hệ thống tự động ghi nhớ Hồ sơ Thương hiệu của bạn. Bạn không cần nhập lại câu hỏi khi test.'}
           </p>
         </div>
 
@@ -520,14 +544,14 @@ export default function Session1Strengths({ profile, updateProfile, onNext, lang
             onClick={() => setViewState('coaching')}
             className="text-xs text-ink/50 hover:text-ink font-medium transition-colors"
           >
-            ← {isEn ? 'Refine with Coach' : 'Chỉnh lại cùng Coach'}
+            ← {isEn ? 'Refine with Coach' : 'Khai vấn lại cùng Coach'}
           </button>
 
           <button
             onClick={handleConfirmSnapshot}
             className="h-12 px-8 rounded-full bg-[#315CFF] text-white font-bold text-sm hover:bg-[#274bdb] transition-all flex items-center justify-center gap-2 shadow-md active:scale-[0.98]"
           >
-            <span>{isEn ? 'Approve & Create First Content' : 'Đúng với tôi — Tạo nội dung đầu tiên'}</span>
+            <span>{isEn ? 'Proceed to Positioning & Content' : 'Đã có Hồ sơ — Sang Session 2 & Xưởng sáng tạo'}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>

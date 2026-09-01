@@ -8,13 +8,16 @@ import {
 /**
  * EXPERTPRINT — SESSION 4: TẠO NỘI DUNG / VIDEO
  * Exact Pixel-Perfect Match to Screenshot 2 & Master Spec Section 9
+ * Consumes user's uploaded avatar image dynamically.
  */
 
 export default function Session4Content({ profile, updateProfile, onNext, onBack, lang = 'vi' }) {
   const isEn = lang === 'en';
 
+  const userAvatar = profile?.avatar || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=700&auto=format&fit=crop&q=80';
+
   // Stepper Step: 1: Ý tưởng, 2: Phong cách, 3: Xem trước, 4: Xuất bản
-  const [currentStep, setCurrentStep] = useState(3); // Default at Preview stage matching screenshot
+  const [currentStep, setCurrentStep] = useState(3);
 
   // Style Mode Pills: 'authentic' | 'expert_view' | 'case_study'
   const [styleMode, setStyleMode] = useState('expert_view');
@@ -29,7 +32,7 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
       title: isEn ? 'Hook' : 'Mở đầu',
       text: 'Nhiều người nghĩ rằng có tiếng làm tín dụng ngân hàng gần 6 năm thì cứ nghỉ việc là tự do. Nhưng sự thật là: Chuyên môn giỏi mà không có định vị đúng thì bạn vẫn mãi làm việc phía sau và bị động.',
       textEn: 'Many people assume that having 6 years of banking credit experience means quitting leads to freedom. But the reality is: Being skilled without clear positioning keeps you trapped behind the scenes.',
-      imgUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&auto=format&fit=crop&q=80',
+      imgUrl: userAvatar,
       isEditing: false
     },
     {
@@ -37,7 +40,7 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
       title: isEn ? 'Core Perspective' : 'Góc nhìn chính',
       text: '80% mắc kẹt vì thiếu QUỸ DÒNG TIỀN. Sai lầm 90% mắc phải là bán thời gian thay vì giải pháp. Paid Pain: Mất nguồn thu cố định và không biết đóng gói sản phẩm để có khách hàng ngay.',
       textEn: '80% get stuck due to lacking a CASH FLOW RUNWAY. The 90% mistake is selling hours instead of solutions. Paid Pain: Losing fixed income without packaged offers to land immediate clients.',
-      imgUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&auto=format&fit=crop&q=80',
+      imgUrl: userAvatar,
       isEditing: false
     },
     {
@@ -45,13 +48,13 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
       title: isEn ? 'Call to Action' : 'Kêu gọi hành động',
       text: 'Đừng chỉ giỏi chuyên môn. Hãy học cách định vị — đóng gói — và tạo hệ thống để bạn có khách hàng ngay cả khi chưa có thương hiệu cá nhân.',
       textEn: 'Don’t just be skilled in your craft. Learn how to position, package, and build a system to acquire clients even before your personal brand is famous.',
-      imgUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&auto=format&fit=crop&q=80',
+      imgUrl: userAvatar,
       isEditing: false
     }
   ]);
 
   // Advanced settings state
-  const [presenceMode, setPresenceMode] = useState('human'); // 'human' | 'faceless' | 'avatar' | 'pip'
+  const [presenceMode, setPresenceMode] = useState('human');
   const [selectedLanguage, setSelectedLanguage] = useState('vi');
   const [isRendering, setIsRendering] = useState(false);
   const [renderProgress, setRenderProgress] = useState(0);
@@ -83,7 +86,7 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 min-h-[calc(100vh-140px)] animate-fade-in pb-24 font-sans">
       
-      {/* Top Breadcrumb & Stepper (Exact Match to Screenshot 2) */}
+      {/* Top Breadcrumb & Stepper */}
       <div className="space-y-4 mb-6">
         <div className="flex items-center justify-between text-xs text-ink/50">
           <span className="font-medium text-ink/70">
@@ -135,7 +138,7 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
           </p>
         </div>
 
-        {/* 3 Style Pills (Right Side) */}
+        {/* 3 Style Pills */}
         <div className="flex items-center bg-white p-1 rounded-2xl border border-silver/80 text-xs font-semibold shrink-0 shadow-xs">
           {[
             { id: 'authentic', label: isEn ? 'Authentic' : 'Chia sẻ thật' },
@@ -158,7 +161,7 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
         </div>
       </div>
 
-      {/* 2-Column Content Grid: Left 3 Script Cards & Accordion | Right 9:16 Video Player */}
+      {/* 2-Column Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
         {/* LEFT COLUMN: 3 Script Blocks + Accordion */}
@@ -171,8 +174,8 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
               {/* Speaker Thumbnail */}
               <div className="w-16 h-20 sm:w-20 sm:h-24 rounded-xl overflow-hidden bg-cream border border-silver shrink-0 relative">
                 <img 
-                  src={block.imgUrl} 
-                  alt="Speaker" 
+                  src={userAvatar} 
+                  alt="Speaker Avatar" 
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -281,11 +284,11 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
         <div className="lg:col-span-5 flex flex-col items-center lg:items-end">
           <div className="w-full max-w-[340px] space-y-4">
             
-            {/* 9:16 Vertical Video Screen (Exact Match to Screenshot 2) */}
+            {/* 9:16 Vertical Video Screen */}
             <div className="aspect-[9/16] rounded-3xl overflow-hidden border-2 border-silver/80 relative shadow-xl bg-ink">
-              {/* Speaker Video / High Res Image */}
+              {/* Speaker Video / Uploaded Avatar Image */}
               <img 
-                src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=700&auto=format&fit=crop&q=80" 
+                src={userAvatar} 
                 alt="Expert Video Preview" 
                 className="w-full h-full object-cover"
               />
@@ -310,35 +313,34 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
                   {styleMode === 'expert_view' ? 'GÓC NHÌN CHUYÊN GIA' : styleMode === 'authentic' ? 'CHIA SẺ THẬT' : 'CASE STUDY'}
                 </div>
 
-                {/* Subtitle Caption */}
-                <div className="p-3 bg-black/60 backdrop-blur-md rounded-2xl border border-white/20 text-white space-y-1 shadow-lg">
-                  <p className="font-bold text-sm sm:text-base leading-snug">
-                    80% mắc kẹt vì thiếu QUỸ DÒNG TIỀN.
+                <div className="p-3 bg-black/75 backdrop-blur-md rounded-2xl border border-white/10 text-white space-y-1">
+                  <p className="font-serif font-bold text-xs sm:text-sm leading-snug">
+                    "80% mắc kẹt vì thiếu QUỸ DÒNG TIỀN."
                   </p>
-                  <p className="text-xs text-white/90 leading-relaxed font-sans">
+                  <p className="text-[11px] text-white/70 font-sans leading-tight">
                     Bán thời gian thay vì giải pháp là sai lầm phổ biến nhất.
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* Bottom Buttons: [▶ Xem thử] & [Tạo video] */}
-            <div className="flex items-center gap-3 pt-1">
+            {/* Bottom Render Action Buttons */}
+            <div className="flex items-center gap-2">
               <button
-                onClick={() => alert("Đang phát video xem trước thời lượng 0-55s!")}
-                className="flex-1 h-12 rounded-full bg-white border border-silver/90 text-ink font-sans text-xs sm:text-sm font-semibold hover:border-ink/40 transition-all flex items-center justify-center gap-2 shadow-xs"
+                onClick={() => alert(isEn ? 'Playing live preview...' : 'Đang phát video xem thử...')}
+                className="flex-1 h-11 rounded-full bg-white border border-silver/80 text-ink text-xs font-semibold hover:border-ink/40 transition-all flex items-center justify-center gap-1.5 shadow-xs"
               >
-                <Play className="w-3.5 h-3.5 fill-current" />
+                <Play className="w-3.5 h-3.5 fill-current text-ink" />
                 <span>{isEn ? 'Preview' : 'Xem thử'}</span>
               </button>
 
               <button
                 onClick={handleStartRender}
                 disabled={isRendering}
-                className="flex-1 h-12 rounded-full bg-[#315CFF] text-white font-sans text-xs sm:text-sm font-bold hover:bg-[#274bdb] transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-40"
+                className="flex-1 h-11 rounded-full bg-[#315CFF] text-white text-xs font-bold hover:bg-[#274bdb] transition-all flex items-center justify-center gap-1.5 shadow-sm disabled:opacity-50"
               >
-                {isRendering ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Video className="w-4 h-4" />}
-                <span>{isRendering ? `${renderProgress}%...` : (isEn ? 'Generate Video' : 'Tạo video')}</span>
+                <Video className="w-3.5 h-3.5" />
+                <span>{isRendering ? `Dựng ${renderProgress}%` : (isEn ? 'Create Video' : 'Tạo video')}</span>
               </button>
             </div>
           </div>

@@ -12,12 +12,12 @@ import { syncBrandProfileToSupabase } from './lib/supabaseClient';
 import { TRANSLATIONS } from './data/translations';
 import { 
   Sparkles, Award, X, Copy, Check, FileText, User, LogIn, Edit3, 
-  Save, LogOut, Heart, Compass, Globe, Box, Handshake, CheckCircle2, ChevronDown, Bell 
+  Save, LogOut, Heart, Compass, Globe, Box, Handshake, CheckCircle2, ChevronDown, Bell, Upload, Link as LinkIcon 
 } from 'lucide-react';
 
 /**
  * EXPERTPRINT — APP SHELL (DẤU ẤN STUDIO)
- * Matching 100% Moodboard Brand Identity (media_1788254706490.jpg) & 5 Core Areas
+ * Featuring Auto-Save Brand Profile & Custom/Google Avatar Upload
  */
 
 const NAVIGATION_AREAS = [
@@ -65,6 +65,7 @@ export default function App() {
   const [currentArea, setCurrentArea] = useState(2);
   const [showProfileDrawer, setShowProfileDrawer] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [googleAvatarUrl, setGoogleAvatarUrl] = useState('');
 
   // User Profile
   const [userAuth, setUserAuth] = useState(() => {
@@ -73,13 +74,13 @@ export default function App() {
       return saved ? JSON.parse(saved) : { 
         name: 'Trần Thị Phương Hà', 
         email: 'phuongha@dauan.studio', 
-        avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80' 
+        avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&auto=format&fit=crop&q=80' 
       };
     } catch (e) {
       return { 
         name: 'Trần Thị Phương Hà', 
         email: 'phuongha@dauan.studio',
-        avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80'
+        avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&auto=format&fit=crop&q=80'
       };
     }
   });
@@ -91,6 +92,7 @@ export default function App() {
     } catch (e) {}
     return {
       name: 'Trần Thị Phương Hà',
+      avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&auto=format&fit=crop&q=80',
       yearsExperience: '10 năm',
       biggestWin: 'Giúp 60+ chuyên gia xây quỹ dòng tiền và đóng gói Signature Offer',
       strengthSummary: 'Nhìn thấu bản chất vấn đề, chẩn đoán đúng nút thắt chiến lược, và đóng gói giải pháp có giá trị chuyển đổi cao.',
@@ -117,12 +119,34 @@ export default function App() {
     });
   };
 
+  const handleUpdateAvatar = (newAvatarSrc) => {
+    if (!newAvatarSrc) return;
+    const updatedUser = { ...userAuth, avatar: newAvatarSrc };
+    setUserAuth(updatedUser);
+    try {
+      localStorage.setItem('dauan_user_session', JSON.stringify(updatedUser));
+    } catch (e) {}
+    updateProfile({ avatar: newAvatarSrc });
+  };
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (event.target?.result) {
+        handleUpdateAvatar(event.target.result);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleLoginSuccess = (user) => {
     setUserAuth(user);
     try {
       localStorage.setItem('dauan_user_session', JSON.stringify(user));
     } catch (e) {}
-    updateProfile({ name: user.name });
+    updateProfile({ name: user.name, avatar: user.avatar || brandProfile.avatar });
   };
 
   const handleLogout = () => {
@@ -156,7 +180,7 @@ export default function App() {
       <header className="sticky top-0 z-40 bg-cream/95 backdrop-blur-md border-b border-silver/60">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-2">
           
-          {/* Left: DẤU ẤN STUDIO Logo Wordmark (Matching Moodboard) */}
+          {/* Left: DẤU ẤN STUDIO Logo Wordmark */}
           <div 
             onClick={() => setCurrentArea(2)} 
             className="cursor-pointer hover:opacity-90 transition-opacity shrink-0"
@@ -198,9 +222,9 @@ export default function App() {
                 className="flex items-center gap-2 bg-white pl-1.5 pr-2.5 py-1 rounded-full border border-silver/80 hover:border-ink/40 transition-all shadow-xs"
               >
                 <img 
-                  src={userAuth.avatar || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80'} 
+                  src={userAuth.avatar || brandProfile.avatar} 
                   alt="Avatar" 
-                  className="w-5 h-5 rounded-full object-cover"
+                  className="w-5.5 h-5.5 rounded-full object-cover border border-silver"
                 />
                 <span className="text-xs font-semibold text-ink max-w-[120px] truncate hidden sm:inline">{userAuth.name}</span>
                 <ChevronDown className="w-3 h-3 text-ink/40" />
@@ -215,7 +239,7 @@ export default function App() {
         {renderCurrentArea()}
       </main>
 
-      {/* Fixed Black Bottom Navigation Bar (Matching Moodboard App UI) */}
+      {/* Fixed Black Bottom Navigation Bar */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 bg-[#111111] text-white shadow-2xl border-t border-white/10">
         <div className="max-w-xl mx-auto px-4 h-16 flex items-center justify-around">
           {NAVIGATION_AREAS.map((item) => {
@@ -244,7 +268,7 @@ export default function App() {
         onLoginSuccess={handleLoginSuccess}
       />
 
-      {/* Brand Profile Drawer */}
+      {/* Brand Profile Drawer with Custom & Google Avatar Upload */}
       {showProfileDrawer && (
         <div className="fixed inset-0 z-50 bg-ink/40 backdrop-blur-sm flex justify-end animate-fade-in">
           <div className="w-full max-w-md bg-cream h-full border-l border-silver p-5 md:p-8 overflow-y-auto space-y-6 flex flex-col justify-between shadow-2xl">
@@ -253,7 +277,7 @@ export default function App() {
                 <div className="flex items-center gap-2">
                   <Award className="w-5 h-5 text-[#315CFF]" />
                   <h3 className="font-serif text-lg font-bold text-ink">
-                    {lang === 'en' ? 'Brand Profile Blueprint' : 'Hồ Sơ Thương Hiệu Cá Nhân'}
+                    {lang === 'en' ? 'Brand Profile & Avatar' : 'Hồ Sơ Thương Hiệu & Avatar'}
                   </h3>
                 </div>
 
@@ -263,6 +287,65 @@ export default function App() {
                 >
                   <X className="w-4 h-4" />
                 </button>
+              </div>
+
+              {/* Avatar Section: Upload or Link Google Avatar */}
+              <div className="bg-white p-5 rounded-3xl border border-silver/80 space-y-4 shadow-xs text-xs">
+                <span className="text-[10px] text-[#315CFF] font-bold uppercase tracking-wider block">
+                  ẢNH ĐẠI DIỆN CHUYÊN GIA (PROFILE AVATAR)
+                </span>
+
+                <div className="flex items-center gap-4">
+                  <img 
+                    src={userAuth?.avatar || brandProfile.avatar} 
+                    alt="Avatar" 
+                    className="w-16 h-16 rounded-full object-cover border-2 border-[#315CFF]/30 shadow-xs"
+                  />
+
+                  <div className="space-y-2 flex-1">
+                    {/* File Upload Button */}
+                    <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-cream border border-silver hover:border-ink/40 text-xs font-semibold text-ink cursor-pointer transition-all">
+                      <Upload className="w-3.5 h-3.5 text-[#315CFF]" />
+                      <span>Upload ảnh từ máy</span>
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        onChange={handleFileUpload} 
+                        className="hidden" 
+                      />
+                    </label>
+                    <p className="text-[10px] text-ink/40">Hỗ trợ JPG, PNG, WEBP</p>
+                  </div>
+                </div>
+
+                {/* Link Google Avatar URL input */}
+                <div className="space-y-1.5 pt-2 border-t border-silver/40">
+                  <label className="text-[10px] text-ink/60 font-bold uppercase tracking-wider flex items-center gap-1">
+                    <LinkIcon className="w-3 h-3 text-[#315CFF]" />
+                    <span>Hoặc dán Link ảnh Google Avatar:</span>
+                  </label>
+
+                  <div className="flex items-center gap-2">
+                    <input 
+                      type="url"
+                      value={googleAvatarUrl}
+                      onChange={(e) => setGoogleAvatarUrl(e.target.value)}
+                      placeholder="https://lh3.googleusercontent.com/..."
+                      className="flex-1 bg-cream/60 border border-silver rounded-xl px-3 py-2 text-xs text-ink font-mono"
+                    />
+                    <button
+                      onClick={() => {
+                        if (googleAvatarUrl.trim()) {
+                          handleUpdateAvatar(googleAvatarUrl.trim());
+                          setGoogleAvatarUrl('');
+                        }
+                      }}
+                      className="px-3 py-2 rounded-xl bg-[#315CFF] text-white font-bold text-xs hover:bg-[#274bdb]"
+                    >
+                      Lưu
+                    </button>
+                  </div>
+                </div>
               </div>
 
               {/* Profile Summary */}
