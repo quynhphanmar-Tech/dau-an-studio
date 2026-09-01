@@ -4,6 +4,7 @@ import {
   HelpCircle, Sparkles, Shield, RefreshCw, X, FileText, ChevronDown, 
   ChevronUp, Lock, CheckCircle2, AlertCircle, Info, Eye, Layers, User, Award
 } from 'lucide-react';
+import { FingerprintMark, DauAnLogoWordmark } from './DauAnLogo';
 
 /**
  * DẤU ẤN STUDIO — SESSION 1: BRAND COACHING & SNAPSHOT
@@ -256,24 +257,20 @@ export default function Session1Strengths({ profile, updateProfile, onNext, lang
 
         {/* Center Logo & Fingerprint Line Art (Exact Moodboard Match) */}
         <div className="space-y-6 max-w-2xl py-6 flex flex-col items-center">
-          {/* Oval Fingerprint Logo Mark */}
-          <div className="w-44 h-44 sm:w-56 sm:h-56 flex items-center justify-center relative">
-            <svg viewBox="0 0 200 240" fill="none" className="w-full h-full text-ink stroke-current">
-              <path d="M100 20 C50 20, 20 60, 20 120 C20 180, 50 220, 100 220 C150 220, 180 180, 180 120 C180 60, 150 20, 100 20" strokeWidth="2.5" strokeDasharray="4 4" />
-              <path d="M100 35 C62 35, 35 70, 35 120 C35 170, 62 205, 100 205 C138 205, 165 170, 165 120 C165 70, 138 35, 100 35" strokeWidth="3" />
-              <path d="M100 50 C75 50, 50 80, 50 120 C50 160, 75 190, 100 190 C125 190, 150 160, 150 120 C150 80, 125 50, 100 50" strokeWidth="3.5" className="text-[#315CFF] stroke-[#315CFF]" />
-              <path d="M100 68 C84 68, 68 90, 68 120 C68 150, 84 172, 100 172 C116 172, 132 150, 132 120 C132 90, 116 68, 100 68" strokeWidth="4" />
-              <path d="M100 85 C90 85, 82 98, 82 120 C82 142, 90 155, 100 155 C110 155, 118 142, 118 120 C118 98, 110 85, 100 85" strokeWidth="4.5" className="text-[#315CFF] stroke-[#315CFF]" />
-              <circle cx="100" cy="120" r="7" fill="#111111" />
-            </svg>
+          {/* Oval Fingerprint Logo Mark from Moodboard */}
+          <div className="w-40 h-48 sm:w-48 sm:h-56 flex items-center justify-center relative">
+            <FingerprintMark className="w-full h-full text-ink" />
           </div>
 
           {/* DẤU ẤN STUDIO Wordmark */}
           <div className="space-y-1">
             <h1 className="font-serif text-3xl sm:text-5xl font-normal text-ink tracking-tight">
-              DẤU ẤN STUDIO
+              DẤU ẤN
             </h1>
-            <p className="text-xs sm:text-sm font-sans tracking-[0.25em] text-ink/60 uppercase font-medium">
+            <p className="font-sans text-xs sm:text-sm font-bold tracking-[0.35em] text-ink uppercase">
+              STUDIO
+            </p>
+            <p className="text-xs sm:text-sm font-sans tracking-wide text-ink/60 pt-1">
               Chuyên môn tạo nên dấu ấn.
             </p>
           </div>

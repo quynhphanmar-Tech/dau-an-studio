@@ -7,28 +7,28 @@ import Session4Content from './components/Session4Content';
 import Session5Opportunities from './components/Session5Opportunities';
 import SelfDiscoveryTab from './components/SelfDiscoveryTab';
 import AuthModal from './components/AuthModal';
+import { DauAnLogoWordmark, DauAnAppIcon, FingerprintMark } from './components/DauAnLogo';
 import { syncBrandProfileToSupabase } from './lib/supabaseClient';
 import { TRANSLATIONS } from './data/translations';
 import { 
   Sparkles, Award, X, Copy, Check, FileText, User, LogIn, Edit3, 
-  Save, LogOut, Heart, Compass, Globe, Box, Handshake, CheckCircle2, ChevronDown 
+  Save, LogOut, Heart, Compass, Globe, Box, Handshake, CheckCircle2, ChevronDown, Bell 
 } from 'lucide-react';
 
 /**
- * EXPERTPRINT — APP SHELL
- * Matching 100% Screenshot 1 & 2 + Master Spec 5 Core Navigation Areas
+ * EXPERTPRINT — APP SHELL (DẤU ẤN STUDIO)
+ * Matching 100% Moodboard Brand Identity (media_1788254706490.jpg) & 5 Core Areas
  */
 
-// 5 Locked Core Navigation Areas (Black Bottom Bar)
 const NAVIGATION_AREAS = [
   { id: 1, label: 'Hôm nay', labelEn: 'Today', icon: Sparkles },
-  { id: 2, label: 'Thương hiệu', labelEn: 'Brand', icon: FingerprintIcon },
+  { id: 2, label: 'Thương hiệu', labelEn: 'Brand', icon: FingerprintNavIcon },
   { id: 3, label: 'Giá trị', labelEn: 'Value', icon: Box },
   { id: 4, label: 'Nội dung', labelEn: 'Content', icon: Edit3 },
   { id: 5, label: 'Cơ hội', labelEn: 'Leads', icon: Handshake },
 ];
 
-function FingerprintIcon({ className }) {
+function FingerprintNavIcon({ className }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
       <path d="M12 3a9 9 0 0 0-9 9" />
@@ -37,8 +37,6 @@ function FingerprintIcon({ className }) {
       <path d="M12 7a5 5 0 0 1 5 5" />
       <path d="M12 11a1 1 0 0 0-1 1" />
       <path d="M12 11a1 1 0 0 1 1 1" />
-      <path d="M7 12a5 5 0 0 0 10 0" />
-      <path d="M3 12a9 9 0 0 0 18 0" />
     </svg>
   );
 }
@@ -63,7 +61,7 @@ export default function App() {
     } catch (e) {}
   };
 
-  // Active Navigation Area (1 to 5) - Default area 2: "Thương hiệu" (Session 1 Discovery)
+  // Active Navigation Area (1 to 5) - Default area 2: "Thương hiệu"
   const [currentArea, setCurrentArea] = useState(2);
   const [showProfileDrawer, setShowProfileDrawer] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -74,13 +72,13 @@ export default function App() {
       const saved = localStorage.getItem('dauan_user_session');
       return saved ? JSON.parse(saved) : { 
         name: 'Trần Thị Phương Hà', 
-        email: 'phuongha@expertprint.studio', 
+        email: 'phuongha@dauan.studio', 
         avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80' 
       };
     } catch (e) {
       return { 
         name: 'Trần Thị Phương Hà', 
-        email: 'phuongha@expertprint.studio',
+        email: 'phuongha@dauan.studio',
         avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80'
       };
     }
@@ -134,18 +132,17 @@ export default function App() {
     } catch (e) {}
   };
 
-  // Render Area Components
   const renderCurrentArea = () => {
     switch (currentArea) {
-      case 1: // Hôm nay (Self-Discovery & Compass)
+      case 1:
         return <SelfDiscoveryTab profile={brandProfile} updateProfile={updateProfile} lang={lang} />;
-      case 2: // Thương hiệu (Session 1 Discovery & Session 2 Positioning)
+      case 2:
         return <Session1Strengths profile={brandProfile} updateProfile={updateProfile} onNext={() => setCurrentArea(3)} lang={lang} />;
-      case 3: // Giá trị (Packaging Signature Offer)
+      case 3:
         return <Session3Packaging profile={brandProfile} updateProfile={updateProfile} onNext={() => setCurrentArea(4)} onBack={() => setCurrentArea(2)} lang={lang} />;
-      case 4: // Nội dung (Content & Video Studio)
+      case 4:
         return <Session4Content profile={brandProfile} updateProfile={updateProfile} onNext={() => setCurrentArea(5)} onBack={() => setCurrentArea(3)} lang={lang} />;
-      case 5: // Cơ hội (Opportunities Pipeline CRM)
+      case 5:
         return <Session5Opportunities profile={brandProfile} updateProfile={updateProfile} onBack={() => setCurrentArea(4)} lang={lang} />;
       default:
         return <Session1Strengths profile={brandProfile} updateProfile={updateProfile} onNext={() => setCurrentArea(3)} lang={lang} />;
@@ -155,13 +152,21 @@ export default function App() {
   return (
     <div className="min-h-screen bg-cream text-ink font-sans flex flex-col justify-between selection:bg-[#315CFF]/15 selection:text-ink">
       
-      {/* Top Header Bar (Exact Match to Screenshot 1 & 2) */}
+      {/* Top Header Bar with DẤU ẤN STUDIO Logo Wordmark */}
       <header className="sticky top-0 z-40 bg-cream/95 backdrop-blur-md border-b border-silver/60">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-2">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-2">
           
-          {/* Left: Breadcrumbs / Area Name */}
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] font-mono tracking-widest text-ink/70 uppercase">
+          {/* Left: DẤU ẤN STUDIO Logo Wordmark (Matching Moodboard) */}
+          <div 
+            onClick={() => setCurrentArea(2)} 
+            className="cursor-pointer hover:opacity-90 transition-opacity shrink-0"
+          >
+            <DauAnLogoWordmark size="normal" showTagline={false} />
+          </div>
+
+          {/* Center Breadcrumbs Area Info */}
+          <div className="hidden md:flex items-center gap-2">
+            <span className="text-[11px] font-mono tracking-widest text-ink/60 uppercase">
               {currentArea === 2 && (lang === 'en' ? 'MY BRAND · DISCOVERY 01' : 'THƯƠNG HIỆU CỦA TÔI · KHÁM PHÁ 01')}
               {currentArea === 4 && (lang === 'en' ? 'Create Content / Video' : 'Tạo nội dung / Video')}
               {currentArea === 1 && (lang === 'en' ? 'Today / Reflection Compass' : 'Hôm nay / La Bàn Khai Vấn')}
@@ -170,10 +175,9 @@ export default function App() {
             </span>
           </div>
 
-          {/* Right: Autosave status & User Profile Avatar (Exact Match) */}
+          {/* Right: Autosave, Language & User Profile Avatar */}
           <div className="flex items-center gap-3">
-            {/* Autosave Status */}
-            <span className="text-xs text-ink/60 font-sans flex items-center gap-1">
+            <span className="text-xs text-ink/60 font-sans hidden sm:flex items-center gap-1">
               <Check className="w-3.5 h-3.5 text-emerald-600" />
               <span>{lang === 'en' ? 'Saved' : 'Đã lưu'}</span>
             </span>
@@ -198,7 +202,7 @@ export default function App() {
                   alt="Avatar" 
                   className="w-5 h-5 rounded-full object-cover"
                 />
-                <span className="text-xs font-semibold text-ink max-w-[120px] truncate">{userAuth.name}</span>
+                <span className="text-xs font-semibold text-ink max-w-[120px] truncate hidden sm:inline">{userAuth.name}</span>
                 <ChevronDown className="w-3 h-3 text-ink/40" />
               </button>
             )}
@@ -211,7 +215,7 @@ export default function App() {
         {renderCurrentArea()}
       </main>
 
-      {/* Fixed Black Bottom Navigation Bar (Exact Match to Screenshot 1) */}
+      {/* Fixed Black Bottom Navigation Bar (Matching Moodboard App UI) */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 bg-[#111111] text-white shadow-2xl border-t border-white/10">
         <div className="max-w-xl mx-auto px-4 h-16 flex items-center justify-around">
           {NAVIGATION_AREAS.map((item) => {
@@ -261,7 +265,7 @@ export default function App() {
                 </button>
               </div>
 
-              {/* Profile Card Summary */}
+              {/* Profile Summary */}
               <div className="space-y-4 text-xs">
                 <div className="bg-white p-4 rounded-2xl border border-silver/80 space-y-2">
                   <span className="text-[10px] text-ink/40 font-bold uppercase tracking-wider block">Chuyên gia</span>
