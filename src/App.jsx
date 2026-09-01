@@ -10,14 +10,14 @@ import AuthModal from './components/AuthModal';
 import { syncBrandProfileToSupabase } from './lib/supabaseClient';
 import { BRAND_ARCHETYPES } from './data/brandVibes';
 import { TRANSLATIONS } from './data/translations';
-import { ShieldCheck, Award, X, Copy, Check, FileText, User, LogIn, Edit3, Save, LogOut, Heart, Sparkles, Compass, RefreshCw, Globe, Unlock } from 'lucide-react';
+import { ShieldCheck, Award, X, Copy, Check, FileText, User, LogIn, Edit3, Save, LogOut, Heart, Sparkles, Compass, RefreshCw, Globe, Layers } from 'lucide-react';
 
 const SESSIONS = [
-  { id: 1, label: 'Hiểu thế mạnh', shortLabel: 'Thế mạnh', labelEn: 'Strengths', shortLabelEn: 'Strengths' },
-  { id: 2, label: 'Chọn hướng xuất hiện', shortLabel: 'Định vị', labelEn: 'Positioning', shortLabelEn: 'Position' },
-  { id: 3, label: 'Đóng gói giá trị', shortLabel: 'Giá trị', labelEn: 'Packaging', shortLabelEn: 'Package' },
-  { id: 4, label: 'Biến thành nội dung', shortLabel: 'Nội dung', labelEn: 'Content Studio', shortLabelEn: 'Content' },
-  { id: 5, label: 'Theo dõi cơ hội', shortLabel: 'Cơ hội', labelEn: 'Opportunities', shortLabelEn: 'Leads' },
+  { id: 1, label: 'Thế mạnh', shortLabel: '1. Thế mạnh', labelEn: 'Strengths', shortLabelEn: '1. Strengths' },
+  { id: 2, label: 'Định vị', shortLabel: '2. Định vị', labelEn: 'Positioning', shortLabelEn: '2. Positioning' },
+  { id: 3, label: 'Đóng gói giá trị', shortLabel: '3. Giá trị', labelEn: 'Package Value', shortLabelEn: '3. Packaging' },
+  { id: 4, label: 'Tạo nội dung', shortLabel: '4. Tạo nội dung', labelEn: 'Content Studio', shortLabelEn: '4. Content' },
+  { id: 5, label: 'Cơ hội', shortLabel: '5. Cơ hội', labelEn: 'Opportunities', shortLabelEn: '5. Leads' },
 ];
 
 export default function App() {
@@ -40,7 +40,6 @@ export default function App() {
     } catch (e) {}
   };
 
-  // Default starting session: Set to 1 by default, but ALL sessions are 100% unlocked & clickable anytime!
   const [currentSession, setCurrentSession] = useState(1);
   const [activeMainTab, setActiveMainTab] = useState('studio'); // 'studio' | 'self-discovery'
   const [showProfileDrawer, setShowProfileDrawer] = useState(false);
@@ -50,9 +49,9 @@ export default function App() {
   const [userAuth, setUserAuth] = useState(() => {
     try {
       const saved = localStorage.getItem('dauan_user_session');
-      return saved ? JSON.parse(saved) : { name: 'Minh Trần (Demo Expert)', email: 'demo@dauan.studio', isDemo: true };
+      return saved ? JSON.parse(saved) : { name: 'Minh Trần (Demo Expert)', email: 'demo@expertprint.studio', isDemo: true };
     } catch (e) {
-      return { name: 'Minh Trần (Demo Expert)', email: 'demo@dauan.studio', isDemo: true };
+      return { name: 'Minh Trần (Demo Expert)', email: 'demo@expertprint.studio', isDemo: true };
     }
   });
 
@@ -141,44 +140,48 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-cream overflow-x-hidden">
+    <div className="min-h-screen bg-cream overflow-x-hidden font-sans text-ink">
       {/* Top Main Responsive Header */}
       <header className="fixed top-0 left-0 right-0 z-40 bg-cream/95 backdrop-blur-md border-b border-silver/60">
-        <div className="max-w-4xl mx-auto px-3 sm:px-6 py-2.5 flex items-center justify-between gap-1.5">
-          {/* Brand Logo & Main Tab Switcher */}
-          <div className="flex items-center gap-2 sm:gap-3">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-2.5 flex items-center justify-between gap-2">
+          {/* Brand Logo & Tagline */}
+          <div className="flex items-center gap-3">
             <div 
-              onClick={() => setActiveMainTab('studio')}
-              className="flex items-center gap-1.5 cursor-pointer shrink-0"
+              onClick={() => { setActiveMainTab('studio'); setCurrentSession(1); }}
+              className="flex items-center gap-2 cursor-pointer shrink-0"
             >
-              <svg width="24" height="24" viewBox="0 0 40 40" fill="none" className="opacity-90">
-                <circle cx="20" cy="20" r="18" stroke="#111111" strokeWidth="1.5" fill="none"/>
-                <circle cx="20" cy="20" r="13" stroke="#111111" strokeWidth="1.2" fill="none"/>
-                <circle cx="20" cy="20" r="8" stroke="#111111" strokeWidth="1" fill="none"/>
+              {/* Continuous Fingerprint Logo Motif */}
+              <svg width="24" height="24" viewBox="0 0 40 40" fill="none" className="text-ink stroke-current">
+                <circle cx="20" cy="20" r="18" strokeWidth="1.5" fill="none"/>
+                <circle cx="20" cy="20" r="13" strokeWidth="1.2" fill="none"/>
+                <circle cx="20" cy="20" r="8" strokeWidth="1" fill="none"/>
                 <circle cx="20" cy="20" r="3.5" fill="#111111"/>
               </svg>
-              <span className="font-serif text-sm sm:text-base font-bold tracking-tight text-ink hidden xs:inline">{t.appTitle}</span>
+              <div className="flex flex-col">
+                <span className="font-serif text-base md:text-lg font-bold tracking-tight text-ink leading-tight">{t.appTitle}</span>
+                <span className="text-[9px] text-ink/40 font-sans tracking-wide hidden sm:inline">{t.tagline}</span>
+              </div>
             </div>
 
-            {/* TAB SWITCHER: Studio vs Hiểu Mình */}
+            {/* TAB SWITCHER: Main Journey vs Content Compass */}
             <div className="flex items-center bg-white p-0.5 sm:p-1 rounded-full border border-silver text-[11px] sm:text-xs">
               <button
                 onClick={() => setActiveMainTab('studio')}
-                className={`px-2.5 sm:px-3 py-1 rounded-full font-bold transition-all flex items-center gap-1 ${
+                className={`px-3 py-1 rounded-full font-semibold transition-all flex items-center gap-1.5 ${
                   activeMainTab === 'studio' ? 'bg-ink text-cream shadow-sm' : 'text-ink/60 hover:text-ink'
                 }`}
               >
-                <Compass className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                <Compass className="w-3.5 h-3.5" />
                 <span>{t.studio5Steps}</span>
               </button>
 
               <button
                 onClick={() => setActiveMainTab('self-discovery')}
-                className={`px-2.5 sm:px-3 py-1 rounded-full font-bold transition-all flex items-center gap-1 ${
+                className={`px-3 py-1 rounded-full font-semibold transition-all flex items-center gap-1.5 ${
                   activeMainTab === 'self-discovery' ? 'bg-coral text-white shadow-sm' : 'text-coral hover:bg-coral/10'
                 }`}
               >
-                <Heart className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-current" />
+                <Heart className="w-3.5 h-3.5 fill-current" />
                 <span>{t.selfDiscovery}</span>
               </button>
             </div>
@@ -189,17 +192,17 @@ export default function App() {
             {/* Bilingual VI / EN Switcher Button */}
             <button
               onClick={toggleLanguage}
-              className="text-[10px] sm:text-xs font-bold text-ink bg-white hover:bg-cream px-2 sm:px-2.5 py-1 rounded-full border border-silver shadow-sm flex items-center gap-1"
+              className="text-[11px] sm:text-xs font-semibold text-ink bg-white hover:bg-cream px-2.5 py-1 rounded-full border border-silver shadow-sm flex items-center gap-1"
               title="Change Language"
             >
-              <Globe className="w-3 h-3 text-accent" />
+              <Globe className="w-3.5 h-3.5 text-accent" />
               <span>{lang === 'vi' ? 'VI' : 'EN'}</span>
             </button>
 
             {userAuth ? (
-              <div className="flex items-center gap-1 bg-white px-2 sm:px-2.5 py-1 rounded-full border border-silver shadow-sm text-[11px] sm:text-xs">
+              <div className="flex items-center gap-1 bg-white px-2.5 py-1 rounded-full border border-silver shadow-sm text-[11px] sm:text-xs">
                 <User className="w-3 h-3 text-emerald-600" />
-                <span className="font-bold text-ink max-w-[65px] sm:max-w-[100px] truncate">{userAuth.name}</span>
+                <span className="font-semibold text-ink max-w-[70px] sm:max-w-[110px] truncate">{userAuth.name}</span>
                 <button
                   onClick={handleLogout}
                   title="Logout"
@@ -211,7 +214,7 @@ export default function App() {
             ) : (
               <button
                 onClick={() => setShowAuthModal(true)}
-                className="text-[11px] sm:text-xs font-bold text-white bg-ink hover:bg-ink/90 transition-all flex items-center gap-1 px-2.5 sm:px-3 py-1 rounded-full shadow-sm"
+                className="text-[11px] sm:text-xs font-semibold text-white bg-ink hover:bg-ink/90 transition-all flex items-center gap-1 px-3 py-1 rounded-full shadow-sm"
               >
                 <LogIn className="w-3 h-3 text-cream" />
                 <span>{t.login}</span>
@@ -219,18 +222,18 @@ export default function App() {
             )}
 
             <button
-              className="text-[11px] sm:text-xs font-bold text-ink bg-white hover:bg-cream transition-colors flex items-center gap-1 px-2.5 sm:px-3 py-1 rounded-full border border-silver shadow-sm"
+              className="text-[11px] sm:text-xs font-semibold text-ink bg-white hover:bg-cream transition-colors flex items-center gap-1 px-3 py-1 rounded-full border border-silver shadow-sm"
               onClick={() => setShowProfileDrawer(true)}
             >
-              <FileText className="w-3 h-3 text-accent" />
-              <span className="hidden xs:inline">{t.profile}</span>
+              <FileText className="w-3.5 h-3.5 text-accent" />
+              <span className="hidden sm:inline">{t.profile}</span>
             </button>
           </div>
         </div>
 
-        {/* PROMINENT & 100% UNLOCKED STEP NAVIGATION BAR */}
+        {/* 5 Core Discovery Area Navigation Bar */}
         {activeMainTab === 'studio' && (
-          <div className="bg-white border-t border-silver/60 py-2 shadow-sm">
+          <div className="bg-white border-t border-silver/60 py-2 shadow-xs">
             <div className="max-w-2xl mx-auto px-4 flex items-center justify-between overflow-x-auto custom-scrollbar gap-2">
               {SESSIONS.map((s) => {
                 const isActive = currentSession === s.id;
@@ -238,14 +241,14 @@ export default function App() {
                   <button
                     key={s.id}
                     onClick={() => goToSession(s.id)}
-                    className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                    className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
                       isActive
-                        ? 'bg-ink text-cream shadow-md scale-105 ring-2 ring-ink/20'
-                        : 'bg-cream text-ink/80 hover:bg-ink hover:text-cream border border-silver/80'
+                        ? 'bg-ink text-cream shadow-sm scale-102 ring-1 ring-ink/10'
+                        : 'bg-cream text-ink/70 hover:bg-ink hover:text-cream border border-silver/60'
                     }`}
                   >
-                    <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-mono font-bold ${
-                      isActive ? 'bg-amber-400 text-slate-950' : 'bg-silver/60 text-ink/70'
+                    <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-mono ${
+                      isActive ? 'bg-accent text-white font-bold' : 'bg-silver/60 text-ink/60'
                     }`}>
                       {s.id}
                     </span>
@@ -270,16 +273,16 @@ export default function App() {
         onLoginSuccess={handleLoginSuccess}
       />
 
-      {/* Brand Profile Drawer */}
+      {/* Brand Profile Blueprint Drawer */}
       {showProfileDrawer && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex justify-end animate-fade-in">
+        <div className="fixed inset-0 z-50 bg-ink/40 backdrop-blur-sm flex justify-end animate-fade-in">
           <div className="w-full max-w-md bg-cream h-full border-l border-silver p-5 md:p-8 overflow-y-auto space-y-6 flex flex-col justify-between shadow-2xl">
             <div className="space-y-6">
               <div className="flex items-center justify-between border-b border-silver/60 pb-4">
                 <div className="flex items-center gap-2">
-                  <Award className="w-5 h-5 text-amber-500" />
+                  <Award className="w-5 h-5 text-accent" />
                   <h3 className="font-serif text-lg font-bold text-ink">
-                    {lang === 'en' ? 'Brand Profile Blueprint' : 'Hồ Sơ Thương Hiệu'}
+                    {lang === 'en' ? 'Brand Profile Blueprint' : 'Hồ Sơ Thương Hiệu Cá Nhân'}
                   </h3>
                 </div>
 
@@ -289,7 +292,7 @@ export default function App() {
                     className="px-3 py-1 bg-white border border-silver rounded-full text-xs font-bold text-ink flex items-center gap-1 hover:border-ink"
                   >
                     {isEditingProfile ? <Save className="w-3 h-3 text-emerald-600" /> : <Edit3 className="w-3 h-3" />}
-                    <span>{isEditingProfile ? (lang === 'en' ? 'Save' : 'Lưu chỉnh sửa') : (lang === 'en' ? 'Edit' : 'Chỉnh sửa')}</span>
+                    <span>{isEditingProfile ? (lang === 'en' ? 'Save' : 'Lưu') : (lang === 'en' ? 'Edit' : 'Sửa')}</span>
                   </button>
 
                   <button
@@ -303,7 +306,7 @@ export default function App() {
 
               {/* Profile Fields */}
               <div className="space-y-4 text-xs">
-                <div className="bg-white p-4 rounded-xl border border-silver/80 space-y-2">
+                <div className="bg-white p-4 rounded-2xl border border-silver/80 space-y-2">
                   <span className="text-[10px] text-ink/40 font-bold uppercase tracking-wider block">
                     {lang === 'en' ? 'Expert Name & Experience' : 'Chuyên gia & Kinh nghiệm'}
                   </span>
@@ -330,9 +333,9 @@ export default function App() {
                   )}
                 </div>
 
-                <div className="bg-white p-4 rounded-xl border border-silver/80 space-y-2">
+                <div className="bg-white p-4 rounded-2xl border border-silver/80 space-y-2">
                   <span className="text-[10px] text-ink/40 font-bold uppercase tracking-wider block">
-                    {lang === 'en' ? 'Brand Archetype & Pinterest Moodboard' : 'Hình mẫu & Visual Moodboard (Pinterest)'}
+                    {lang === 'en' ? 'Brand Archetype & Moodboard' : 'Hình mẫu & Visual Moodboard'}
                   </span>
                   <div className="flex items-center justify-between">
                     <p className="font-serif font-bold text-ink text-xs">{brandProfile.archetypeName}</p>
@@ -345,7 +348,7 @@ export default function App() {
                   <p className="text-ink/50 text-[10px]">Vibe: {brandProfile.brandVibe}</p>
                 </div>
 
-                <div className="bg-white p-4 rounded-xl border border-silver/80 space-y-2">
+                <div className="bg-white p-4 rounded-2xl border border-silver/80 space-y-2">
                   <span className="text-[10px] text-accent font-bold uppercase tracking-wider block">
                     {lang === 'en' ? 'Brand Positioning Statement' : 'Định vị thương hiệu'}
                   </span>
@@ -357,11 +360,11 @@ export default function App() {
                       className="w-full bg-cream border border-silver rounded p-2 text-xs text-ink resize-none"
                     />
                   ) : (
-                    <p className="font-serif text-sm font-semibold text-ink">"{brandProfile.positioningStatement}"</p>
+                    <p className="font-serif text-sm font-semibold text-ink leading-snug">"{brandProfile.positioningStatement}"</p>
                   )}
                 </div>
 
-                <div className="bg-white p-4 rounded-xl border border-silver/80 space-y-2">
+                <div className="bg-white p-4 rounded-2xl border border-silver/80 space-y-2">
                   <span className="text-[10px] text-ink/40 font-bold uppercase tracking-wider block">
                     {lang === 'en' ? 'Signature Offer' : 'Sản phẩm giá trị (Signature Offer)'}
                   </span>
@@ -382,7 +385,7 @@ export default function App() {
             <div className="pt-4 border-t border-silver/60 flex items-center justify-between">
               <button
                 onClick={handleCopyProfile}
-                className="w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-full bg-ink text-cream text-xs font-semibold hover:bg-ink/90 transition-all"
+                className="w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-full bg-ink text-cream text-xs font-semibold hover:bg-ink/90 transition-all shadow-sm"
               >
                 {copiedProfile ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                 <span>{copiedProfile ? (lang === 'en' ? 'Blueprint Copied' : 'Đã sao chép hồ sơ') : (lang === 'en' ? 'Copy Full Blueprint' : 'Sao chép toàn bộ hồ sơ')}</span>

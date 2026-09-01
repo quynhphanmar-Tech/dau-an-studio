@@ -14,8 +14,8 @@ export default {
         coral: '#FF5A47',
       },
       fontFamily: {
-        serif: ['Playfair Display', 'Georgia', 'serif'],
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        serif: ['"Playfair Display"', 'Georgia', 'serif'],
+        sans: ['"Be Vietnam Pro"', 'Arial', 'sans-serif'],
       },
     },
   },
