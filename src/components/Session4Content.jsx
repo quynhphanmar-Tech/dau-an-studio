@@ -411,23 +411,50 @@ export default function Session4Content({ profile, updateProfile, onNext, onBack
       canvas.height = H;
       const ctx = canvas.getContext('2d');
 
-      // Seek video to start
+      // Unmute video so audio track is live
       video.currentTime = 0;
-      video.muted = true;
+      video.muted = false;
+      video.volume = 1.0;
 
-      const chunks = [];
-      let stream;
+      const canvasStream = canvas.captureStream(30);
+      let audioTracks = [];
+
+      // Try capturing audio tracks directly from video element stream
       try {
-        stream = canvas.captureStream(30);
+        if (typeof video.captureStream === 'function') {
+          audioTracks = video.captureStream().getAudioTracks();
+        } else if (typeof video.mozCaptureStream === 'function') {
+          audioTracks = video.mozCaptureStream().getAudioTracks();
+        }
       } catch (e) {
-        reject(e); return;
+        console.warn('Direct stream audio track capture failed:', e);
       }
 
+      // If direct capture had no tracks, fallback to Web Audio API
+      if (audioTracks.length === 0) {
+        try {
+          const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          const source = audioCtx.createMediaElementSource(video);
+          const dest = audioCtx.createMediaStreamDestination();
+          source.connect(dest);
+          source.connect(audioCtx.destination);
+          audioTracks = dest.stream.getAudioTracks();
+        } catch (e) {
+          console.warn('Web Audio API capture failed:', e);
+        }
+      }
+
+      // Combine video track from canvas + audio track from video
+      const stream = new MediaStream([
+        ...canvasStream.getVideoTracks(),
+        ...audioTracks
+      ]);
+
       // Try webm first, then mp4
-      const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') 
-        ? 'video/webm;codecs=vp9' 
-        : MediaRecorder.isTypeSupported('video/webm') 
-          ? 'video/webm' 
+      const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus')
+        ? 'video/webm;codecs=vp9,opus'
+        : MediaRecorder.isTypeSupported('video/webm')
+          ? 'video/webm'
           : 'video/mp4';
 
       let recorder;
